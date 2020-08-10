@@ -78,13 +78,7 @@ ElogErrCode elog_port_init(void)
 void elog_port_output(const char *log, size_t size)
 {
     /* add your code here */
-<<<<<<< HEAD
     printf("%s", log);
-=======
-    taskENTER_CRITICAL();
-    printf("%s", log);
-    taskEXIT_CRITICAL();
->>>>>>> 4f794a434436f3e8bd95108432f274953688c6f3
 }
 
 /**

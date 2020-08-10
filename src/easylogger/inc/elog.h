@@ -58,11 +58,7 @@ extern "C" {
     if (!(EXPR))                                                              \
     {                                                                         \
         if (elog_assert_hook == NULL) {                                       \
-<<<<<<< HEAD
             elog_a("elog", "(%s) has assert failed at %s:%d", #EXPR, __FUNCTION__, __LINE__); \
-=======
-            elog_a("elog", "(%s) has assert failed at %s:%ld.", #EXPR, __FUNCTION__, __LINE__); \
->>>>>>> 4f794a434436f3e8bd95108432f274953688c6f3
             while (1);                                                        \
         } else {                                                              \
             elog_assert_hook(#EXPR, __FUNCTION__, __LINE__);                  \

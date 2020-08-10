@@ -477,11 +477,7 @@ void elog_output(uint8_t level, const char *tag, const char *file, const char *f
         }
         /* package thread info */
         if (get_fmt_enabled(level, ELOG_FMT_LINE)) {
-<<<<<<< HEAD
             snprintf(line_num, ELOG_LINE_NUM_MAX_LEN, "%d", line);
-=======
-            snprintf(line_num, ELOG_LINE_NUM_MAX_LEN, "%ld", line);
->>>>>>> 4f794a434436f3e8bd95108432f274953688c6f3
             log_len += elog_strcpy(log_len, log_buf + log_len, line_num);
         }
         log_len += elog_strcpy(log_len, log_buf + log_len, ")");
