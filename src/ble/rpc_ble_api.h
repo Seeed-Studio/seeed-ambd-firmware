@@ -36,6 +36,10 @@ extern "C"
  */
 esp_err_t rpc_ble_gap_register_callback(esp_gap_ble_cb_t callback);
 
+
+
+esp_err_t rpc_ble_dev_init(uint8_t role);
+
 #ifdef __cplusplus
 }
 #endif

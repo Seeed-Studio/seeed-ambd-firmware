@@ -19,7 +19,16 @@
 #ifndef _PRC_BLE_TASK_H_
 #define _RPC_BLE_TASK_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 void rpc_ble_main_task(void *p_param);
 void rpc_ble_app_task_init();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _RPC_BLE_TASK_H_ */

@@ -1085,7 +1085,7 @@ esp_err_t esp_ble_gap_remove_duplicate_scan_exceptional_device(esp_ble_duplicate
  *                  - other  : failed
  */
 esp_err_t esp_ble_gap_clean_duplicate_scan_exceptional_list(esp_duplicate_scan_exceptional_list_type_t list_type);
-
+#define SMP_INCLUDED FALSE
 #if (SMP_INCLUDED == TRUE)
 /**
 * @brief             Set a GAP security parameter value. Overrides the default value.
