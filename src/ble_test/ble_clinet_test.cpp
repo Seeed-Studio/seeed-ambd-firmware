@@ -45,10 +45,11 @@ extern "C"
 #define DEFAULT_SCAN_INTERVAL 0x520
 /** @brief Default scan window (units of 0.625ms, 0x520=820ms) */
 #define DEFAULT_SCAN_WINDOW 0x520
+extern uint8_t rpc_ble_dev_role;
 
 void ble_client_init()
 {
-    rpc_ble_dev_init(2);
+    rpc_ble_dev_role = 2;
     log_v("ble_client_init");
     gap_config_max_le_link_num(3);
     bte_init();
@@ -163,8 +164,6 @@ int ble_client_test_main()
 
     /*Start BT WIFI coexistence*/
     wifi_btcoex_set_bt_on();
-
-    le_scan_start();
 
     return 0;
 }
