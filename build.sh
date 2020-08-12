@@ -19,8 +19,8 @@ INCLUDE+=" -I$CRTDIR/src/esp_lib"
 #erpc
 INCLUDE+=" -I$CRTDIR/src/erpc"
 
-#erpc_idl
-INCLUDE+=" -I$CRTDIR/src/erpc_idl"
+#erpc_shim
+INCLUDE+=" -I$CRTDIR/src/erpc_shim"
 
 FLAGS+=""
 

@@ -1,0 +1,14 @@
+
+@output_dir("../erpc_shim") 
+
+program rpc
+
+import "rpc_ble_common.erpc"
+
+@group("ble_api")
+interface host {
+    _Ble_HostInitialize(
+        ) -> uint8
+}
+
+import "rpc_ble_gap.erpc"

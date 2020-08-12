@@ -1,0 +1,105 @@
+/** @brief LE advertising parameter types */
+
+enum RPC_T_LE_ADV_PARAM_TYPE {
+    RPC_GAP_PARAM_ADV_LOCAL_ADDR_TYPE = 0x260, //!< Advertisement used local bluetooth device address type. Read/Write Size is uint8.
+        RPC_GAP_PARAM_ADV_DATA = 0x261, //!< Advertisement Data. Read/Write. Max size is uint8[GAP_MAX_ADV_LEN]. Default is "02:01:05", which means that it is a Limited Discoverable Advertisement.
+        RPC_GAP_PARAM_SCAN_RSP_DATA = 0x262, //!< Scan Response Data. Read/Write. Max size is uint8[GAP_MAX_ADV_LEN]. Defaults to all 0.
+        RPC_GAP_PARAM_ADV_EVENT_TYPE = 0x263, //!< Advertisement Type. Read/Write. Size is uint8.  Default is GAP_ADTYPE_ADV_IND (@ref T_GAP_ADTYPE).
+        RPC_GAP_PARAM_ADV_DIRECT_ADDR_TYPE = 0x264, //!< Direct Advertisement Address Type. Read/Write. Size is uint8.
+        RPC_GAP_PARAM_ADV_DIRECT_ADDR = 0x265, //!< Direct Advertisement Address. Read/Write. Size is uint8[GAP_BD_ADDR_LEN]. Default is NULL.
+        RPC_GAP_PARAM_ADV_CHANNEL_MAP = 0x266, //!< Which channels to advertise on. Read/Write Size is uint8. Default is GAP_ADVCHAN_ALL (@ref ADV_CHANNEL_MAP)
+        RPC_GAP_PARAM_ADV_FILTER_POLICY = 0x267, //!< Filter Policy. Ignored when directed advertising is used. Read/Write. Size is uint8. Default is GAP_ADV_FILTER_ANY (@ref T_GAP_ADV_FILTER_POLICY).
+        RPC_GAP_PARAM_ADV_INTERVAL_MIN = 0x268, //!< Minimum advertising interval for undirected and low duty cycle directed advertising. Value range: 0x0020 - 0x4000 (20ms - 10240ms 0.625ms/step),Read/Write Size is uint16_t.
+        RPC_GAP_PARAM_ADV_INTERVAL_MAX = 0x269 //!< Maximum advertising interval for undirected and low duty cycle directed  advertising. Value range: 0x0020 - 0x4000 (20ms - 10240ms 0.625ms/step)),Read/Write Size is uint16_t.
+};
+
+/** @brief  GAP LE Parameter Types List.*/
+enum RPC_T_GAP_LE_PARAM_TYPE {
+    RPC_GAP_PARAM_DEV_STATE = 0x220, //!< Device's current GAP device state. Read/Write. Size is sizeof(TGapDevState).
+        RPC_GAP_PARAM_APPEARANCE = 0x221, //!< Local Device's Appearance. Read/Write. size is uint16. Appearance value please refer to GAP Appearance Values.(@ref GAP_LE_APPEARANCE_VALUES)
+        RPC_GAP_PARAM_DEVICE_NAME = 0x222, //!< Local Device's Name. Write Only. Name string length is GAP_DEVICE_NAME_LEN.
+        RPC_GAP_PARAM_SLAVE_INIT_GATT_MTU_REQ = 0x223, //!< Slave initiate the GATT exchange MTU procedure. Write Only.
+        RPC_GAP_PARAM_RANDOM_ADDR = 0x224, //!< Random address. Write Only.
+        RPC_GAP_PARAM_LATEST_CONN_BD_ADDR = 0x226, //!< Latest connected bluetooth devive address. Read Only.
+        RPC_GAP_PARAM_LATEST_CONN_BD_ADDR_TYPE = 0x227, //!< Latest connected bluetooth devive address type. Read Only.
+        RPC_GAP_PARAM_HANDLE_CREATE_CONN_IND = 0x228, //!< App handle the create connection indication message.
+        RPC_GAP_PARAM_DEFAULT_PHYS_PREFER = 0x229, //!< Preferred values for the transmitter PHY and receiver PHY to be used for all subsequent connections over the LE transport.
+        RPC_GAP_PARAM_DEFAULT_TX_PHYS_PREFER = 0x22a, //!< The transmitter PHYs that the Host prefers the Controller to use.
+        RPC_GAP_PARAM_DEFAULT_RX_PHYS_PREFER = 0x22b, //!< The receiver PHYs that the Host prefers the Controller to use.
+        RPC_GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_OCTETS = 0x22e,
+        RPC_GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_TIME = 0x22f,
+        RPC_GAP_PARAM_LOCAL_FEATURES = 0x230, //!< Local supported features.
+        RPC_GAP_PARAM_DS_POOL_ID = 0x231, //!< Downstream PoolID.  Read only.  size is uint16.
+        RPC_GAP_PARAM_DS_DATA_OFFSET = 0x232, //!< Downstream pool buffer data offset.  Read only.  size is uint16.
+        RPC_GAP_PARAM_LE_REMAIN_CREDITS = 0x233, //!< Remain credits avaiable for TX.  Read only.  size is uint16.
+        RPC_GAP_PARAM_MAX_WL_SIZE = 0x234, //!< Max white list size.  Read only.  size is uint16.
+};
+
+/** @brief LE scan parameter type */
+enum RPC_T_LE_SCAN_PARAM_TYPE
+{
+    RPC_GAP_PARAM_SCAN_LOCAL_ADDR_TYPE   = 0x240,  //!< The type of address being used in the scan request packets. Read/Write.
+    RPC_GAP_PARAM_SCAN_MODE              = 0x241,  //!< Scan mode. Read/Write. Size is uint8. Default is GAP_SCAN_MODE_ACTIVE (@ref T_GAP_SCAN_MODE).
+    RPC_GAP_PARAM_SCAN_INTERVAL          = 0x242,  //!< Scan Interval. Read/Write. Size is uint16_t. Default is 0x10. Value range: 0x0004 - 0x4000 (2.5ms - 10240ms 0.625ms/step).
+    RPC_GAP_PARAM_SCAN_WINDOW            = 0x243,  //!< Scan Window. Read/Write. Size is uint16_t. Default is 0x10. Value range: 0x0004 - 0x4000 (2.5ms - 10240ms 0.625ms/step).
+    RPC_GAP_PARAM_SCAN_FILTER_POLICY     = 0x244,  //!< Scan Filter Policy.Read/Write. Size is uint8_t. Default is GAP_SCAN_FILTER_ANY (@ref T_GAP_SCAN_FILTER_POLICY).
+    RPC_GAP_PARAM_SCAN_FILTER_DUPLICATES = 0x245   //!< Scan Filter Duplicates.Read/Write. Size is uint8_t. Default is GAP_SCAN_FILTER_DUPLICATE_DISABLE (@ref T_GAP_SCAN_FILTER_DUPLICATE).
+};
+
+/** @brief  Definition of LE white list operation.*/
+enum RPC_T_GAP_WHITE_LIST_OP
+{
+    RPC_GAP_WHITE_LIST_OP_CLEAR = 0,    /**<  Clear white list. */
+    RPC_GAP_WHITE_LIST_OP_ADD,          /**<  Add a device to the white list. */
+    RPC_GAP_WHITE_LIST_OP_REMOVE        /**<  Remove a device from the white list. */
+};
+
+/** @brief GAP Remote Address Type */
+enum RPC_T_GAP_REMOTE_ADDR_TYPE
+{
+    RPC_GAP_REMOTE_ADDR_LE_PUBLIC          = 0x00, /**< LE Public device address type. */
+    RPC_GAP_REMOTE_ADDR_LE_RANDOM          = 0x01, /**< LE Random device address type. */
+};
+
+/** @brief Define random adress type */
+enum RPC_T_GAP_RAND_ADDR_TYPE
+{
+    RPC_GAP_RAND_ADDR_STATIC            = 0x00,/**<  Static random device address. */
+    RPC_GAP_RAND_ADDR_NON_RESOLVABLE    = 0x01,/**<  Non resolvable random device address. */
+    RPC_GAP_RAND_ADDR_RESOLVABLE        = 0x02 /**<  Resolvable random device address. */
+};
+
+@group("ble_api")
+interface rpc_gap_adv {
+    rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_adv_start() -> RPC_T_GAP_CAUSE
+    rpc_le_adv_stop() -> RPC_T_GAP_CAUSE;
+    rpc_le_adv_update_param() -> RPC_T_GAP_CAUSE;
+};
+
+
+@group("ble_api")
+interface rpc_gap_le {
+    rpc_le_gap_init(uint8 link_num) -> bool
+    rpc_le_gap_msg_info_way(bool use_msg) -> void
+    rpc_le_get_max_link_num() -> uint8
+    rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_get_param(RPC_T_GAP_LE_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, in binary bd_addr,RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) -> RPC_T_GAP_CAUSE
+    rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, out binary random_bd) -> RPC_T_GAP_CAUSE
+    rpc_le_set_rand_addr(binary random_bd) -> RPC_T_GAP_CAUSE
+    //T_GAP_CAUSE le_cfg_local_identity_address(uint8_t *addr, T_GAP_IDENT_ADDR_TYPE type);
+    //T_GAP_CAUSE le_set_host_chann_classif(uint8_t *p_channel_map);
+    //T_GAP_CAUSE le_write_default_data_len(uint16_t tx_octets, uint16_t tx_time);
+}
+
+
+@group("ble_api")
+interface rpc_gap_scan {
+    rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_scan_start() -> RPC_T_GAP_CAUSE
+    rpc_le_scan_stop() -> RPC_T_GAP_CAUSE;
+}
+
