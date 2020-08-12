@@ -35,11 +35,11 @@ extern "C"
 #endif
 
 #include "elog.h"
-#include "rpc_ble_common.h"
-#include "rpc_ble_api.h"
-#include "rpc_ble_callback.h"
-#include "rpc_ble_task.h"
-#include "rpc_ble_utils.h"
+#include "ble_common.h"
+#include "ble_api.h"
+#include "ble_callback.h"
+#include "ble_task.h"
+#include "ble_utils.h"
 
 /** @brief Default scan interval (units of 0.625ms, 0x520=820ms) */
 #define DEFAULT_SCAN_INTERVAL 0x520

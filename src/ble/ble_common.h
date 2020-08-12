@@ -3,7 +3,7 @@
 *****************************************************************************************
 *     Copyright (C) 2020  Seeed Technology Co.,Ltd. All rights reserved.
 *****************************************************************************************
-   * @file      rpc_ble_common.h
+   * @file      ble_common.h
    * @brief     This file is used to config ble functions.
    * @author    Hongtai.Liu
    * @date      2020-08-10

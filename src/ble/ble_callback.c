@@ -3,7 +3,7 @@
 *****************************************************************************************
 *     Copyright (C) 2020  Seeed Technology Co.,Ltd. All rights reserved.
 *****************************************************************************************
-   * @file      rpc_ble_callback.c
+   * @file      ble_callback.c
    * @brief     
    * @author    Hongtai.Liu
    * @date      2020-08-10
@@ -47,8 +47,8 @@ extern "C"
 #include "rtk_coex.h"
 #include "profile_server.h"
 #include "profile_client.h"
-#include "rpc_ble_callback.h"
-#include "rpc_ble_utils.h"
+#include "ble_callback.h"
+#include "ble_utils.h"
 
 #ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
 *****************************************************************************************
 *     Copyright (C) 2020  Seeed Technology Co.,Ltd. All rights reserved.
 *****************************************************************************************
-   * @file      rpc_ble_task.c
+   * @file      ble_task.c
    * @brief     Routines to create ble task and handle events & messages
    * @author    Hongtai.Liu
    * @date      2020-08-10
@@ -25,7 +25,7 @@
 #include <basic_types.h>
 #include <gap_msg.h>
 
-#include "rpc_ble_task.h"
+#include "ble_task.h"
 
 /*============================================================================*
  *                              Macros

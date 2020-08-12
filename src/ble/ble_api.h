@@ -3,7 +3,7 @@
 *****************************************************************************************
 *     Copyright (C) 2020  Seeed Technology Co.,Ltd. All rights reserved.
 *****************************************************************************************
-   * @file      rpc_ble_api.c
+   * @file      ble_api.h
    * @brief     
    * @author    Hongtai.Liu
    * @date      2020-08-10
@@ -13,29 +13,20 @@
    * <h2><center>&copy; COPYRIGHT 2020 Seeed Technology Co.,Ltd</center></h2>
    **************************************************************************************
   */
+#ifndef _PRC_BLE_API_H_
+#define _PRC_BLE_API_H_
 
-#include "rpc_ble_common.h"
-#include "rpc_ble_api.h"
-#include "rpc_ble_utils.h"
-#include "rpc_ble_callback.h"
+#include "esp_gap_ble_api.h"
+#include "esp_err.h"
 
-esp_err_t rpc_ble_gap_register_callback(esp_gap_ble_cb_t callback)
+#ifdef __cplusplus
+extern "C"
 {
-    esp_err_t result = ESP_OK;
-
-    esp_gap_ble_cb_event_t cb_event;
-    esp_ble_gap_cb_param_t *param;
-
-    le_register_app_cb(rpc_ble_gap_callback);
-
-    return result;
+#endif
+esp_err_t rpc_ble_dev_init(uint8_t role);
+#ifdef __cplusplus
 }
+#endif
 
-extern uint8_t rpc_ble_dev_role;
-esp_err_t rpc_ble_dev_init(uint8_t role)
-{
-  esp_err_t result = ESP_OK;
-  rpc_ble_dev_role = role;
-  return result;
-}
- 
+#endif /* _PRC_BLE_API_H_ */
+

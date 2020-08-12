@@ -15,9 +15,12 @@ INCLUDE+=" -I$CRTDIR/src/ble_central"
 
 #esp_lib
 INCLUDE+=" -I$CRTDIR/src/esp_lib"
-#easylogger
-INCLUDE+=" -I$CRTDIR/src/easylogger"
-INCLUDE+=" -I$CRTDIR/src/easylogger/inc/"
+
+#erpc
+INCLUDE+=" -I$CRTDIR/src/erpc"
+
+#erpc_idl
+INCLUDE+=" -I$CRTDIR/src/erpc_idl"
 
 FLAGS+=""
 
