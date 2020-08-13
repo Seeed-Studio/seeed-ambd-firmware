@@ -44,7 +44,7 @@
  *                              Constants
  *============================================================================*/
 
-T_GAP_DEV_STATE rpc_ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
-T_GAP_CONN_STATE rpc_ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
-T_APP_LINK rpc_ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-uint8_t rpc_ble_dev_role = 0; // 0:close 1:server 2:client
+T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
+T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
+T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
+uint8_t ble_dev_role = 0; // 0:close 1:server 2:client

@@ -52,9 +52,9 @@ typedef struct
     uint8_t                 bd_addr[GAP_BD_ADDR_LEN]; /**< remote BD */
 } T_APP_LINK; 
 
-extern T_GAP_DEV_STATE rpc_ble_gap_dev_state;
-extern T_GAP_CONN_STATE rpc_ble_gap_conn_state;
-extern T_APP_LINK rpc_ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-extern uint8_t rpc_ble_dev_role;
+extern T_GAP_DEV_STATE ble_gap_dev_state;
+extern T_GAP_CONN_STATE ble_gap_conn_state;
+extern T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
+extern uint8_t ble_dev_role;
 
 #endif /* _RPC_BLE_FLAGS_H_ */

@@ -25,11 +25,9 @@ void app_elog_init(void)
 	elog_start();
 }
 extern void erpc_ble_init();
-extern void ble_client_test_main();
 void setup()
 {
     app_elog_init();
-	ble_client_test_main();
 	erpc_ble_init();
 }	
 

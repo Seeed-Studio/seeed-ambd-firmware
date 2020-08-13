@@ -52,7 +52,8 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
         }
         delay(10);
     }
-    printf("underlyingReceive: size %d\n\rdata:\n\r");
+    taskENTER_CRITICAL();
+    printf("underlyingReceive: size %d\n\rdata:\n\r", size);
     for(int i = 0; i < bytesRead; i++)
     {
         printf("0x%02x ", temp[i]);
@@ -62,15 +63,17 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
         }
     }
     printf("\n\r");
+    taskEXIT_CRITICAL();
     return size != bytesRead ? kErpcStatus_ReceiveFailed : kErpcStatus_Success;
 }
 
 erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
 {
-    size_t bytesRead = size;
+
+    taskENTER_CRITICAL();
     const uint8_t *temp = data;
-    printf("underlyingSend: size %d\n\rdata:\n\r");
-    for(int i = 0; i < bytesRead; i++)
+    printf("underlyingSend: size %d\n\rdata:\n\r", size);
+    for(int i = 0; i < size; i++)
     {
         printf("0x%02x ", temp[i]);
         if(i % 10 == 0 && i != 0)
@@ -79,8 +82,9 @@ erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
         }
     }
     printf("\n\r");
-
+ 
     uint32_t bytesWritten = m_uartDrv->write(data, size);
+    taskEXIT_CRITICAL();
     return size != bytesWritten ? kErpcStatus_SendFailed : kErpcStatus_Success;
 }
 

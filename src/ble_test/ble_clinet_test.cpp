@@ -45,11 +45,16 @@ extern "C"
 #define DEFAULT_SCAN_INTERVAL 0x520
 /** @brief Default scan window (units of 0.625ms, 0x520=820ms) */
 #define DEFAULT_SCAN_WINDOW 0x520
-extern uint8_t rpc_ble_dev_role;
+extern uint8_t ble_dev_role;
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 void ble_client_init()
 {
-    rpc_ble_dev_role = 2;
+    ble_dev_role = 2;
     log_v("ble_client_init");
     gap_config_max_le_link_num(3);
     bte_init();
@@ -104,7 +109,7 @@ void ble_client_init()
                       &auth_sec_req_flags);
 
     /* register gap message callback */
-    le_register_app_cb(rpc_ble_gap_callback);
+    le_register_app_cb(ble_gap_callback);
 
 #if F_BT_LE_5_0_SET_PHY_SUPPORT
     uint8_t phys_prefer = GAP_PHYS_PREFER_ALL;
@@ -119,7 +124,7 @@ void ble_client_init()
 
     client_init(1);
 
-    rpc_ble_app_task_init();
+    ble_app_task_init();
 }
 
 extern void wifi_btcoex_set_bt_on(void);
@@ -167,3 +172,6 @@ int ble_client_test_main()
 
     return 0;
 }
+#ifdef __cplusplus
+}
+#endif

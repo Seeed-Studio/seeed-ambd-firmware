@@ -49,7 +49,9 @@ extern "C"
 #include "profile_client.h"
 #include "ble_callback.h"
 #include "ble_utils.h"
-
+#include "ble_callback.h"
+#include "ble_utils.h"
+#include "erpc_port.h"
 #ifdef __cplusplus
 }
 #endif
@@ -62,10 +64,10 @@ extern "C"
  * @param[in] cause GAP device state change cause
  * @return   void
  */
-void rpc_ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
+void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 {
-    log_d("rpc_ble_dev_state_evt_handler: init state %d, adv state %d, cause 0x%x", new_state.gap_init_state, new_state.gap_adv_state, cause);
-    if (rpc_ble_gap_dev_state.gap_init_state != new_state.gap_init_state)
+    log_d("ble_dev_state_evt_handler: init state %d, adv state %d, cause 0x%x", new_state.gap_init_state, new_state.gap_adv_state, cause);
+    if (ble_gap_dev_state.gap_init_state != new_state.gap_init_state)
     {
         if (new_state.gap_init_state == GAP_INIT_STATE_STACK_READY)
         {
@@ -79,9 +81,9 @@ void rpc_ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 
     // Assign different tasks according to different roles
     // As a Client
-    if (rpc_ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
+    if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
     {
-        if (rpc_ble_gap_dev_state.gap_scan_state != new_state.gap_scan_state)
+        if (ble_gap_dev_state.gap_scan_state != new_state.gap_scan_state)
         {
             if (new_state.gap_scan_state == GAP_SCAN_STATE_IDLE)
             {
@@ -96,7 +98,7 @@ void rpc_ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
     // As a Server
     else
     {
-        if (rpc_ble_gap_dev_state.gap_adv_state != new_state.gap_adv_state)
+        if (ble_gap_dev_state.gap_adv_state != new_state.gap_adv_state)
         {
             if (new_state.gap_adv_state == GAP_ADV_STATE_IDLE)
             {
@@ -116,7 +118,7 @@ void rpc_ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
         }
     }
 
-    rpc_ble_gap_dev_state = new_state;
+    ble_gap_dev_state = new_state;
 }
 
 /**
@@ -128,12 +130,12 @@ void rpc_ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
  * @param[in] disc_cause Use this cause when new_state is GAP_CONN_STATE_DISCONNECTED
  * @return   void
  */
-void rpc_ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uint16_t disc_cause)
+void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uint16_t disc_cause)
 {
 
-    log_d("rpc_ble_conn_state_evt_handler: conn_id %d old_state %d new_state %d, disc_cause 0x%x", conn_id, rpc_ble_gap_conn_state, new_state, disc_cause);
+    log_d("ble_conn_state_evt_handler: conn_id %d old_state %d new_state %d, disc_cause 0x%x", conn_id, ble_gap_conn_state, new_state, disc_cause);
 
-    if (rpc_ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
+    if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
     {
 
         if (conn_id >= BLE_CLIENT_MAX_LINKS)
@@ -141,7 +143,7 @@ void rpc_ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state,
             return;
         }
 
-        rpc_ble_clinet_link_table[conn_id].conn_state = new_state;
+        ble_clinet_link_table[conn_id].conn_state = new_state;
 
         switch (new_state)
         {
@@ -152,12 +154,12 @@ void rpc_ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state,
                 log_d("connection lost, conn_id %d, cause 0x%x", conn_id, disc_cause);
             }
             log_d("[BLE Device] Disconnected conn_id %d", conn_id);
-            memset(&rpc_ble_clinet_link_table[conn_id], 0, sizeof(T_APP_LINK));
+            memset(&ble_clinet_link_table[conn_id], 0, sizeof(T_APP_LINK));
             break;
         }
         case GAP_CONN_STATE_CONNECTED:
         {
-            le_get_conn_addr(conn_id, rpc_ble_clinet_link_table[conn_id].bd_addr, (uint8_t *)&rpc_ble_clinet_link_table[conn_id].bd_type);
+            le_get_conn_addr(conn_id, ble_clinet_link_table[conn_id].bd_addr, (uint8_t *)&ble_clinet_link_table[conn_id].bd_type);
             log_d("[BLE Device] Connected conn_id %d", conn_id);
             {
                 uint8_t tx_phy;
@@ -208,7 +210,7 @@ void rpc_ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state,
             break;
         }
     }
-    rpc_ble_gap_conn_state = new_state;
+    ble_gap_conn_state = new_state;
 }
 
 /**
@@ -219,7 +221,7 @@ void rpc_ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state,
  * @param[in] cause Use this cause when status is GAP_CONN_PARAM_UPDATE_STATUS_FAIL
  * @return   void
  */
-void rpc_ble_param_update_evt_handler(uint8_t conn_id, uint8_t status, uint16_t cause)
+void ble_param_update_evt_handler(uint8_t conn_id, uint8_t status, uint16_t cause)
 {
     switch (status)
     {
@@ -259,7 +261,7 @@ void rpc_ble_param_update_evt_handler(uint8_t conn_id, uint8_t status, uint16_t 
  * @param[in] cause Use this cause when new_state is GAP_AUTHEN_STATE_COMPLETE
  * @return   void
  */
-void rpc_ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16_t cause)
+void ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16_t cause)
 {
     log_d("app_handle_authen_state_evt:conn_id %d, cause 0x%x", conn_id, cause);
 
@@ -301,7 +303,7 @@ void rpc_ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16
  * @param[in] mtu_size  New mtu size
  * @return   void
  */
-void rpc_ble_mtu_info_evt_handler(uint8_t conn_id, uint16_t mtu_size)
+void ble_mtu_info_evt_handler(uint8_t conn_id, uint16_t mtu_size)
 {
     log_d("app_handle_conn_mtu_info_evt: conn_id %d, mtu_size %d", conn_id, mtu_size);
 }
@@ -312,13 +314,14 @@ void rpc_ble_mtu_info_evt_handler(uint8_t conn_id, uint16_t mtu_size)
   * @param[in] p_cb_data point to callback data @ref T_LE_CB_DATA.
   * @retval result @ref T_APP_RESULT
   */
-T_APP_RESULT rpc_ble_gap_callback(uint8_t cb_type, void *p_cb_data)
+T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
 {
-
     T_APP_RESULT result = APP_RESULT_SUCCESS;
     T_LE_CB_DATA *p_data = (T_LE_CB_DATA *)p_cb_data;
+    binary_t *cb_data = NULL;
+    cb_data = (binary_t *) erpc_malloc(sizeof(binary_t));
 
-    log_d("rpc_ble_gap_callback: cb_type %d", cb_type);
+    log_d("ble_gap_callback: cb_type %d", cb_type);
     switch (cb_type)
     {
     case GAP_MSG_LE_DATA_LEN_CHANGE_INFO:
@@ -363,6 +366,7 @@ T_APP_RESULT rpc_ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_SCAN_INFO:
     {
+        FORMATION_BINARY(cb_data, p_data->p_le_scan_info, T_LE_SCAN_INFO);
         log_d("GAP_MSG_LE_SCAN_INFO:adv_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x, remote_addr_type %d, rssi %d, data_len %d",
               p_data->p_le_scan_info->adv_type,
               (p_data->p_le_scan_info->bd_addr)[5],
@@ -381,7 +385,8 @@ T_APP_RESULT rpc_ble_gap_callback(uint8_t cb_type, void *p_cb_data)
         break;
     }
 
-    //rpc_gap_callback();
+    log_d("cb_data.dataLength: %d",   cb_data->dataLength);
+    rpc_ble_gap_callback(cb_type, cb_data);
 
     return result;
 }
@@ -393,7 +398,7 @@ T_APP_RESULT rpc_ble_gap_callback(uint8_t cb_type, void *p_cb_data)
  * @param[in] p_gap_msg Pointer to GAP msg
  * @return   void
  */
-void rpc_ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
+void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
 {
     T_LE_GAP_MSG gap_msg;
     uint8_t conn_id;
@@ -406,39 +411,39 @@ void rpc_ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     case GAP_MSG_LE_DEV_STATE_CHANGE:
     {
         log_d("GAP_MSG_LE_DEV_STATE_CHANGE");
-        rpc_ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
-                                      gap_msg.msg_data.gap_dev_state_change.cause);
+        ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
+                                  gap_msg.msg_data.gap_dev_state_change.cause);
     }
     break;
     case GAP_MSG_LE_CONN_STATE_CHANGE:
     {
         log_d("GAP_MSG_LE_CONN_STATE_CHANGE");
-        rpc_ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
-                                       (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
-                                       gap_msg.msg_data.gap_conn_state_change.disc_cause);
+        ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
+                                   (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
+                                   gap_msg.msg_data.gap_conn_state_change.disc_cause);
     }
     break;
     case GAP_MSG_LE_CONN_PARAM_UPDATE:
     {
         log_d("GAP_MSG_LE_CONN_PARAM_UPDATE");
-        rpc_ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
-                                         gap_msg.msg_data.gap_conn_param_update.status,
-                                         gap_msg.msg_data.gap_conn_param_update.cause);
+        ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
+                                     gap_msg.msg_data.gap_conn_param_update.status,
+                                     gap_msg.msg_data.gap_conn_param_update.cause);
     }
     break;
     case GAP_MSG_LE_CONN_MTU_INFO:
     {
         log_d("GAP_MSG_LE_CONN_MTU_INFO");
-        rpc_ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
-                                     gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
+        ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
+                                 gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
     }
     break;
     case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
     {
         log_d("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
-        rpc_ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
-                                         gap_msg.msg_data.gap_authen_state.new_state,
-                                         gap_msg.msg_data.gap_authen_state.status);
+        ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
+                                     gap_msg.msg_data.gap_authen_state.new_state,
+                                     gap_msg.msg_data.gap_authen_state.status);
     }
     break;
     case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
@@ -492,7 +497,11 @@ void rpc_ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
         break;
     }
 
-    //rpc_gap_callback();
+    // binary_t callback_io_msg;
+    // callback_io_msg.dataLength = sizeof(T_IO_MSG);
+    // log_d("callback_io_msg.dataLength: %d",   callback_io_msg.dataLength);
+    // callback_io_msg.data = p_gap_msg;
+    // rpc_ble_handle_gap_msg(&callback_io_msg);
 }
 
 /**
@@ -502,7 +511,7 @@ void rpc_ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
  * @param[in] io_msg  IO message data
  * @return   void
  */
-void rpc_ble_handle_io_msg(T_IO_MSG io_msg)
+void ble_handle_io_msg(T_IO_MSG io_msg)
 {
     uint16_t msg_type = io_msg.type;
 
@@ -510,7 +519,7 @@ void rpc_ble_handle_io_msg(T_IO_MSG io_msg)
     {
     case IO_MSG_TYPE_BT_STATUS:
     {
-        rpc_ble_handle_gap_msg(&io_msg);
+        ble_handle_gap_msg(&io_msg);
     }
     break;
     default:

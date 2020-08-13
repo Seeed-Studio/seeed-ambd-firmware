@@ -24,8 +24,8 @@ extern "C"
 {
 #endif
 
-void rpc_ble_main_task(void *p_param);
-void rpc_ble_app_task_init();
+void ble_main_task(void *p_param);
+void ble_app_task_init();
 
 #ifdef __cplusplus
 }

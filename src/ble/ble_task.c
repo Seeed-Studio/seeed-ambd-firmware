@@ -26,7 +26,7 @@
 #include <gap_msg.h>
 
 #include "ble_task.h"
-
+#include "rpc_ble_callback.h"
 /*============================================================================*
  *                              Macros
  *============================================================================*/
@@ -39,11 +39,11 @@
 /*============================================================================*
  *                              Variables
  *============================================================================*/
-void *rpc_ble_task_handle;     //!< APP Task handle
-void *rpc_ble_evt_queue_handle; //!< Event queue handle
-void *rpc_ble_io_queue_handle;  //!< IO queue handle
+void *ble_task_handle;     //!< APP Task handle
+void *ble_evt_queue_handle; //!< Event queue handle
+void *ble_io_queue_handle;  //!< IO queue handle
 
-extern T_GAP_DEV_STATE rpc_ble_gap_dev_state;
+extern T_GAP_DEV_STATE ble_gap_dev_state;
 
 /*============================================================================*
  *                              Functions
@@ -53,10 +53,10 @@ extern T_GAP_DEV_STATE rpc_ble_gap_dev_state;
  * @brief  Initialize App task
  * @return void
  */
-void rpc_ble_app_task_init()
+void ble_app_task_init()
 {
     log_v("Entry");
-    os_task_create(&rpc_ble_task_handle, "ble task", rpc_ble_main_task, 0, RPC_BLE_TASK_STACK_SIZE,
+    os_task_create(&ble_task_handle, "ble task", ble_main_task, 0, RPC_BLE_TASK_STACK_SIZE,
                    RPC_BLE_TASK_PRIORITY);
     log_v("Exit");
 }
@@ -66,26 +66,26 @@ void rpc_ble_app_task_init()
  * @param[in]    p_param    Parameters sending to the task
  * @return       void
  */
-void rpc_ble_main_task(void *p_param)
+void ble_main_task(void *p_param)
 {
     (void)p_param;
     uint8_t event;
 
-    os_msg_queue_create(&rpc_ble_io_queue_handle, RPC_BLE_MAX_NUMBER_OF_EVENT_MESSAGE, sizeof(T_IO_MSG));
-    os_msg_queue_create(&rpc_ble_evt_queue_handle, RPC_BLE_MAX_NUMBER_OF_EVENT_MESSAGE, sizeof(uint8_t));
+    os_msg_queue_create(&ble_io_queue_handle, RPC_BLE_MAX_NUMBER_OF_EVENT_MESSAGE, sizeof(T_IO_MSG));
+    os_msg_queue_create(&ble_evt_queue_handle, RPC_BLE_MAX_NUMBER_OF_EVENT_MESSAGE, sizeof(uint8_t));
 
-    gap_start_bt_stack(rpc_ble_evt_queue_handle, rpc_ble_io_queue_handle, RPC_BLE_MAX_NUMBER_OF_GAP_MESSAGE);
+    gap_start_bt_stack(ble_evt_queue_handle, ble_io_queue_handle, RPC_BLE_MAX_NUMBER_OF_GAP_MESSAGE);
 
     while (true)
     {
-        if (os_msg_recv(rpc_ble_evt_queue_handle, &event, 0xFFFFFFFF) == true)
+        if (os_msg_recv(ble_evt_queue_handle, &event, 0xFFFFFFFF) == true)
         {
             if (event == EVENT_IO_TO_APP)
             {
                 T_IO_MSG io_msg;
-                if (os_msg_recv(rpc_ble_io_queue_handle, &io_msg, 0) == true)
+                if (os_msg_recv(ble_io_queue_handle, &io_msg, 0) == true)
                 {
-                    rpc_ble_handle_io_msg(io_msg);
+                    ble_handle_io_msg(io_msg);
                 }
             }
             else
@@ -98,25 +98,25 @@ void rpc_ble_main_task(void *p_param)
 
 void ble_task_deinit(void)
 {
-    if (rpc_ble_io_queue_handle)
+    if (ble_io_queue_handle)
     {
-        os_msg_queue_delete(rpc_ble_io_queue_handle);
+        os_msg_queue_delete(ble_io_queue_handle);
     }
-    if (rpc_ble_evt_queue_handle)
+    if (ble_evt_queue_handle)
     {
-        os_msg_queue_delete(rpc_ble_evt_queue_handle);
+        os_msg_queue_delete(ble_evt_queue_handle);
     }
-    if (rpc_ble_task_handle)
+    if (ble_task_handle)
     {
-        os_task_delete(rpc_ble_task_handle);
+        os_task_delete(ble_task_handle);
     }
-    rpc_ble_io_queue_handle = NULL;
-    rpc_ble_evt_queue_handle = NULL;
-    rpc_ble_task_handle = NULL;
+    ble_io_queue_handle = NULL;
+    ble_evt_queue_handle = NULL;
+    ble_task_handle = NULL;
 
-    rpc_ble_gap_dev_state.gap_init_state = 0;
-	rpc_ble_gap_dev_state.gap_adv_sub_state = 0;
-	rpc_ble_gap_dev_state.gap_adv_state = 0;
-	rpc_ble_gap_dev_state.gap_scan_state = 0;
-	rpc_ble_gap_dev_state.gap_conn_state = 0;
+    ble_gap_dev_state.gap_init_state = 0;
+	ble_gap_dev_state.gap_adv_sub_state = 0;
+	ble_gap_dev_state.gap_adv_state = 0;
+	ble_gap_dev_state.gap_scan_state = 0;
+	ble_gap_dev_state.gap_conn_state = 0;
 }

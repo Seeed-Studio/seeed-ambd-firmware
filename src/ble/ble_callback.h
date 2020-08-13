@@ -29,9 +29,9 @@ extern "C" {
 #include "elog.h"
 
 
-void rpc_ble_handle_gap_msg(T_IO_MSG *p_gap_msg);
-void rpc_ble_handle_io_msg(T_IO_MSG io_msg);
-T_APP_RESULT rpc_ble_gap_callback(uint8_t cb_type, void *p_cb_data);
+void ble_handle_gap_msg(T_IO_MSG *p_gap_msg);
+void ble_handle_io_msg(T_IO_MSG io_msg);
+T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data);
 
 #ifdef __cplusplus
 }

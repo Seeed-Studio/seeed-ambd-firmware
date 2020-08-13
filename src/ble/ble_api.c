@@ -56,9 +56,14 @@ extern "C"
 #include "ble_callback.h"
 #include "rpc_ble_api.h"
 
+
+extern int ble_client_test_main();
+
+
 uint8_t _Ble_HostInitialize(void)
 {
   log_d("_Ble_HostInitialize called");
+  ble_client_test_main();
   return 0;
 }
 

@@ -1,0 +1,10 @@
+
+@output_dir("../erpc_shim/client") 
+
+program rpc
+
+@group("ble_callback")
+interface rpc_ble_callback {
+    rpc_ble_handle_gap_msg(in binary gap_msg) -> void
+    rpc_ble_gap_callback(uint8 cb_type, in binary cb_data) -> void
+}
