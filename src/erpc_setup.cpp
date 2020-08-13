@@ -35,7 +35,7 @@ using namespace erpc;
  *                              Constants
  *============================================================================*/
 
-UartTransport g_transport(&Serial2, 115200);
+UartTransport g_transport(&Serial2, 1843200);
 BasicCodecFactory g_basicCodecFactory;
 ArbitratedClientManager *g_client;
 TransportArbitrator g_arbitrator;
