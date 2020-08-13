@@ -1,5 +1,5 @@
 
-@output_dir("../erpc_shim") 
+@output_dir("../src/erpc_shim") 
 
 program rpc
 
