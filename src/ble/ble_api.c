@@ -276,11 +276,13 @@ void rpc_gap_config_max_le_link_num(uint8_t le_link_num)
 
 //! @name rpc_gap
 //@{
+
 RPC_T_GAP_CAUSE rpc_gap_set_param(RPC_T_GAP_PARAM_TYPE param, const binary_t *value)
 {
   log_d("rpc_gap_set_param called");
   return gap_set_param(param, value->dataLength, value->data);
 }
+
 RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
 {
   log_d("rpc_gap_get_param called");
@@ -291,9 +293,106 @@ RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
   value->data = p_value;
   return ret;
 }
+
 RPC_T_GAP_CAUSE rpc_gap_set_pairable_mode(void)
 {
   log_d("rpc_gap_set_pairable_mode called");
   return gap_set_pairable_mode();
+}
+//@}
+
+//! @name rpc_gap_bone
+//@{
+RPC_T_GAP_CAUSE rpc_le_bond_set_param(RPC_T_LE_BOND_PARAM_TYPE param, const binary_t *value)
+{
+  log_d("rpc_le_bond_set_param called");
+  return le_bond_set_param(param, value->dataLength, value->dataLength);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *value)
+{
+  log_d("rpc_le_bond_get_param called");
+  RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
+  value->dataLength = DEFAULT_PARAM_SIZE;
+  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
+  ret = le_bond_get_param(param, p_value);
+  value->data = p_value;
+  return ret;
+}
+RPC_T_GAP_CAUSE rpc_le_bond_pair(uint8_t conn_id)
+{
+  log_d("rpc_le_bond_pair called");
+  return rpc_le_bond_pair(conn_id);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_get_display_key(uint8_t conn_id, binary_t *key)
+{
+  log_d("rpc_le_bond_get_display_key called");
+  RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
+  key->dataLength = DEFAULT_PKEY_SIZE;
+  uint8_t *p_value = (uint8_t *)erpc_malloc(key->dataLength * sizeof(uint8_t));
+  ret = le_bond_get_display_key(conn_id, p_value);
+  key->data = p_value;
+  return ret;
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_passkey_input_confirm(uint8_t conn_id, uint32_t passcode, RPC_T_GAP_CFM_CAUSE cause)
+{
+  log_d("rpc_le_bond_passkey_input_confirm called");
+  return le_bond_passkey_input_confirm(conn_id, passcode, cause);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_oob_input_confirm(uint8_t conn_id, RPC_T_GAP_CFM_CAUSE cause)
+{
+  log_d("rpc_le_bond_oob_input_confirm called");
+  return le_bond_oob_input_confirm(conn_id, cause);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_just_work_confirm(uint8_t conn_id, RPC_T_GAP_CFM_CAUSE cause)
+{
+  log_d("rpc_le_bond_just_work_confirm called");
+  return le_bond_just_work_confirm(conn_id, cause);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_passkey_display_confirm(uint8_t conn_id, RPC_T_GAP_CFM_CAUSE cause)
+{
+  log_d("rpc_le_bond_passkey_display_confirm called");
+  return le_bond_passkey_display_confirm(conn_id, cause);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_user_confirm(uint8_t conn_id, RPC_T_GAP_CFM_CAUSE cause)
+{
+  log_d("rpc_le_bond_user_confirm called");
+  return le_bond_user_confirm(conn_id, cause);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_cfg_local_key_distribute(uint8_t init_dist, uint8_t rsp_dist)
+{
+  log_d("rpc_le_bond_cfg_local_key_distribute called");
+  return le_bond_cfg_local_key_distribute(init_dist, rsp_dist);
+}
+
+void rpc_le_bond_clear_all_keys(void)
+{
+  log_d("rpc_le_bond_clear_all_keys called");
+  return le_bond_clear_all_keys();
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_delete_by_idx(uint8_t idx)
+{
+  log_d("rpc_le_bond_delete_by_idx called");
+  return le_bond_delete_by_idx(idx);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_delete_by_bd(const binary_t *bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
+{
+  log_d("rpc_le_bond_delete_by_bd called");
+  return le_bond_delete_by_bd(bd_addr->data, bd_type);
+}
+
+RPC_T_GAP_CAUSE rpc_le_bond_get_sec_level(uint8_t conn_id, RPC_T_GAP_SEC_LEVEL *sec_type)
+{
+  log_d("rpc_le_bond_get_sec_level called");
+  return le_bond_get_sec_level(conn_id, sec_type);
 }
 //@}

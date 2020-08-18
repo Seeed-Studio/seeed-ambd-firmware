@@ -41,6 +41,7 @@
 
 #define DEFAULT_PARAM_SIZE  4
 #define DEFAULT_BT_ADDR_SIZE  6
+#define DEFAULT_PKEY_SIZE 6
 
 /*============================================================================*
  *                              Functions
