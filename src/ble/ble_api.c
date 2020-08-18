@@ -273,3 +273,27 @@ void rpc_gap_config_max_le_link_num(uint8_t le_link_num)
   return gap_config_max_le_link_num(le_link_num);
 }
 //@}
+
+//! @name rpc_gap
+//@{
+RPC_T_GAP_CAUSE rpc_gap_set_param(RPC_T_GAP_PARAM_TYPE param, const binary_t *value)
+{
+  log_d("rpc_gap_set_param called");
+  return gap_set_param(param, value->dataLength, value->data);
+}
+RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
+{
+  log_d("rpc_gap_get_param called");
+  RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
+  value->dataLength = DEFAULT_BT_ADDR_SIZE;
+  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
+  ret = rpc_gap_get_param(param, p_value);
+  value->data = p_value;
+  return ret;
+}
+RPC_T_GAP_CAUSE rpc_gap_set_pairable_mode(void)
+{
+  log_d("rpc_gap_set_pairable_mode called");
+  return gap_set_pairable_mode();
+}
+//@}

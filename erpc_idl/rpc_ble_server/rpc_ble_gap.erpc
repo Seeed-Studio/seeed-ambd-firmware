@@ -83,7 +83,23 @@ enum RPC_T_GAP_CONFIG_GATT_CCCD_NOT_CHECK
     RPC_CONFIG_GATT_CCCD_NOT_CHECK,     /**< Not check cccd when server sends notification or indication. */
 };
 
+/** @brief GAP Parameter List */
+enum RPC_T_GAP_PARAM_TYPE
+{
+    RPC_GAP_PARAM_BD_ADDR                        = 0x200,//!< Locol Device's Address. Read Only. Size is uint8[GAP_BD_ADDR_LEN]. This item is read from the controller.
+    RPC_GAP_PARAM_BOND_PAIRING_MODE              = 0x202,//!< Pairing Mode of LE and BR/EDR. Write Only. Size is uint8_t. Default is GAP_PAIRING_MODE_PAIRABLE (@ref BOND_PAIRING_MODE_DEFINES).
+    RPC_GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS = 0x203,//!< Man-In-The-Middle (MITM) basically turns on Passkey protection in the pairing algorithm. Read/Write. Size is uint8_t. Default is GAP_AUTHEN_NO_MITM_YES_BOND (@ref BOND_MITM_DEFINES).
+    RPC_GAP_PARAM_BOND_IO_CAPABILITIES           = 0x204,//!< I/O capabilities.  Read/Write. Size is uint8_t. Default is GAP_IO_CAP_NO_INPUT_NO_OUTPUT (@ref T_GAP_IO_CAP).
+    RPC_GAP_PARAM_BOND_OOB_ENABLED               = 0x205,//!< OOB data available for pairing algorithm. Read/Write. Size is uint8_t. Default is 0(disabled).
+    RPC_GAP_PARAM_BOND_LE_PAIRING_MODE           = 0x207,//!< LE Pairing Mode. Read/Write. Size is uint8_t. Default is GAP_PAIRING_MODE_PAIRABLE (@ref BOND_PAIRING_MODE_DEFINES).
+};
 
+@group("ble_api")
+interface rpc_gap{
+    rpc_gap_set_param(RPC_T_GAP_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
+    rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_gap_set_pairable_mode() -> RPC_T_GAP_CAUSE
+};
 
 @group("ble_api")
 interface rpc_gap_le {
