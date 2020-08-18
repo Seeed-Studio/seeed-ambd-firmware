@@ -124,6 +124,116 @@ enum RPC_T_GAP_SEC_LEVEL
     RPC_GAP_SEC_LEVEL_SC_AUTHEN   = 0x08    /**< Authenticated LE Secure Connections pairing with encryption using a 128-bit strength encryption key.*/
 };
 
+/** @brief LE connection parameter types */
+enum RPC_T_LE_CONN_PARAM_TYPE
+{
+    RPC_GAP_PARAM_CONN_BD_ADDR         = 0x270, //!< Address of connected device. Read only. Size is uint8[B_MAX_ADV_LEN]. Set to all zeros when not connected.
+    RPC_GAP_PARAM_CONN_BD_ADDR_TYPE    = 0x271, //!< Address type of connected device. Read only. Size is uint8. Set to zero when not connected.
+    RPC_GAP_PARAM_CONN_INTERVAL        = 0x272, //!< Current connection interval.  Read only. Size is uint16.  Range is 7.5ms to 4 seconds (0x0006 to 0x0C80).  Default is 0 (no connection).
+    RPC_GAP_PARAM_CONN_LATENCY         = 0x273, //!< Current slave latency.  Read only.  Size is uint16.  Range is 0 to 499. Default is 0 (no slave latency or no connection).
+    RPC_GAP_PARAM_CONN_TIMEOUT         = 0x274, //!< Current timeout value.  Read only.  size is uint16.  Range is 100ms to 32 seconds.  Default is 0 (no connection).
+    RPC_GAP_PARAM_CONN_MTU_SIZE        = 0x275, //!< MTU size.  Read only.  size is uint16.
+    RPC_GAP_PARAM_CONN_LOCAL_BD_TYPE   = 0x276, //!< Local bluetooth address type.  Read only.  size is 1 byte.
+    RPC_GAP_PARAM_CONN_RX_PHY_TYPE     = 0x277, //!< Rx phy type.  Read only.  size is 1 byte.
+    RPC_GAP_PARAM_CONN_TX_PHY_TYPE     = 0x278, //!< Tx phy type.  Read only.  size is 1 byte.
+    RPC_GAP_PARAM_CONN_REMOTE_FEATURES = 0x279, //!< Remote supported features.  Read only.
+    RPC_GAP_PARAM_CONN_HANDLE          = 0x27b, //!< LE link connection handle. Read only.
+};
+
+/** @brief GAP connection states*/
+enum RPC_T_GAP_CONN_STATE
+{
+    RPC_GAP_CONN_STATE_DISCONNECTED, //!< Disconnected.
+    RPC_GAP_CONN_STATE_CONNECTING,   //!< Connecting.
+    RPC_GAP_CONN_STATE_CONNECTED,    //!< Connected.
+    RPC_GAP_CONN_STATE_DISCONNECTING //!< Disconnecting.
+};
+
+/** @brief GAP link roles */
+enum RPC_T_GAP_ROLE
+{
+    RPC_GAP_LINK_ROLE_UNDEFINED,    //!< Unknown.
+    RPC_GAP_LINK_ROLE_MASTER,       //!< Role is master.
+    RPC_GAP_LINK_ROLE_SLAVE         //!< Role is slave.
+};
+
+/** @brief  Connected device information.*/
+struct RPC_T_GAP_CONN_INFO
+{ 
+    RPC_T_GAP_CONN_STATE conn_state;             //!< Connection state
+    RPC_T_GAP_ROLE       role;                   //!< Device role
+    uint8[6]             remote_bd;              //!< Remote address
+    uint8                remote_bd_type;         //!< Remote address type
+};
+
+/** @brief  Definition of LE Coded PHY preference options.*/
+enum RPC_T_GAP_PHYS_OPTIONS
+{
+    RPC_GAP_PHYS_OPTIONS_CODED_PREFER_NO   = 0,/**< Host has no preferred coding when transmitting on the LE Coded PHY */
+    RPC_GAP_PHYS_OPTIONS_CODED_PREFER_S2   = 1,/**< Host prefers that S=2 coding be used when transmitting on the LE Coded PHY */
+    RPC_GAP_PHYS_OPTIONS_CODED_PREFER_S8   = 2 /**< Host prefers that S=8 coding be used when transmitting on the LE Coded PHY */
+};
+
+/** @brief GAP connection phy types*/
+enum RPC_T_GAP_CONN_PARAM_TYPE
+{
+    RPC_GAP_CONN_PARAM_1M = 0,
+};
+
+/** @brief  Definition of LE connection request parameter.*/
+struct RPC_T_GAP_LE_CONN_REQ_PARAM
+{
+    uint16 scan_interval;/**< Time interval from when the Controller started its last scan
+                                until it begins the subsequent scan on the primary advertising channel.
+
+                                Range: 0x0004 to 0x4000
+                                Time = N * 0.625 ms
+                                Time Range: 2.5 ms to 10.24 s
+
+                                Range: 0x0004 to 0xFFFF
+                                Time = N * 0.625 ms
+                                Time Range: 2.5 ms to 40.959375 s */
+    uint16 scan_window;/**< Duration of the scan on the primary advertising channel.
+                              Range: 0x0004 to 0x4000
+                              Time = N * 0.625 ms
+                              Time Range: 2.5 ms to 10.24 s
+
+                              Range: 0x0004 to 0xFFFF
+                              Time = N * 0.625 ms
+                              Time Range: 2.5 ms to 40.959375 s */
+    uint16 conn_interval_min;/**< Minimum value for the connection interval. This shall be less
+                                    than or equal to Conn_Interval_Max[i].
+                                    Range: 0x0006 to 0x0C80
+                                    Time = N * 1.25 ms
+                                    Time Range: 7.5 ms to 4 s */
+    uint16 conn_interval_max;/**< Maximum value for the connection interval. This shall be greater
+                                    than or equal to Conn_Interval_Max[i].
+                                    Range: 0x0006 to 0x0C80
+                                    Time = N * 1.25 ms
+                                    Time Range: 7.5 ms to 4 s */
+    uint16 conn_latency;/**< Slave latency for the connection in number of connection events.
+                               Range: 0x0000 to 0x01F3 */
+    uint16 supv_tout;/**< Supervision timeout for the LE Link.
+                            Range: 0x000A to 0x0C80
+                            Time = N * 10 ms
+                            Time Range: 100 ms to 32 s */
+    uint16 ce_len_min;/**< Informative parameter recommending the minimum length of connection
+                             event needed for this LE connection.
+                             Range: 0x0000 - 0xFFFF
+                             Time = N * 0.625 ms */
+    uint16 ce_len_max;/**< Informative parameter recommending the maximum length of connection
+                             event needed for this LE connection.
+                             Range: 0x0000 - 0xFFFF
+                             Time = N * 0.625 ms */
+};
+
+/** @brief define local adress type */
+enum RPC_T_GAP_LOCAL_ADDR_TYPE
+{
+    RPC_GAP_LOCAL_ADDR_LE_PUBLIC           = 0x00,    /**<  Bluetooth low energy public address. */
+    RPC_GAP_LOCAL_ADDR_LE_RANDOM           = 0x01,    /**<  Bluetooth low energy random address. */
+};
+
 @group("ble_api")
 interface rpc_gap{
     rpc_gap_set_param(RPC_T_GAP_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
@@ -156,7 +266,7 @@ interface rpc_gap_le {
     rpc_le_get_max_link_num() -> uint8
     rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
     rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
-    rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, in binary bd_addr,RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) -> RPC_T_GAP_CAUSE
+    rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, in binary bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) -> RPC_T_GAP_CAUSE
     rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, out binary random_bd) -> RPC_T_GAP_CAUSE
     rpc_le_set_rand_addr(in binary random_bd) -> RPC_T_GAP_CAUSE
     rpc_le_cfg_local_identity_address(in binary addr, RPC_T_GAP_IDENT_ADDR_TYPE ident_addr_type) -> RPC_T_GAP_CAUSE
@@ -193,6 +303,23 @@ interface rpc_gap_scan {
     rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_le_scan_start() -> RPC_T_GAP_CAUSE
     rpc_le_scan_stop() -> RPC_T_GAP_CAUSE;
+};
+
+@group("ble_api")
+interface rpc_gap_conn {
+    rpc_le_get_conn_param(RPC_T_LE_CONN_PARAM_TYPE param, out binary value, uint8 conn_id) -> RPC_T_GAP_CAUSE
+    rpc_le_get_conn_info(uint8 conn_id, out RPC_T_GAP_CONN_INFO p_conn_info) -> bool
+    rpc_le_get_conn_addr(uint8 conn_id, out uint8[6] bd_addr, out uint8 bd_type) -> bool
+    rpc_le_get_conn_id(in uint8[6] bd_addr, uint8 bd_type, out uint8 p_conn_id) -> bool
+    rpc_le_get_active_link_num() -> uint8
+    rpc_le_get_idle_link_num() -> uint8
+    rpc_le_disconnect(uint8 conn_id) -> RPC_T_GAP_CAUSE
+    rpc_le_read_rssi(uint8 conn_id) -> RPC_T_GAP_CAUSE
+    rpc_le_set_data_len(uint8 conn_id, uint16 tx_octets, uint16 tx_time) -> RPC_T_GAP_CAUSE
+    rpc_le_set_phy(uint8 conn_id, uint8 all_phys, uint8 tx_phys, uint8 rx_phys, RPC_T_GAP_PHYS_OPTIONS phy_options) -> RPC_T_GAP_CAUSE
+    rpc_le_set_conn_param(RPC_T_GAP_CONN_PARAM_TYPE conn_type, in RPC_T_GAP_LE_CONN_REQ_PARAM p_conn_param) -> RPC_T_GAP_CAUSE
+    rpc_le_connect(uint8 init_phys, in uint8[6] remote_bd,  RPC_T_GAP_CONN_PARAM_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16 scan_timeout) -> RPC_T_GAP_CAUSE
+    rpc_le_update_conn_param(uint8 conn_id, uint16  conn_interval_min, uint16  conn_interval_max, uint16  conn_latency, uint16  supervision_timeout, uint16  ce_length_min, uint16  ce_length_max) -> RPC_T_GAP_CAUSE
 };
 
 
