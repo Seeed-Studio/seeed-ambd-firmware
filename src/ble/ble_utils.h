@@ -40,6 +40,7 @@
   dest->data = (uint8_t *)source;
 
 #define DEFAULT_PARAM_SIZE  4
+#define DEFAULT_BT_ADDR_SIZE  6
 
 /*============================================================================*
  *                              Functions

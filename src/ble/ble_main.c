@@ -48,3 +48,45 @@ T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
 T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
 T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
 uint8_t ble_dev_role = 0; // 0:close 1:server 2:client
+
+// bool ble_init()
+// {
+//   log_v("ble_stack_init");
+
+//   T_GAP_DEV_STATE new_state;
+
+//   if (!(wifi_is_up(RTW_STA_INTERFACE) || wifi_is_up(RTW_AP_INTERFACE)))
+//   {
+//     wiFiDrv.wifiDriverInit();
+//   }
+
+//   /*Wait WIFI init complete*/
+//   while (!(wifi_is_up(RTW_STA_INTERFACE) || wifi_is_up(RTW_AP_INTERFACE)))
+//   {
+//     vTaskDelay(1000 / portTICK_RATE_MS);
+//   }
+
+//   //judge BLE central is already on
+//   le_get_gap_param(GAP_PARAM_DEV_STATE, &new_state);
+//   if (new_state.gap_init_state == GAP_INIT_STATE_STACK_READY)
+//   {
+//     log_d("[BLE Central]BT Stack already on");
+//     return false;
+//   }else{
+    
+//   }
+  
+//   bt_coex_init();
+
+//   /*Wait BT init complete*/
+//   do
+//   {
+//     vTaskDelay(100 / portTICK_RATE_MS);
+//     le_get_gap_param(GAP_PARAM_DEV_STATE, &new_state);
+//   } while (new_state.gap_init_state != GAP_INIT_STATE_STACK_READY);
+
+//   /*Start BT WIFI coexistence*/
+//   wifi_btcoex_set_bt_on();
+
+//   return true;
+// }

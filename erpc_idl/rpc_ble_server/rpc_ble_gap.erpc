@@ -69,14 +69,13 @@ enum RPC_T_GAP_RAND_ADDR_TYPE
     RPC_GAP_RAND_ADDR_RESOLVABLE        = 0x02 /**<  Resolvable random device address. */
 };
 
-@group("ble_api")
-interface rpc_gap_adv {
-    rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
-    rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
-    rpc_le_adv_start() -> RPC_T_GAP_CAUSE
-    rpc_le_adv_stop() -> RPC_T_GAP_CAUSE;
-    rpc_le_adv_update_param() -> RPC_T_GAP_CAUSE;
+/** @brief GAP gatt cccd not check. */
+enum RPC_T_GAP_CONFIG_GATT_CCCD_NOT_CHECK
+{
+    RPC_CONFIG_GATT_CCCD_CHECK,         /**< Check cccd when server sends notification or indication. */
+    RPC_CONFIG_GATT_CCCD_NOT_CHECK,     /**< Not check cccd when server sends notification or indication. */
 };
+
 
 
 @group("ble_api")
@@ -92,8 +91,30 @@ interface rpc_gap_le {
     //T_GAP_CAUSE le_cfg_local_identity_address(uint8_t *addr, T_GAP_IDENT_ADDR_TYPE type);
     //T_GAP_CAUSE le_set_host_chann_classif(uint8_t *p_channel_map);
     //T_GAP_CAUSE le_write_default_data_len(uint16_t tx_octets, uint16_t tx_time);
-}
+};
 
+
+@group("ble_api")
+interface rpc_gap_config {
+    rpc_gap_config_cccd_not_check(RPC_T_GAP_CONFIG_GATT_CCCD_NOT_CHECK cccd_not_check_flag) -> void
+    rpc_gap_config_ccc_bits_count(uint8 gatt_server_ccc_bits_count, uint8 gatt_storage_ccc_bits_count) -> void
+    rpc_gap_config_max_attribute_table_count(uint8 gatt_max_attribute_table_count) -> void
+    rpc_gap_config_max_mtu_size(uint16 att_max_mtu_size) -> void
+    rpc_gap_config_bte_pool_size(uint8 bte_pool_size) -> void
+    rpc_gap_config_bt_report_buf_num(uint8 bt_report_buf_num) -> void
+    rpc_gap_config_le_key_storage_flag(uint16 le_key_storage_flag) -> void
+    rpc_gap_config_max_le_paired_device(uint8 max_le_paired_device) -> void
+    rpc_gap_config_max_le_link_num(uint8 le_link_num) -> void
+};
+
+@group("ble_api")
+interface rpc_gap_adv {
+    rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_adv_start() -> RPC_T_GAP_CAUSE
+    rpc_le_adv_stop() -> RPC_T_GAP_CAUSE;
+    rpc_le_adv_update_param() -> RPC_T_GAP_CAUSE;
+};
 
 @group("ble_api")
 interface rpc_gap_scan {
@@ -101,5 +122,7 @@ interface rpc_gap_scan {
     rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_le_scan_start() -> RPC_T_GAP_CAUSE
     rpc_le_scan_stop() -> RPC_T_GAP_CAUSE;
-}
+};
+
+
 
