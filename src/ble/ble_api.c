@@ -44,22 +44,32 @@ extern "C"
 #include "rtk_coex.h"
 #include "profile_server.h"
 #include "profile_client.h"
-
 #ifdef __cplusplus
 }
 #endif
+
 #include "ble_common.h"
 #include "ble_api.h"
 #include "ble_utils.h"
 #include "ble_callback.h"
+#include "ble_main.h"
 #include "rpc_ble_api.h"
 
 
-uint8_t _Ble_HostInitialize(void)
+//! @name host
+//@{
+
+bool rpc_ble_init(void)
 {
-  //log_d("_Ble_HostInitialize called");
-  return 0;
+  return ble_init();
 }
+
+
+void rpc_ble_deinit(void)
+{
+  return ble_deinit();
+}
+//@}
 
 //! @name rpc_gap_adv
 //@{

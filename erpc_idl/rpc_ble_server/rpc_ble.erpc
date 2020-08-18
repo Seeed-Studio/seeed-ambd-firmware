@@ -6,8 +6,8 @@ import "rpc_ble_common.erpc"
 
 @group("ble_api")
 interface host {
-    _Ble_HostInitialize(
-        ) -> uint8
+    rpc_ble_init() -> bool
+    rpc_ble_deinit() -> void
 }
 
 import "rpc_ble_gap.erpc"

@@ -53,6 +53,7 @@ extern "C"
 }
 #endif
 
+#include "ble_main.h"
 #include "ble_common.h"
 #include "ble_callback.h"
 #include "ble_task.h"
