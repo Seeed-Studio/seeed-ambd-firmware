@@ -76,6 +76,7 @@ RPC_T_GAP_CAUSE rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, const binary
 RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t * value)
 {
   log_d("rpc_le_adv_get_param called");
+  value->dataLength = DEFAULT_PARAM_SIZE;
   return le_adv_get_param(param, value->data);
 }
 
@@ -121,10 +122,11 @@ RPC_T_GAP_CAUSE rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, const binary
   return le_set_gap_param(param, value->dataLength, value->data);
 }
 
-RPC_T_GAP_CAUSE rpc_le_get_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t * value)
+RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t * value)
 {
   log_d("rpc_le_get_param called");
-  return le_set_gap_param(param, value->dataLength, value->data);
+  value->dataLength = DEFAULT_PARAM_SIZE;
+  return le_get_gap_param(param, value->data);
 }
 
 RPC_T_GAP_CAUSE rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, const binary_t * bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
@@ -137,6 +139,7 @@ RPC_T_GAP_CAUSE rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, const b
 RPC_T_GAP_CAUSE rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, binary_t * random_bd)
 {
   log_d("rpc_le_gen_rand_addr called");
+  random_bd->dataLength = 6;
   return le_gen_rand_addr(rand_addr_type, random_bd->data);
 }
 
@@ -155,6 +158,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, const bina
 RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t * value)
 {
   log_d("rpc_le_scan_get_param called");
+  value->dataLength = DEFAULT_PARAM_SIZE;
   return le_scan_get_param(param, value->data);
 }
 

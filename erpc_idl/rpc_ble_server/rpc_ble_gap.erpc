@@ -85,7 +85,7 @@ interface rpc_gap_le {
     rpc_le_gap_msg_info_way(bool use_msg) -> void
     rpc_le_get_max_link_num() -> uint8
     rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
-    rpc_le_get_param(RPC_T_GAP_LE_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
+    rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, in binary bd_addr,RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) -> RPC_T_GAP_CAUSE
     rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, out binary random_bd) -> RPC_T_GAP_CAUSE
     rpc_le_set_rand_addr(binary random_bd) -> RPC_T_GAP_CAUSE
