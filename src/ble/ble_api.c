@@ -63,6 +63,9 @@ uint8_t _Ble_HostInitialize(void)
   return 0;
 }
 
+//! @name rpc_gap_adv
+//@{
+
 RPC_T_GAP_CAUSE rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, const binary_t *value)
 {
   log_d("rpc_le_adv_set_param called");
@@ -97,6 +100,10 @@ RPC_T_GAP_CAUSE rpc_le_adv_update_param(void)
   log_d("rpc_le_adv_update_param called");
   return le_adv_update_param();
 }
+//@}
+
+//! @name rpc_gap_le
+//@{
 
 bool rpc_le_gap_init(uint8_t link_num)
 {
@@ -157,10 +164,33 @@ RPC_T_GAP_CAUSE rpc_le_set_rand_addr(const binary_t *random_bd)
   return le_set_rand_addr(random_bd->data);
 }
 
+RPC_T_GAP_CAUSE rpc_le_cfg_local_identity_address(const binary_t *addr, RPC_T_GAP_IDENT_ADDR_TYPE ident_addr_type)
+{
+  log_d("rpc_le_cfg_local_identity_address called");
+  return le_cfg_local_identity_address(addr->data, ident_addr_type);
+}
+
+RPC_T_GAP_CAUSE rpc_le_set_host_chann_classif(const binary_t *p_channel_map)
+{
+  log_d("rpc_le_set_host_chann_classif called");
+  return le_set_host_chann_classif(p_channel_map->data);
+}
+
+RPC_T_GAP_CAUSE rpc_le_write_default_data_len(uint16_t tx_octets, uint16_t tx_time)
+{
+  log_d("rpc_le_write_default_data_len called");
+  return le_write_default_data_len(tx_octets, tx_time);
+}
+
+//@}
+
+//! @name rpc_gap_scan
+//@{
+
 RPC_T_GAP_CAUSE rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, const binary_t *value)
 {
   log_d("rpc_le_scan_set_param called");
-  return le_set_gap_param(param, value->dataLength, value->data);
+  return le_scan_set_param(param, value->dataLength, value->data);
 }
 
 RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *value)
@@ -185,6 +215,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_stop(void)
   log_d("rpc_le_scan_stop called");
   return le_scan_stop();
 }
+//@}
 
 //! @name rpc_gap_config
 //@{
