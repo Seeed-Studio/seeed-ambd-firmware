@@ -79,7 +79,7 @@ RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t *va
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_adv_get_param(param, p_value);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 
@@ -136,38 +136,32 @@ RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t *va
   value->dataLength = DEFAULT_PARAM_SIZE;
   int8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_get_gap_param(param, p_value);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 
-RPC_T_GAP_CAUSE rpc_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, const binary_t *bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
+RPC_T_GAP_CAUSE rpc_le_modify_white_list(RPC_T_GAP_WHITE_LIST_OP operation, const uint8_t bd_addr[6], RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
 {
-  log_d("rpc_modify_white_list called");
-  //return modify_white_list(operation, bd_addr->data, bd_type);
-  return RPC_GAP_CAUSE_SUCCESS;
+  log_d("rpc_le_modify_white_list called");
+  return le_modify_white_list(operation, bd_addr, bd_type);
 }
 
-RPC_T_GAP_CAUSE rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, binary_t *random_bd)
+RPC_T_GAP_CAUSE rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, uint8_t random_bd[6])
 {
   log_d("rpc_le_gen_rand_addr called");
-  RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  random_bd->dataLength = DEFAULT_BT_ADDR_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(random_bd->dataLength * sizeof(uint8_t));
-  ret = le_gen_rand_addr(rand_addr_type, p_value);
-  random_bd->data = p_value;
-  return ret;
+  return le_gen_rand_addr(rand_addr_type, random_bd);
 }
 
-RPC_T_GAP_CAUSE rpc_le_set_rand_addr(const binary_t *random_bd)
+RPC_T_GAP_CAUSE rpc_le_set_rand_addr(const uint8_t random_bd[6])
 {
   log_d("rpc_le_set_rand_addr called");
-  return le_set_rand_addr(random_bd->data);
+  return le_set_rand_addr(random_bd);
 }
 
-RPC_T_GAP_CAUSE rpc_le_cfg_local_identity_address(const binary_t *addr, RPC_T_GAP_IDENT_ADDR_TYPE ident_addr_type)
+RPC_T_GAP_CAUSE rpc_le_cfg_local_identity_address(const uint8_t addr[6], RPC_T_GAP_IDENT_ADDR_TYPE ident_addr_type)
 {
   log_d("rpc_le_cfg_local_identity_address called");
-  return le_cfg_local_identity_address(addr->data, ident_addr_type);
+  return le_cfg_local_identity_address(addr, ident_addr_type);
 }
 
 RPC_T_GAP_CAUSE rpc_le_set_host_chann_classif(const binary_t *p_channel_map)
@@ -200,7 +194,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_scan_get_param(param, p_value);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 
@@ -290,7 +284,7 @@ RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
   value->dataLength = DEFAULT_BT_ADDR_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = rpc_gap_get_param(param, p_value);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 
@@ -316,7 +310,7 @@ RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_bond_get_param(param, p_value);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 RPC_T_GAP_CAUSE rpc_le_bond_pair(uint8_t conn_id)
@@ -384,10 +378,10 @@ RPC_T_GAP_CAUSE rpc_le_bond_delete_by_idx(uint8_t idx)
   return le_bond_delete_by_idx(idx);
 }
 
-RPC_T_GAP_CAUSE rpc_le_bond_delete_by_bd(const binary_t *bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
+RPC_T_GAP_CAUSE rpc_le_bond_delete_by_bd(const uint8_t bd_addr[6], RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
 {
   log_d("rpc_le_bond_delete_by_bd called");
-  return le_bond_delete_by_bd(bd_addr->data, bd_type);
+  return le_bond_delete_by_bd(bd_addr, bd_type);
 }
 
 RPC_T_GAP_CAUSE rpc_le_bond_get_sec_level(uint8_t conn_id, RPC_T_GAP_SEC_LEVEL *sec_type)
@@ -406,7 +400,7 @@ RPC_T_GAP_CAUSE rpc_le_get_conn_param(RPC_T_LE_CONN_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PKEY_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_get_conn_param(param, p_value, conn_id);
-  value->data = p_value;
+  value->data =(uint8_t *)p_value;
   return ret;
 }
 
