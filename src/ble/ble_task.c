@@ -48,19 +48,6 @@ extern T_GAP_DEV_STATE ble_gap_dev_state;
 /*============================================================================*
  *                              Functions
  *============================================================================*/
-
-/**
- * @brief  Initialize App task
- * @return void
- */
-void ble_app_task_init()
-{
-    log_v("Entry");
-    os_task_create(&ble_task_handle, "ble task", ble_main_task, 0, RPC_BLE_TASK_STACK_SIZE,
-                   RPC_BLE_TASK_PRIORITY);
-    log_v("Exit");
-}
-
 /**
  * @brief        ble task to handle events & messages
  * @param[in]    p_param    Parameters sending to the task
@@ -96,6 +83,18 @@ void ble_main_task(void *p_param)
     }
 }
 
+/**
+ * @brief  Initialize App task
+ * @return void
+ */
+void ble_task_init()
+{
+    log_v("Entry");
+    os_task_create(&ble_task_handle, "ble task", ble_main_task, 0, RPC_BLE_TASK_STACK_SIZE,
+                   RPC_BLE_TASK_PRIORITY);
+    log_v("Exit");
+}
+
 void ble_task_deinit(void)
 {
     if (ble_io_queue_handle)
@@ -113,10 +112,4 @@ void ble_task_deinit(void)
     ble_io_queue_handle = NULL;
     ble_evt_queue_handle = NULL;
     ble_task_handle = NULL;
-
-    ble_gap_dev_state.gap_init_state = 0;
-	ble_gap_dev_state.gap_adv_sub_state = 0;
-	ble_gap_dev_state.gap_adv_state = 0;
-	ble_gap_dev_state.gap_scan_state = 0;
-	ble_gap_dev_state.gap_conn_state = 0;
 }
