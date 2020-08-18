@@ -77,7 +77,7 @@ RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t *va
   log_d("rpc_le_adv_get_param called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   value->dataLength = DEFAULT_PARAM_SIZE;
-  uint8_t *p_value = (uint8_t *)malloc(value->dataLength * sizeof(uint8_t));
+  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_adv_get_param(param, p_value);
   value->data = p_value;
   return ret;
@@ -134,7 +134,7 @@ RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t *va
   log_d("rpc_le_get_param called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   value->dataLength = DEFAULT_PARAM_SIZE;
-  int8_t *p_value = (uint8_t *)malloc(value->dataLength * sizeof(uint8_t));
+  int8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_get_gap_param(param, p_value);
   value->data = p_value;
   return ret;
@@ -152,7 +152,7 @@ RPC_T_GAP_CAUSE rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, bi
   log_d("rpc_le_gen_rand_addr called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   random_bd->dataLength = DEFAULT_BT_ADDR_SIZE;
-  uint8_t *p_value = (uint8_t *)malloc(random_bd->dataLength * sizeof(uint8_t));
+  uint8_t *p_value = (uint8_t *)erpc_malloc(random_bd->dataLength * sizeof(uint8_t));
   ret = le_gen_rand_addr(rand_addr_type, p_value);
   random_bd->data = p_value;
   return ret;
@@ -198,7 +198,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *
   log_d("rpc_le_scan_get_param called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   value->dataLength = DEFAULT_PARAM_SIZE;
-  uint8_t *p_value = (uint8_t *)malloc(value->dataLength * sizeof(uint8_t));
+  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_scan_get_param(param, p_value);
   value->data = p_value;
   return ret;
