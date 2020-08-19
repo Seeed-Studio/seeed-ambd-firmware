@@ -55,7 +55,6 @@ extern "C"
 #include "ble_main.h"
 #include "rpc_ble_api.h"
 
-
 //! @name host
 //@{
 
@@ -91,7 +90,7 @@ RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t *va
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_adv_get_param(param, p_value);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 
@@ -148,7 +147,7 @@ RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t *va
   value->dataLength = DEFAULT_PARAM_SIZE;
   int8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_get_gap_param(param, p_value);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 
@@ -176,10 +175,10 @@ RPC_T_GAP_CAUSE rpc_le_cfg_local_identity_address(const uint8_t addr[6], RPC_T_G
   return le_cfg_local_identity_address(addr, ident_addr_type);
 }
 
-RPC_T_GAP_CAUSE rpc_le_set_host_chann_classif(const binary_t *p_channel_map)
+RPC_T_GAP_CAUSE rpc_le_set_host_chann_classif(uint8_t p_channel_map)
 {
   log_d("rpc_le_set_host_chann_classif called");
-  return le_set_host_chann_classif(p_channel_map->data);
+  return le_set_host_chann_classif(p_channel_map);
 }
 
 RPC_T_GAP_CAUSE rpc_le_write_default_data_len(uint16_t tx_octets, uint16_t tx_time)
@@ -206,7 +205,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_scan_get_param(param, p_value);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 
@@ -220,6 +219,11 @@ RPC_T_GAP_CAUSE rpc_le_scan_stop(void)
 {
   log_d("rpc_le_scan_stop called");
   return le_scan_stop();
+}
+
+bool rpc_le_scan_info_filter(bool enable, uint8_t offset, uint8_t len, const uint8_t p_filter[31])
+{
+  return le_scan_info_filter(enable, offset, len, p_filter);
 }
 //@}
 
@@ -296,7 +300,7 @@ RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
   value->dataLength = DEFAULT_BT_ADDR_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = rpc_gap_get_param(param, p_value);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 
@@ -322,7 +326,7 @@ RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PARAM_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_bond_get_param(param, p_value);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 RPC_T_GAP_CAUSE rpc_le_bond_pair(uint8_t conn_id)
@@ -331,14 +335,11 @@ RPC_T_GAP_CAUSE rpc_le_bond_pair(uint8_t conn_id)
   return rpc_le_bond_pair(conn_id);
 }
 
-RPC_T_GAP_CAUSE rpc_le_bond_get_display_key(uint8_t conn_id, binary_t *key)
+RPC_T_GAP_CAUSE rpc_le_bond_get_display_key(uint8_t conn_id, uint32_t *key)
 {
   log_d("rpc_le_bond_get_display_key called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  key->dataLength = DEFAULT_PKEY_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(key->dataLength * sizeof(uint8_t));
-  ret = le_bond_get_display_key(conn_id, p_value);
-  key->data = p_value;
+  ret = le_bond_get_display_key(conn_id, key);
   return ret;
 }
 
@@ -412,7 +413,7 @@ RPC_T_GAP_CAUSE rpc_le_get_conn_param(RPC_T_LE_CONN_PARAM_TYPE param, binary_t *
   value->dataLength = DEFAULT_PKEY_SIZE;
   uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
   ret = le_get_conn_param(param, p_value, conn_id);
-  value->data =(uint8_t *)p_value;
+  value->data = (uint8_t *)p_value;
   return ret;
 }
 
@@ -476,7 +477,7 @@ RPC_T_GAP_CAUSE rpc_le_set_conn_param(RPC_T_GAP_CONN_PARAM_TYPE conn_type, const
   return le_set_conn_param(conn_type, p_conn_param);
 }
 
-RPC_T_GAP_CAUSE rpc_le_connect(uint8_t init_phys, const uint8_t remote_bd[6], RPC_T_GAP_CONN_PARAM_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16_t scan_timeout)
+RPC_T_GAP_CAUSE rpc_le_connect(uint8_t init_phys, const uint8_t remote_bd[6], RPC_T_GAP_REMOTE_ADDR_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16_t scan_timeout)
 {
   log_d("rpc_le_connect called");
   return le_connect(init_phys, remote_bd, remote_bd_type, local_bd_type, scan_timeout);

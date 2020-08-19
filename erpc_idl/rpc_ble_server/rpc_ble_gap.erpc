@@ -246,7 +246,7 @@ interface rpc_gap_bone{
     rpc_le_bond_set_param(RPC_T_LE_BOND_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
     rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_le_bond_pair(uint8 conn_id) -> RPC_T_GAP_CAUSE
-    rpc_le_bond_get_display_key(uint8 conn_id, out binary key) -> RPC_T_GAP_CAUSE
+    rpc_le_bond_get_display_key(uint8 conn_id, out uint32 key) -> RPC_T_GAP_CAUSE
     rpc_le_bond_passkey_input_confirm(uint8 conn_id, uint32 passcode, RPC_T_GAP_CFM_CAUSE cause) -> RPC_T_GAP_CAUSE
     rpc_le_bond_oob_input_confirm(uint8 conn_id, RPC_T_GAP_CFM_CAUSE cause) -> RPC_T_GAP_CAUSE
     rpc_le_bond_just_work_confirm(uint8 conn_id, RPC_T_GAP_CFM_CAUSE cause) -> RPC_T_GAP_CAUSE
@@ -270,7 +270,7 @@ interface rpc_gap_le {
     rpc_le_gen_rand_addr(RPC_T_GAP_RAND_ADDR_TYPE rand_addr_type, out uint8[6] random_bd) -> RPC_T_GAP_CAUSE
     rpc_le_set_rand_addr(in uint8[6] random_bd) -> RPC_T_GAP_CAUSE
     rpc_le_cfg_local_identity_address(in uint8[6] addr, RPC_T_GAP_IDENT_ADDR_TYPE ident_addr_type) -> RPC_T_GAP_CAUSE
-    rpc_le_set_host_chann_classif(in binary p_channel_map) -> RPC_T_GAP_CAUSE
+    rpc_le_set_host_chann_classif(in uint8 p_channel_map) -> RPC_T_GAP_CAUSE
     rpc_le_write_default_data_len(uint16 tx_octets, uint16 tx_time) -> RPC_T_GAP_CAUSE
 };
 
@@ -303,6 +303,7 @@ interface rpc_gap_scan {
     rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_le_scan_start() -> RPC_T_GAP_CAUSE
     rpc_le_scan_stop() -> RPC_T_GAP_CAUSE;
+    rpc_le_scan_info_filter(bool enable, uint8 offset, uint8 len, in uint8[31] p_filter) -> bool
 };
 
 @group("ble_api")
@@ -318,7 +319,7 @@ interface rpc_gap_conn {
     rpc_le_set_data_len(uint8 conn_id, uint16 tx_octets, uint16 tx_time) -> RPC_T_GAP_CAUSE
     rpc_le_set_phy(uint8 conn_id, uint8 all_phys, uint8 tx_phys, uint8 rx_phys, RPC_T_GAP_PHYS_OPTIONS phy_options) -> RPC_T_GAP_CAUSE
     rpc_le_set_conn_param(RPC_T_GAP_CONN_PARAM_TYPE conn_type, in RPC_T_GAP_LE_CONN_REQ_PARAM p_conn_param) -> RPC_T_GAP_CAUSE
-    rpc_le_connect(uint8 init_phys, in uint8[6] remote_bd,  RPC_T_GAP_CONN_PARAM_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16 scan_timeout) -> RPC_T_GAP_CAUSE
+    rpc_le_connect(uint8 init_phys, in uint8[6] remote_bd,  RPC_T_GAP_REMOTE_ADDR_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16 scan_timeout) -> RPC_T_GAP_CAUSE
     rpc_le_update_conn_param(uint8 conn_id, uint16 conn_interval_min, uint16  conn_interval_max, uint16 conn_latency, uint16 supervision_timeout, uint16 ce_length_min, uint16 ce_length_max) -> RPC_T_GAP_CAUSE
 };
 
