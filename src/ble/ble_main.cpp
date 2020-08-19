@@ -70,7 +70,7 @@ uint8_t ble_dev_role = 0; // 0:close 1:server 2:client
 
 bool ble_init()
 {
-  log_v("ble_client_test_main");
+  log_v("ble_init");
 
   //int bt_stack_already_on = 0;
   //(void) bt_stack_already_on;
@@ -98,10 +98,18 @@ bool ble_init()
   else
   {
     bte_init();
-    ble_task_init();
-    le_register_app_cb(ble_gap_callback);
   }
 
+  return true;
+}
+
+void ble_start(void)
+{
+  log_v("ble_start");
+  T_GAP_DEV_STATE new_state;
+  le_register_app_cb(ble_gap_callback);
+  ble_task_init();
+  
   bt_coex_init();
 
   /*Wait BT init complete*/
@@ -113,15 +121,15 @@ bool ble_init()
 
   /*Start BT WIFI coexistence*/
   wifi_btcoex_set_bt_on();
-
-  return true;
 }
 
 void ble_deinit(void)
 {
+  log_v("ble_deinit");
   ble_task_deinit();
   T_GAP_DEV_STATE state;
   le_get_gap_param(GAP_PARAM_DEV_STATE, &state);
+
 
   if (state.gap_init_state != GAP_INIT_STATE_STACK_READY)
   {

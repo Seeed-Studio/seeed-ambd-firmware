@@ -35,7 +35,7 @@ using namespace erpc;
  *                              Constants
  *============================================================================*/
 
-UartTransport g_transport(&Serial2, 1843200);
+UartTransport g_transport(&Serial2, 115200);
 BasicCodecFactory g_basicCodecFactory;
 ArbitratedClientManager *g_client;
 TransportArbitrator g_arbitrator;
@@ -79,8 +79,12 @@ MyMessageBufferFactory g_msgFactory;
 void add_services(erpc::SimpleServer *server)
 {
     server->addService(static_cast<erpc::Service *>(create_host_service()));
-    server->addService(static_cast<erpc::Service *>(create_rpc_gap_le_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_bone_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_adv_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_le_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_config_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_conn_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_scan_service()));
 }
 

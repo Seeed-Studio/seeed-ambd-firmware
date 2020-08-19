@@ -20,6 +20,7 @@ extern "C"
 
 bool ble_init(void);
 void ble_deinit(void);
+void ble_start(void);
 
 #ifdef __cplusplus
 }

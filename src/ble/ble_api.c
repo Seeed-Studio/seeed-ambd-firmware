@@ -64,6 +64,10 @@ bool rpc_ble_init(void)
   return ble_init();
 }
 
+void rpc_ble_start(void)
+{
+  return ble_start();
+}
 
 void rpc_ble_deinit(void)
 {

@@ -7,6 +7,7 @@ import "rpc_ble_common.erpc"
 @group("ble_api")
 interface host {
     rpc_ble_init() -> bool
+    rpc_ble_start() -> void
     rpc_ble_deinit() -> void
 }
 
