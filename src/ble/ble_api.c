@@ -298,36 +298,36 @@ RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
   printf("rpc_gap_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
-  switch (param)
+  switch ((T_GAP_PARAM_TYPE)param)
   {
-  case RPC_GAP_PARAM_BD_ADDR:
+  case GAP_PARAM_BD_ADDR:
   {
-    FORMTION_BINARY_GET_PARAM(DEFAULT_BT_ADDR_SIZE, gap_get_param, RPC_GAP_PARAM_BD_ADDR);
+    FORMTION_BINARY_GET_PARAM(DEFAULT_BT_ADDR_SIZE, gap_get_param, GAP_PARAM_BD_ADDR);
     break;
   }
-  case RPC_GAP_PARAM_BOND_PAIRING_MODE:
+  case GAP_PARAM_BOND_PAIRING_MODE:
   {
-    FORMTION_BINARY_GET_PARAM(1, gap_get_param, RPC_GAP_PARAM_BOND_PAIRING_MODE);
+    FORMTION_BINARY_GET_PARAM(1, gap_get_param, GAP_PARAM_BOND_PAIRING_MODE);
     break;
   }
-  case RPC_GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS:
+  case GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS:
   {
-    FORMTION_BINARY_GET_PARAM(2, gap_get_param, RPC_GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS);
+    FORMTION_BINARY_GET_PARAM(2, gap_get_param, GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS);
     break;
   }
-  case RPC_GAP_PARAM_BOND_IO_CAPABILITIES:
+  case GAP_PARAM_BOND_IO_CAPABILITIES:
   {
-    FORMTION_BINARY_GET_PARAM(1, gap_get_param, RPC_GAP_PARAM_BOND_IO_CAPABILITIES);
+    FORMTION_BINARY_GET_PARAM(1, gap_get_param, GAP_PARAM_BOND_IO_CAPABILITIES);
     break;
   }
-  case RPC_GAP_PARAM_BOND_OOB_ENABLED:
+  case GAP_PARAM_BOND_OOB_ENABLED:
   {
-    FORMTION_BINARY_GET_PARAM(1, gap_get_param, RPC_GAP_PARAM_BOND_OOB_ENABLED);
+    FORMTION_BINARY_GET_PARAM(1, gap_get_param, GAP_PARAM_BOND_OOB_ENABLED);
     break;
   }
-  case RPC_GAP_PARAM_BOND_LE_PAIRING_MODE:
+  case GAP_PARAM_BOND_LE_PAIRING_MODE:
   {
-    FORMTION_BINARY_GET_PARAM(1, gap_get_param, RPC_GAP_PARAM_BOND_OOB_ENABLED);
+    FORMTION_BINARY_GET_PARAM(1, gap_get_param, GAP_PARAM_BOND_OOB_ENABLED);
     break;
   }
   default:
@@ -359,12 +359,55 @@ RPC_T_GAP_CAUSE rpc_le_bond_set_param(RPC_T_LE_BOND_PARAM_TYPE param, const bina
 
 RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *value)
 {
-  log_d("rpc_le_bond_get_param called");
+  printf("rpc_le_bond_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  value->dataLength = DEFAULT_PARAM_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-  ret = le_bond_get_param(param, p_value);
-  value->data = (uint8_t *)p_value;
+  uint8_t *p_value = NULL;
+  switch ((T_LE_BOND_PARAM_TYPE)param)
+  {
+  case GAP_PARAM_BOND_OOB_DATA:
+  {
+    FORMTION_BINARY_GET_PARAM(GAP_OOB_LEN, le_bond_get_param, GAP_PARAM_BOND_OOB_DATA);
+    break;
+  }
+  case GAP_PARAM_BOND_FIXED_PASSKEY:
+  {
+    FORMTION_BINARY_GET_PARAM(4, le_bond_get_param, GAP_PARAM_BOND_FIXED_PASSKEY);
+    break;
+  }
+  case GAP_PARAM_BOND_FIXED_PASSKEY_ENABLE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_bond_get_param, GAP_PARAM_BOND_FIXED_PASSKEY_ENABLE);
+    break;
+  }
+  case GAP_PARAM_BOND_SEC_REQ_REQUIREMENT:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_bond_get_param, GAP_PARAM_BOND_SEC_REQ_REQUIREMENT);
+    break;
+  }
+  case GAP_PARAM_BOND_MIN_KEY_SIZE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_bond_get_param, GAP_PARAM_BOND_MIN_KEY_SIZE);
+    break;
+  }
+  case GAP_PARAM_BOND_KEY_MANAGER:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_bond_get_param, GAP_PARAM_BOND_KEY_MANAGER);
+    break;
+  }
+  case GAP_PARAM_BOND_SIGN_KEY_FLAG:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_bond_get_param, GAP_PARAM_BOND_SIGN_KEY_FLAG);
+    break;
+  }
+  default:
+  {
+    value->dataLength = 1;
+    p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
+    value->data = (uint8_t *)p_value;
+    ret = RPC_GAP_CAUSE_INVALID_PARAM;
+    break;
+  }
+  }
   return ret;
 }
 RPC_T_GAP_CAUSE rpc_le_bond_pair(uint8_t conn_id)
