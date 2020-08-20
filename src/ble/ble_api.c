@@ -653,12 +653,72 @@ RPC_T_GAP_CAUSE rpc_le_bond_get_sec_level(uint8_t conn_id, RPC_T_GAP_SEC_LEVEL *
 //@{
 RPC_T_GAP_CAUSE rpc_le_get_conn_param(RPC_T_LE_CONN_PARAM_TYPE param, binary_t *value, uint8_t conn_id)
 {
-  log_d("rpc_le_get_conn_param called");
+  printf("rpc_le_get_conn_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  value->dataLength = DEFAULT_PKEY_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-  ret = le_get_conn_param(param, p_value, conn_id);
-  value->data = (uint8_t *)p_value;
+  uint8_t *p_value = NULL;
+  switch ((T_LE_CONN_PARAM_TYPE)param)
+  {
+  case GAP_PARAM_CONN_BD_ADDR:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(DEFAULT_BT_ADDR_SIZE, le_get_conn_param, GAP_PARAM_CONN_BD_ADDR, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_BD_ADDR_TYPE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(1, le_get_conn_param, GAP_PARAM_CONN_BD_ADDR_TYPE, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_INTERVAL:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_INTERVAL, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_LATENCY:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_LATENCY, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_TIMEOUT:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_TIMEOUT, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_MTU_SIZE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_MTU_SIZE, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_LOCAL_BD_TYPE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(1, le_get_conn_param, GAP_PARAM_CONN_LOCAL_BD_TYPE, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_RX_PHY_TYPE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(1, le_get_conn_param, GAP_PARAM_CONN_RX_PHY_TYPE, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_TX_PHY_TYPE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(1, le_get_conn_param, GAP_PARAM_CONN_TX_PHY_TYPE, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_REMOTE_FEATURES:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_REMOTE_FEATURES, conn_id);
+    break;
+  }
+  case GAP_PARAM_CONN_HANDLE:
+  {
+    FORMTION_BINARY_GET_CONN_PARAM(2, le_get_conn_param, GAP_PARAM_CONN_HANDLE, conn_id);
+    break;
+  }
+  default:
+  {
+    FORMTION_BINARY_GET_PARAM_INVALID;
+    break;
+  }
+  }
   return ret;
 }
 

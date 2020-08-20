@@ -45,6 +45,12 @@
   ret = FUN(PARAM, p_value);                                             \
   value->data = (uint8_t *)p_value
 
+#define FORMTION_BINARY_GET_CONN_PARAM(LEN, FUN, PARAM, CONN_ID)         \
+  value->dataLength = LEN;                                               \
+  p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \
+  ret = FUN(PARAM, p_value, CONN_ID);                                    \
+  value->data = (uint8_t *)p_value
+
 #define FORMTION_BINARY_GET_PARAM_INVALID                                \
   value->dataLength = 1;                                                 \
   p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \
