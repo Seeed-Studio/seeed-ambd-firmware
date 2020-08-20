@@ -36,11 +36,17 @@
  *                              Marcos
  *============================================================================*/
 #define FORMATION_BINARY(dest, source, dataType) \
-  dest->dataLength = sizeof(dataType);        \
-  dest->data = (uint8_t *)source;
+  dest->dataLength = sizeof(dataType);           \
+  dest->data = (uint8_t *)source
 
-#define DEFAULT_PARAM_SIZE  4
-#define DEFAULT_BT_ADDR_SIZE  6
+#define FORMTION_BINARY_GET_PARAM(LEN, FUN, PARAM)                       \
+  value->dataLength = LEN;                                               \
+  p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \
+  ret = FUN(PARAM, p_value);                                             \
+  value->data = (uint8_t *)p_value;
+
+#define DEFAULT_PARAM_SIZE 4
+#define DEFAULT_BT_ADDR_SIZE 6
 #define DEFAULT_PKEY_SIZE 6
 
 /*============================================================================*
