@@ -197,12 +197,92 @@ RPC_T_GAP_CAUSE rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, const binary
 
 RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t *value)
 {
-  log_d("rpc_le_get_param called");
+  printf("rpc_le_get_gap_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  value->dataLength = DEFAULT_PARAM_SIZE;
-  int8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-  ret = le_get_gap_param(param, p_value);
-  value->data = (uint8_t *)p_value;
+  uint8_t *p_value = NULL;
+  switch ((T_GAP_LE_PARAM_TYPE)param)
+  {
+  case GAP_PARAM_DEV_STATE:
+  {
+    FORMTION_BINARY_GET_PARAM(sizeof(T_GAP_DEV_STATE), le_get_gap_param, GAP_PARAM_DEV_STATE);
+    break;
+  }
+  case GAP_PARAM_APPEARANCE:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_DEV_STATE);
+    break;
+  }
+  case GAP_PARAM_DEVICE_NAME:
+  {
+    FORMTION_BINARY_GET_PARAM(sizeof(GAP_DEVICE_NAME_LEN), le_get_gap_param, GAP_PARAM_DEVICE_NAME);
+    break;
+  }
+  case GAP_PARAM_LATEST_CONN_BD_ADDR:
+  {
+    FORMTION_BINARY_GET_PARAM(DEFAULT_BT_ADDR_SIZE, le_get_gap_param, GAP_PARAM_LATEST_CONN_BD_ADDR);
+    break;
+  }
+  case GAP_PARAM_LATEST_CONN_BD_ADDR_TYPE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_LATEST_CONN_BD_ADDR_TYPE);
+    break;
+  }
+  case GAP_PARAM_DEFAULT_PHYS_PREFER:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_DEFAULT_PHYS_PREFER);
+    break;
+  }
+  case GAP_PARAM_DEFAULT_TX_PHYS_PREFER:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_DEFAULT_TX_PHYS_PREFER);
+    break;
+  }
+  case GAP_PARAM_DEFAULT_RX_PHYS_PREFER:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_DEFAULT_RX_PHYS_PREFER);
+    break;
+  }
+  // case GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_OCTETS:
+  // {
+  //   FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_OCTETS);
+  //   break;
+  // }
+  // case GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_TIME:
+  // {
+  //   FORMTION_BINARY_GET_PARAM(1, le_get_gap_param, GAP_PARAM_DEFAULT_DATA_LEN_MAX_TX_TIME);
+  //   break;
+  // }
+  case GAP_PARAM_LOCAL_FEATURES:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_LOCAL_FEATURES);
+    break;
+  }
+  case GAP_PARAM_DS_POOL_ID:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_DS_POOL_ID);
+    break;
+  }
+  case GAP_PARAM_DS_DATA_OFFSET:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_DS_DATA_OFFSET);
+    break;
+  }
+  case GAP_PARAM_LE_REMAIN_CREDITS:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_LE_REMAIN_CREDITS);
+    break;
+  }
+  case GAP_PARAM_MAX_WL_SIZE:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_get_gap_param, GAP_PARAM_MAX_WL_SIZE);
+    break;
+  }
+  default:
+  {
+    FORMTION_BINARY_GET_PARAM_INVALID;
+    break;
+  }
+  }
   return ret;
 }
 
