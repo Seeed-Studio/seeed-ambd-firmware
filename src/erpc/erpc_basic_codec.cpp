@@ -167,7 +167,7 @@ void BasicCodec::writeCallback(funPtr callback1, funPtr callback2)
 }
 
 void BasicCodec::startReadMessage(message_type_t *type, uint32_t *service, uint32_t *request, uint32_t *sequence)
-{
+{   
     uint32_t header;
     read(&header);
 

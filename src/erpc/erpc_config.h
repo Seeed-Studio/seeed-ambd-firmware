@@ -9,7 +9,8 @@
 
 #ifndef _ERPC_CONFIG_H_
 #define _ERPC_CONFIG_H_
-
+#include "elog.h"
+#include "stdio.h"
 /*!
  * @addtogroup config
  * @{

@@ -51,7 +51,7 @@ ElogErrCode elog_port_init(void)
     output_lock = xSemaphoreCreateMutex();
 
 #ifdef ELOG_ASYNC_OUTPUT_ENABLE
-    if (pdTRUE != xTaskCreate((TaskFunction_t)async_output, "async output", (2048 / 4), (void *)NULL, (tskIDLE_PRIORITY + 1), NULL))
+    if (pdTRUE != xTaskCreate((TaskFunction_t)async_output, "async output", (2048 / 4), (void *)NULL, (tskIDLE_PRIORITY + 2), NULL))
     {
         printf("Create async output Err!!\n");
     }

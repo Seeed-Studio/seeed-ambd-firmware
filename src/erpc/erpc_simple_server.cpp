@@ -70,6 +70,7 @@ erpc_status_t SimpleServer::runInternalBegin(Codec **codec, MessageBuffer &buff,
         }
         return err;
     }
+    
 
 #if ERPC_MESSAGE_LOGGING
     err = logMessage(&buff);

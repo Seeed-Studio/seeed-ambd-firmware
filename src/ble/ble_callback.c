@@ -386,7 +386,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
 
     log_d("cb_data.dataLength: %d",   cb_data->dataLength);
-    rpc_ble_gap_callback(cb_type, cb_data);
+    result = rpc_ble_gap_callback(cb_type, cb_data);
 
     return result;
 }
@@ -400,108 +400,109 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
  */
 void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
 {
-    T_LE_GAP_MSG gap_msg;
-    uint8_t conn_id;
-    memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
+    // T_LE_GAP_MSG gap_msg;
+    // uint8_t conn_id;
+    // memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
+    
+    // log_d("ble_central_app_handle_gap_msg: subtype %d", p_gap_msg->subtype);
 
-    log_d("ble_central_app_handle_gap_msg: subtype %d", p_gap_msg->subtype);
-
-    switch (p_gap_msg->subtype)
-    {
-    case GAP_MSG_LE_DEV_STATE_CHANGE:
-    {
-        log_d("GAP_MSG_LE_DEV_STATE_CHANGE");
-        ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
-                                  gap_msg.msg_data.gap_dev_state_change.cause);
-    }
-    break;
-    case GAP_MSG_LE_CONN_STATE_CHANGE:
-    {
-        log_d("GAP_MSG_LE_CONN_STATE_CHANGE");
-        ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
-                                   (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
-                                   gap_msg.msg_data.gap_conn_state_change.disc_cause);
-    }
-    break;
-    case GAP_MSG_LE_CONN_PARAM_UPDATE:
-    {
-        log_d("GAP_MSG_LE_CONN_PARAM_UPDATE");
-        ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
-                                     gap_msg.msg_data.gap_conn_param_update.status,
-                                     gap_msg.msg_data.gap_conn_param_update.cause);
-    }
-    break;
-    case GAP_MSG_LE_CONN_MTU_INFO:
-    {
-        log_d("GAP_MSG_LE_CONN_MTU_INFO");
-        ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
-                                 gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
-    }
-    break;
-    case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
-    {
-        log_d("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
-        ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
-                                     gap_msg.msg_data.gap_authen_state.new_state,
-                                     gap_msg.msg_data.gap_authen_state.status);
-    }
-    break;
-    case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
-    {
-        log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
-        conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
-        le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    }
-    break;
-    case GAP_MSG_LE_BOND_PASSKEY_INPUT:
-    {
-        log_d("GAP_MSG_LE_BOND_PASSKEY_INPUT");
-        uint32_t display_value = 0;
-        conn_id = gap_msg.msg_data.gap_bond_passkey_display.conn_id;
-        le_bond_get_display_key(conn_id, &display_value);
-        log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
-        le_bond_passkey_display_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-        log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
-    }
-    break;
-    case GAP_MSG_LE_BOND_OOB_INPUT:
-    {
-        log_d("GAP_MSG_LE_BOND_OOB_INPUT");
-        uint8_t oob_data[GAP_OOB_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        conn_id = gap_msg.msg_data.gap_bond_oob_input.conn_id;
-        log_d("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
-        le_bond_set_param(GAP_PARAM_BOND_OOB_DATA, GAP_OOB_LEN, oob_data);
-        le_bond_oob_input_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    }
-    break;
-    case GAP_MSG_LE_BOND_USER_CONFIRMATION:
-    {
-        log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION");
-        uint32_t display_value = 0;
-        conn_id = gap_msg.msg_data.gap_bond_user_conf.conn_id;
-        le_bond_get_display_key(conn_id, &display_value);
-        log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
-        le_bond_user_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    }
-    break;
-    case GAP_MSG_LE_BOND_JUST_WORK:
-    {
-        log_d("GAP_MSG_LE_BOND_JUST_WORK");
-        conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
-        le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-        log_d("GAP_MSG_LE_BOND_JUST_WORK\r\n");
-    }
-    break;
-    default:
-        log_d("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
-        break;
-    }
-
-    // binary_t callback_io_msg;
-    // callback_io_msg.dataLength = sizeof(T_IO_MSG);
-    // log_d("callback_io_msg.dataLength: %d",   callback_io_msg.dataLength);
-    // callback_io_msg.data = p_gap_msg;
-    // rpc_ble_handle_gap_msg(&callback_io_msg);
+    // switch (p_gap_msg->subtype)
+    // {
+    // case GAP_MSG_LE_DEV_STATE_CHANGE:
+    // {
+    //     log_d("GAP_MSG_LE_DEV_STATE_CHANGE");
+    //     ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
+    //                               gap_msg.msg_data.gap_dev_state_change.cause);
+    // }
+    // break;
+    // case GAP_MSG_LE_CONN_STATE_CHANGE:
+    // {
+    //     log_d("GAP_MSG_LE_CONN_STATE_CHANGE");
+    //     ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
+    //                                (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
+    //                                gap_msg.msg_data.gap_conn_state_change.disc_cause);
+    // }
+    // break;
+    // case GAP_MSG_LE_CONN_PARAM_UPDATE:
+    // {
+    //     log_d("GAP_MSG_LE_CONN_PARAM_UPDATE");
+    //     ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
+    //                                  gap_msg.msg_data.gap_conn_param_update.status,
+    //                                  gap_msg.msg_data.gap_conn_param_update.cause);
+    // }
+    // break;
+    // case GAP_MSG_LE_CONN_MTU_INFO:
+    // {
+    //     log_d("GAP_MSG_LE_CONN_MTU_INFO");
+    //     ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
+    //                              gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
+    // }
+    // break;
+    // case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
+    // {
+    //     log_d("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
+    //     ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
+    //                                  gap_msg.msg_data.gap_authen_state.new_state,
+    //                                  gap_msg.msg_data.gap_authen_state.status);
+    // }
+    // break;
+    // case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
+    // {
+    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
+    //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
+    //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    // }
+    // break;
+    // case GAP_MSG_LE_BOND_PASSKEY_INPUT:
+    // {
+    //     log_d("GAP_MSG_LE_BOND_PASSKEY_INPUT");
+    //     uint32_t display_value = 0;
+    //     conn_id = gap_msg.msg_data.gap_bond_passkey_display.conn_id;
+    //     le_bond_get_display_key(conn_id, &display_value);
+    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+    //     le_bond_passkey_display_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+    // }
+    // break;
+    // case GAP_MSG_LE_BOND_OOB_INPUT:
+    // {
+    //     log_d("GAP_MSG_LE_BOND_OOB_INPUT");
+    //     uint8_t oob_data[GAP_OOB_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    //     conn_id = gap_msg.msg_data.gap_bond_oob_input.conn_id;
+    //     log_d("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
+    //     le_bond_set_param(GAP_PARAM_BOND_OOB_DATA, GAP_OOB_LEN, oob_data);
+    //     le_bond_oob_input_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    // }
+    // break;
+    // case GAP_MSG_LE_BOND_USER_CONFIRMATION:
+    // {
+    //     log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION");
+    //     uint32_t display_value = 0;
+    //     conn_id = gap_msg.msg_data.gap_bond_user_conf.conn_id;
+    //     le_bond_get_display_key(conn_id, &display_value);
+    //     log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
+    //     le_bond_user_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    // }
+    // break;
+    // case GAP_MSG_LE_BOND_JUST_WORK:
+    // {
+    //     log_d("GAP_MSG_LE_BOND_JUST_WORK");
+    //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
+    //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    //     log_d("GAP_MSG_LE_BOND_JUST_WORK\r\n");
+    // }
+    // break;
+    // default:
+    //     log_d("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
+    //     break;
+    // }
+    binary_t callback_io_msg;
+    callback_io_msg.dataLength = sizeof(T_IO_MSG);
+    log_d("callback_io_msg.dataLength: %d",   callback_io_msg.dataLength);
+    callback_io_msg.data = p_gap_msg;
+    rpc_ble_handle_gap_msg(&callback_io_msg);
+    log_d("rpc_ble_handle_gap_msg over");
+    return;
 }
 
 /**

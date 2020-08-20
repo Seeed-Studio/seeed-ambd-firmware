@@ -3,8 +3,28 @@
 
 program rpc
 
+enum RPC_T_APP_RESULT
+{
+    RPC_APP_RESULT_SUCCESS                    = 0x0000,
+    RPC_APP_RESULT_PENDING                    = 0x0D01,
+    RPC_APP_RESULT_ACCEPT                     = 0x0D03,
+    RPC_APP_RESULT_REJECT                     = 0x0D04,
+    RPC_APP_RESULT_NOT_RELEASE                = 0x0D05,
+    RPC_APP_RESULT_PREP_QUEUE_FULL            = 0x0409,
+    RPC_APP_RESULT_INVALID_OFFSET             = 0x0407,
+    RPC_APP_RESULT_INVALID_VALUE_SIZE         = 0x040D,
+    RPC_APP_RESULT_INVALID_PDU                = 0x0404,
+    RPC_APP_RESULT_ATTR_NOT_FOUND             = 0x040A,
+    RPC_APP_RESULT_ATTR_NOT_LONG              = 0x040B,
+    RPC_APP_RESULT_INSUFFICIENT_RESOURCES     = 0x0411,
+    RPC_APP_RESULT_APP_ERR                    = 0x0480,
+    RPC_APP_RESULT_CCCD_IMPROPERLY_CONFIGURED = 0x04FD,
+    RPC_APP_RESULT_PROC_ALREADY_IN_PROGRESS   = 0x04FE
+};
+
+
 @group("ble_callback")
 interface rpc_ble_callback {
     rpc_ble_handle_gap_msg(in binary gap_msg) -> void
-    rpc_ble_gap_callback(uint8 cb_type, in binary cb_data) -> void
+    rpc_ble_gap_callback(uint8 cb_type, in binary cb_data) -> RPC_T_APP_RESULT
 }
