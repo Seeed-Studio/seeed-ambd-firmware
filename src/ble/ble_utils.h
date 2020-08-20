@@ -43,7 +43,13 @@
   value->dataLength = LEN;                                               \
   p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \
   ret = FUN(PARAM, p_value);                                             \
-  value->data = (uint8_t *)p_value;
+  value->data = (uint8_t *)p_value
+
+#define FORMTION_BINARY_GET_PARAM_INVALID                                \
+  value->dataLength = 1;                                                 \
+  p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \
+  value->data = (uint8_t *)p_value;                                      \
+  ret = RPC_GAP_CAUSE_INVALID_PARAM
 
 #define DEFAULT_PARAM_SIZE 4
 #define DEFAULT_BT_ADDR_SIZE 6

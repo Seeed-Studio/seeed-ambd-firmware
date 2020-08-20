@@ -85,12 +85,67 @@ RPC_T_GAP_CAUSE rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, const binary
 
 RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t *value)
 {
-  log_d("rpc_le_adv_get_param called");
+  printf("rpc_le_adv_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  value->dataLength = DEFAULT_PARAM_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-  ret = le_adv_get_param(param, p_value);
-  value->data = (uint8_t *)p_value;
+  uint8_t *p_value = NULL;
+  switch ((T_LE_ADV_PARAM_TYPE)param)
+  {
+  case GAP_PARAM_ADV_LOCAL_ADDR_TYPE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_LOCAL_ADDR_TYPE);
+    break;
+  }
+  case GAP_PARAM_ADV_DATA:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_DATA);
+    break;
+  }
+  case GAP_PARAM_SCAN_RSP_DATA:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_SCAN_RSP_DATA);
+    break;
+  }
+  case GAP_PARAM_ADV_EVENT_TYPE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_EVENT_TYPE);
+    break;
+  }
+  case GAP_PARAM_ADV_DIRECT_ADDR_TYPE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_DIRECT_ADDR_TYPE);
+    break;
+  }
+  case GAP_PARAM_ADV_DIRECT_ADDR:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_DIRECT_ADDR);
+    break;
+  }
+  case GAP_PARAM_ADV_CHANNEL_MAP:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_CHANNEL_MAP);
+    break;
+  }
+  case GAP_PARAM_ADV_FILTER_POLICY:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_adv_get_param, GAP_PARAM_ADV_FILTER_POLICY);
+    break;
+  }
+  case GAP_PARAM_ADV_INTERVAL_MIN:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_adv_get_param, GAP_PARAM_ADV_INTERVAL_MIN);
+    break;
+  }
+  case GAP_PARAM_ADV_INTERVAL_MAX:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_adv_get_param, GAP_PARAM_ADV_INTERVAL_MAX);
+    break;
+  }
+  default:
+  {
+    FORMTION_BINARY_GET_PARAM_INVALID;
+    break;
+  }
+  }
   return ret;
 }
 
@@ -332,10 +387,7 @@ RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
   }
   default:
   {
-    value->dataLength = 1;
-    p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-    value->data = (uint8_t *)p_value;
-    ret = RPC_GAP_CAUSE_INVALID_PARAM;
+    FORMTION_BINARY_GET_PARAM_INVALID;
     break;
   }
   }
@@ -401,10 +453,7 @@ RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *
   }
   default:
   {
-    value->dataLength = 1;
-    p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-    value->data = (uint8_t *)p_value;
-    ret = RPC_GAP_CAUSE_INVALID_PARAM;
+    FORMTION_BINARY_GET_PARAM_INVALID;
     break;
   }
   }
