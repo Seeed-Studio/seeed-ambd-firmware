@@ -66,16 +66,16 @@ extern "C"
  */
 void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 {
-    log_d("ble_dev_state_evt_handler: init state %d, adv state %d, cause 0x%x", new_state.gap_init_state, new_state.gap_adv_state, cause);
+    log_v("ble_dev_state_evt_handler: init state %d, adv state %d, cause 0x%x", new_state.gap_init_state, new_state.gap_adv_state, cause);
     if (ble_gap_dev_state.gap_init_state != new_state.gap_init_state)
     {
         if (new_state.gap_init_state == GAP_INIT_STATE_STACK_READY)
         {
-            log_d("GAP stack ready");
+            log_v("GAP stack ready");
             // BLE stack is ready
             uint8_t bt_addr[6];
             gap_get_param(GAP_PARAM_BD_ADDR, bt_addr);
-            log_d("[BLE Device] Local BT addr: %2x:%2x:%2x:%2x:%2x:%2x", bt_addr[5], bt_addr[4], bt_addr[3], bt_addr[2], bt_addr[1], bt_addr[0]);
+            log_v("[BLE Device] Local BT addr: %2x:%2x:%2x:%2x:%2x:%2x", bt_addr[5], bt_addr[4], bt_addr[3], bt_addr[2], bt_addr[1], bt_addr[0]);
         }
     }
 
@@ -87,11 +87,11 @@ void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
         {
             if (new_state.gap_scan_state == GAP_SCAN_STATE_IDLE)
             {
-                log_d("[BLE Device] GAP scan stop");
+                log_v("[BLE Device] GAP scan stop");
             }
             else if (new_state.gap_scan_state == GAP_SCAN_STATE_SCANNING)
             {
-                log_d("[BLE Device] GAP scan start");
+                log_v("[BLE Device] GAP scan start");
             }
         }
     }
@@ -104,16 +104,16 @@ void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
             {
                 if (new_state.gap_adv_sub_state == GAP_ADV_TO_IDLE_CAUSE_CONN)
                 {
-                    log_d("[BLE Device] GAP adv stopped: because connection created");
+                    log_v("[BLE Device] GAP adv stopped: because connection created");
                 }
                 else
                 {
-                    log_d("[BLE Device] GAP adv stopped");
+                    log_v("[BLE Device] GAP adv stopped");
                 }
             }
             else if (new_state.gap_adv_state == GAP_ADV_STATE_ADVERTISING)
             {
-                log_d("[BLE Device] GAP adv start");
+                log_v("[BLE Device] GAP adv start");
             }
         }
     }
@@ -133,7 +133,7 @@ void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uint16_t disc_cause)
 {
 
-    log_d("ble_conn_state_evt_handler: conn_id %d old_state %d new_state %d, disc_cause 0x%x", conn_id, ble_gap_conn_state, new_state, disc_cause);
+    log_v("ble_conn_state_evt_handler: conn_id %d old_state %d new_state %d, disc_cause 0x%x", conn_id, ble_gap_conn_state, new_state, disc_cause);
 
     if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
     {
@@ -151,22 +151,22 @@ void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uin
         {
             if ((disc_cause != (HCI_ERR | HCI_ERR_REMOTE_USER_TERMINATE)) && (disc_cause != (HCI_ERR | HCI_ERR_LOCAL_HOST_TERMINATE)))
             {
-                log_d("connection lost, conn_id %d, cause 0x%x", conn_id, disc_cause);
+                log_v("connection lost, conn_id %d, cause 0x%x", conn_id, disc_cause);
             }
-            log_d("[BLE Device] Disconnected conn_id %d", conn_id);
+            log_v("[BLE Device] Disconnected conn_id %d", conn_id);
             memset(&ble_clinet_link_table[conn_id], 0, sizeof(T_APP_LINK));
             break;
         }
         case GAP_CONN_STATE_CONNECTED:
         {
             le_get_conn_addr(conn_id, ble_clinet_link_table[conn_id].bd_addr, (uint8_t *)&ble_clinet_link_table[conn_id].bd_type);
-            log_d("[BLE Device] Connected conn_id %d", conn_id);
+            log_v("[BLE Device] Connected conn_id %d", conn_id);
             {
                 uint8_t tx_phy;
                 uint8_t rx_phy;
                 le_get_conn_param(GAP_PARAM_CONN_TX_PHY_TYPE, &tx_phy, conn_id);
                 le_get_conn_param(GAP_PARAM_CONN_RX_PHY_TYPE, &rx_phy, conn_id);
-                log_d("GAP_CONN_STATE_CONNECTED: tx_phy %d, rx_phy %d", tx_phy, rx_phy);
+                log_v("GAP_CONN_STATE_CONNECTED: tx_phy %d, rx_phy %d", tx_phy, rx_phy);
             }
             break;
         }
@@ -183,9 +183,9 @@ void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uin
             if ((disc_cause != (HCI_ERR | HCI_ERR_REMOTE_USER_TERMINATE)) && (disc_cause != (HCI_ERR | HCI_ERR_LOCAL_HOST_TERMINATE)))
             {
 
-                log_d("connection lost cause 0x%x", disc_cause);
+                log_v("connection lost cause 0x%x", disc_cause);
             }
-            log_d("[BLE Device] BT Disconnected, start ADV\n\r");
+            log_v("[BLE Device] BT Disconnected, start ADV\n\r");
             le_adv_start();
             break;
         }
@@ -202,8 +202,8 @@ void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uin
             le_get_conn_param(GAP_PARAM_CONN_TIMEOUT, &conn_supervision_timeout, conn_id);
             le_get_conn_addr(conn_id, remote_bd, (uint8_t *)&remote_bd_type);
 
-            log_d("GAP_CONN_STATE_CONNECTED:remote_bd %x:%x:%x:%x:%x:%x, remote_addr_type %d, conn_interval 0x%x, conn_latency 0x%x, conn_supervision_timeout 0x%x", remote_bd[0], remote_bd[1], remote_bd[2], remote_bd[3], remote_bd[4], remote_bd[5], remote_bd_type, conn_interval, conn_latency, conn_supervision_timeout);
-            log_d("[BLE Device] BT Connected\n\r");
+            log_v("GAP_CONN_STATE_CONNECTED:remote_bd %x:%x:%x:%x:%x:%x, remote_addr_type %d, conn_interval 0x%x, conn_latency 0x%x, conn_supervision_timeout 0x%x", remote_bd[0], remote_bd[1], remote_bd[2], remote_bd[3], remote_bd[4], remote_bd[5], remote_bd_type, conn_interval, conn_latency, conn_supervision_timeout);
+            log_v("[BLE Device] BT Connected\n\r");
             break;
         }
         default:
@@ -234,17 +234,17 @@ void ble_param_update_evt_handler(uint8_t conn_id, uint8_t status, uint16_t caus
         le_get_conn_param(GAP_PARAM_CONN_INTERVAL, &conn_interval, conn_id);
         le_get_conn_param(GAP_PARAM_CONN_LATENCY, &conn_slave_latency, conn_id);
         le_get_conn_param(GAP_PARAM_CONN_TIMEOUT, &conn_supervision_timeout, conn_id);
-        log_d("connParamUpdateEvtHandlerDefault update success:conn_interval 0x%x, conn_slave_latency 0x%x, conn_supervision_timeout 0x%x", conn_interval, conn_slave_latency, conn_supervision_timeout);
+        log_v("connParamUpdateEvtHandlerDefault update success:conn_interval 0x%x, conn_slave_latency 0x%x, conn_supervision_timeout 0x%x", conn_interval, conn_slave_latency, conn_supervision_timeout);
         break;
     }
     case GAP_CONN_PARAM_UPDATE_STATUS_FAIL:
     {
-        log_d("connParamUpdateEvtHandlerDefault update failed: cause 0x%x", cause);
+        log_v("connParamUpdateEvtHandlerDefault update failed: cause 0x%x", cause);
         break;
     }
     case GAP_CONN_PARAM_UPDATE_STATUS_PENDING:
     {
-        log_d("connParamUpdateEvtHandlerDefault update pending: conn_id %d", conn_id);
+        log_v("connParamUpdateEvtHandlerDefault update pending: conn_id %d", conn_id);
         break;
     }
     default:
@@ -263,13 +263,13 @@ void ble_param_update_evt_handler(uint8_t conn_id, uint8_t status, uint16_t caus
  */
 void ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16_t cause)
 {
-    log_d("app_handle_authen_state_evt:conn_id %d, cause 0x%x", conn_id, cause);
+    log_v("app_handle_authen_state_evt:conn_id %d, cause 0x%x", conn_id, cause);
 
     switch (new_state)
     {
     case GAP_AUTHEN_STATE_STARTED:
     {
-        log_d("app_handle_authen_state_evt: GAP_AUTHEN_STATE_STARTED");
+        log_v("app_handle_authen_state_evt: GAP_AUTHEN_STATE_STARTED");
     }
     break;
 
@@ -277,20 +277,20 @@ void ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16_t c
     {
         if (cause == GAP_SUCCESS)
         {
-            log_d("Pair success");
-            log_d("app_handle_authen_state_evt: GAP_AUTHEN_STATE_COMPLETE pair success");
+            log_v("Pair success");
+            log_v("app_handle_authen_state_evt: GAP_AUTHEN_STATE_COMPLETE pair success");
         }
         else
         {
-            log_d("Pair failed: cause 0x%x", cause);
-            log_d("app_handle_authen_state_evt: GAP_AUTHEN_STATE_COMPLETE pair failed");
+            log_v("Pair failed: cause 0x%x", cause);
+            log_v("app_handle_authen_state_evt: GAP_AUTHEN_STATE_COMPLETE pair failed");
         }
     }
     break;
 
     default:
     {
-        log_d("app_handle_authen_state_evt: unknown newstate %d", new_state);
+        log_v("app_handle_authen_state_evt: unknown newstate %d", new_state);
     }
     break;
     }
@@ -305,7 +305,7 @@ void ble_authen_state_evt_handler(uint8_t conn_id, uint8_t new_state, uint16_t c
  */
 void ble_mtu_info_evt_handler(uint8_t conn_id, uint16_t mtu_size)
 {
-    log_d("app_handle_conn_mtu_info_evt: conn_id %d, mtu_size %d", conn_id, mtu_size);
+    log_v("app_handle_conn_mtu_info_evt: conn_id %d, mtu_size %d", conn_id, mtu_size);
 }
 
 /**
@@ -319,47 +319,46 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     T_APP_RESULT result = APP_RESULT_SUCCESS;
     T_LE_CB_DATA *p_data = (T_LE_CB_DATA *)p_cb_data;
     binary_t *cb_data = NULL;
-    cb_data = (binary_t *) erpc_malloc(sizeof(binary_t));
+    cb_data = (binary_t *)erpc_malloc(sizeof(binary_t));
 
-    log_d("ble_gap_callback: cb_type %d", cb_type);
+    log_v("ble_gap_callback: cb_type %d", cb_type);
     switch (cb_type)
     {
-    case GAP_MSG_LE_DATA_LEN_CHANGE_INFO:
-    {
-        log_d("GAP_MSG_LE_DATA_LEN_CHANGE_INFO: conn_id %d, tx octets 0x%x, max_tx_time 0x%x", p_data->p_le_data_len_change_info->conn_id, p_data->p_le_data_len_change_info->max_tx_octets, p_data->p_le_data_len_change_info->max_tx_time);
-        break;
-    }
     case GAP_MSG_LE_MODIFY_WHITE_LIST:
     {
-        log_d("GAP_MSG_LE_MODIFY_WHITE_LIST: operation %d, cause 0x%x", p_data->p_le_modify_white_list_rsp->operation, p_data->p_le_modify_white_list_rsp->cause);
+        FORMATION_BINARY(cb_data, p_data->p_le_modify_white_list_rsp, T_LE_MODIFY_WHITE_LIST_RSP);
+        log_v("GAP_MSG_LE_MODIFY_WHITE_LIST: operation %d, cause 0x%x", p_data->p_le_modify_white_list_rsp->operation, p_data->p_le_modify_white_list_rsp->cause);
         break;
     }
     case GAP_MSG_LE_CONN_UPDATE_IND:
     {
-        log_d("GAP_MSG_LE_CONN_UPDATE_IND: conn_id %d, conn_interval_max 0x%x, conn_interval_min 0x%x, conn_latency 0x%x,supervision_timeout 0x%x", p_data->p_le_conn_update_ind->conn_id, p_data->p_le_conn_update_ind->conn_interval_max, p_data->p_le_conn_update_ind->conn_interval_min, p_data->p_le_conn_update_ind->conn_latency, p_data->p_le_conn_update_ind->supervision_timeout);
+        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CONN_UPDATE_IND);
+        log_v("GAP_MSG_LE_CONN_UPDATE_IND: conn_id %d, conn_interval_max 0x%x, conn_interval_min 0x%x, conn_latency 0x%x,supervision_timeout 0x%x", p_data->p_le_conn_update_ind->conn_id, p_data->p_le_conn_update_ind->conn_interval_max, p_data->p_le_conn_update_ind->conn_interval_min, p_data->p_le_conn_update_ind->conn_latency, p_data->p_le_conn_update_ind->supervision_timeout);
         /* if reject the proposed connection parameter from peer device, use APP_RESULT_REJECT. */
         result = APP_RESULT_ACCEPT;
         break;
     }
     case GAP_MSG_LE_PHY_UPDATE_INFO:
     {
-        log_d("GAP_MSG_LE_PHY_UPDATE_INFO:conn_id %d, cause 0x%x, rx_phy %d, tx_phy %d", p_data->p_le_phy_update_info->conn_id, p_data->p_le_phy_update_info->cause, p_data->p_le_phy_update_info->rx_phy, p_data->p_le_phy_update_info->tx_phy);
+        FORMATION_BINARY(cb_data, p_data->p_le_phy_update_info, T_LE_PHY_UPDATE_INFO);
+        log_v("GAP_MSG_LE_PHY_UPDATE_INFO:conn_id %d, cause 0x%x, rx_phy %d, tx_phy %d", p_data->p_le_phy_update_info->conn_id, p_data->p_le_phy_update_info->cause, p_data->p_le_phy_update_info->rx_phy, p_data->p_le_phy_update_info->tx_phy);
         break;
     }
     case GAP_MSG_LE_REMOTE_FEATS_INFO:
     {
+        FORMATION_BINARY(cb_data, p_data->p_le_remote_feats_info, T_LE_REMOTE_FEATS_INFO);
         uint8_t remote_feats[8];
-        log_d("GAP_MSG_LE_REMOTE_FEATS_INFO: conn id %d, cause 0x%x, remote_feats %b", p_data->p_le_remote_feats_info->conn_id, p_data->p_le_remote_feats_info->cause, TRACE_BINARY(8, p_data->p_le_remote_feats_info->remote_feats));
+        log_v("GAP_MSG_LE_REMOTE_FEATS_INFO: conn id %d, cause 0x%x, remote_feats %b", p_data->p_le_remote_feats_info->conn_id, p_data->p_le_remote_feats_info->cause, TRACE_BINARY(8, p_data->p_le_remote_feats_info->remote_feats));
         if (p_data->p_le_remote_feats_info->cause == GAP_SUCCESS)
         {
             memcpy(remote_feats, p_data->p_le_remote_feats_info->remote_feats, 8);
             if (remote_feats[LE_SUPPORT_FEATURES_MASK_ARRAY_INDEX1] & LE_SUPPORT_FEATURES_LE_2M_MASK_BIT)
             {
-                log_d("GAP_MSG_LE_REMOTE_FEATS_INFO: support 2M");
+                log_v("GAP_MSG_LE_REMOTE_FEATS_INFO: support 2M");
             }
             if (remote_feats[LE_SUPPORT_FEATURES_MASK_ARRAY_INDEX1] & LE_SUPPORT_FEATURES_LE_CODED_PHY_MASK_BIT)
             {
-                log_d("GAP_MSG_LE_REMOTE_FEATS_INFO: support CODED");
+                log_v("GAP_MSG_LE_REMOTE_FEATS_INFO: support CODED");
             }
         }
         break;
@@ -367,7 +366,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     case GAP_MSG_LE_SCAN_INFO:
     {
         FORMATION_BINARY(cb_data, p_data->p_le_scan_info, T_LE_SCAN_INFO);
-        log_d("GAP_MSG_LE_SCAN_INFO:adv_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x, remote_addr_type %d, rssi %d, data_len %d",
+        log_v("GAP_MSG_LE_SCAN_INFO:adv_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x, remote_addr_type %d, rssi %d, data_len %d",
               p_data->p_le_scan_info->adv_type,
               (p_data->p_le_scan_info->bd_addr)[5],
               (p_data->p_le_scan_info->bd_addr)[4],
@@ -380,12 +379,78 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
               p_data->p_le_scan_info->data_len);
         break;
     }
-    default:
-        log_d("gapCallbackDefault: unhandled cb_type 0x%x", cb_type);
+    case GAP_MSG_LE_ADV_UPDATE_PARAM:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_adv_update_param_rsp, T_LE_ADV_UPDATE_PARAM_RSP);
+        log_v("GAP_MSG_LE_ADV_UPDATE_PARAM: cause 0x%x",
+              p_data->p_le_adv_update_param_rsp->cause);
         break;
     }
+    case GAP_MSG_LE_CREATE_CONN_IND:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CREATE_CONN_IND);
+        log_v("GAP_MSG_LE_GATT_SIGNED_STATUS_INFO:remote_addr_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x,",
+              p_data->p_le_create_conn_ind->remote_addr_type,
+              (p_data->p_le_create_conn_ind->bd_addr)[5],
+              (p_data->p_le_create_conn_ind->bd_addr)[4],
+              (p_data->p_le_create_conn_ind->bd_addr)[3],
+              (p_data->p_le_create_conn_ind->bd_addr)[2],
+              (p_data->p_le_create_conn_ind->bd_addr)[1],
+              (p_data->p_le_create_conn_ind->bd_addr)[0]);
+        break;
+    }
+    case GAP_MSG_LE_SET_RAND_ADDR:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_rand_addr_rsp, T_LE_SET_RAND_ADDR_RSP);
+        log_v("GAP_MSG_LE_SET_RAND_ADDR: cause 0x%x",
+              p_data->p_le_set_rand_addr_rsp->cause);
+        break;
+    }
+    case GAP_MSG_LE_SET_HOST_CHANN_CLASSIF:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_host_chann_classif_rsp, T_LE_SET_HOST_CHANN_CLASSIF_RSP);
+        log_v("GAP_MSG_LE_SET_HOST_CHANN_CLASSIF: cause 0x%x",
+              p_data->p_le_set_host_chann_classif_rsp->cause);
+        break;
+    }
+    case GAP_MSG_LE_READ_RSSI:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_read_rssi_rsp, T_LE_READ_RSSI_RSP);
+        log_v("GAP_MSG_LE_READ_RSSI: conn_id 0x%x, cause 0x%x, rssi %d",
+              p_data->p_le_read_rssi_rsp->conn_id,
+              p_data->p_le_read_rssi_rsp->cause,
+              p_data->p_le_read_rssi_rsp->rssi);
+        break;
+    }
+    case GAP_MSG_LE_SET_DATA_LEN:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_data_len_rsp, T_LE_SET_DATA_LEN_RSP);
+        log_v("GAP_MSG_LE_SET_DATA_LEN: conn_id 0x%x, cause 0x%x",
+              p_data->p_le_set_data_len_rsp->conn_id,
+              p_data->p_le_set_data_len_rsp->cause);
+        break;
+    }
+    case GAP_MSG_LE_DATA_LEN_CHANGE_INFO:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_data_len_change_info, T_LE_DATA_LEN_CHANGE_INFO);
+        log_v("GAP_MSG_LE_DATA_LEN_CHANGE_INFO: conn_id 0x%x, max_tx_octets 0x%x, max_tx_time 0x%x,max_rx_octets 0x%x, max_rx_time 0x%x",
+              p_data->p_le_data_len_change_info->conn_id,
+              p_data->p_le_data_len_change_info->max_tx_octets,
+              p_data->p_le_data_len_change_info->max_tx_time,
+              p_data->p_le_data_len_change_info->max_rx_octets,
+              p_data->p_le_data_len_change_info->max_rx_time);
+        break;
+    }
+    default:
+    {
+        uint8_t value = 0;
+        FORMATION_BINARY(cb_data, &value, 1);
+        log_v("gapCallbackDefault: unhandled cb_type 0x%x", cb_type);
+        break;
+    }
+    }
 
-    log_d("cb_data.dataLength: %d",   cb_data->dataLength);
+    log_v("p_data->dataLength: %d", cb_data->dataLength);
     result = rpc_ble_gap_callback(cb_type, cb_data);
 
     return result;
@@ -403,21 +468,21 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     // T_LE_GAP_MSG gap_msg;
     // uint8_t conn_id;
     // memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
-    
-    // log_d("ble_central_app_handle_gap_msg: subtype %d", p_gap_msg->subtype);
+
+    // log_v("ble_central_app_handle_gap_msg: subtype %d", p_gap_msg->subtype);
 
     // switch (p_gap_msg->subtype)
     // {
     // case GAP_MSG_LE_DEV_STATE_CHANGE:
     // {
-    //     log_d("GAP_MSG_LE_DEV_STATE_CHANGE");
+    //     log_v("GAP_MSG_LE_DEV_STATE_CHANGE");
     //     ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
     //                               gap_msg.msg_data.gap_dev_state_change.cause);
     // }
     // break;
     // case GAP_MSG_LE_CONN_STATE_CHANGE:
     // {
-    //     log_d("GAP_MSG_LE_CONN_STATE_CHANGE");
+    //     log_v("GAP_MSG_LE_CONN_STATE_CHANGE");
     //     ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
     //                                (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
     //                                gap_msg.msg_data.gap_conn_state_change.disc_cause);
@@ -425,7 +490,7 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     // break;
     // case GAP_MSG_LE_CONN_PARAM_UPDATE:
     // {
-    //     log_d("GAP_MSG_LE_CONN_PARAM_UPDATE");
+    //     log_v("GAP_MSG_LE_CONN_PARAM_UPDATE");
     //     ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
     //                                  gap_msg.msg_data.gap_conn_param_update.status,
     //                                  gap_msg.msg_data.gap_conn_param_update.cause);
@@ -433,14 +498,14 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     // break;
     // case GAP_MSG_LE_CONN_MTU_INFO:
     // {
-    //     log_d("GAP_MSG_LE_CONN_MTU_INFO");
+    //     log_v("GAP_MSG_LE_CONN_MTU_INFO");
     //     ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
     //                              gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
     // }
     // break;
     // case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
     // {
-    //     log_d("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
+    //     log_v("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
     //     ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
     //                                  gap_msg.msg_data.gap_authen_state.new_state,
     //                                  gap_msg.msg_data.gap_authen_state.status);
@@ -448,60 +513,60 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     // break;
     // case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
     // {
-    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
+    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
     //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
     //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
     // }
     // break;
     // case GAP_MSG_LE_BOND_PASSKEY_INPUT:
     // {
-    //     log_d("GAP_MSG_LE_BOND_PASSKEY_INPUT");
+    //     log_v("GAP_MSG_LE_BOND_PASSKEY_INPUT");
     //     uint32_t display_value = 0;
     //     conn_id = gap_msg.msg_data.gap_bond_passkey_display.conn_id;
     //     le_bond_get_display_key(conn_id, &display_value);
-    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
     //     le_bond_passkey_display_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    //     log_d("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
     // }
     // break;
     // case GAP_MSG_LE_BOND_OOB_INPUT:
     // {
-    //     log_d("GAP_MSG_LE_BOND_OOB_INPUT");
+    //     log_v("GAP_MSG_LE_BOND_OOB_INPUT");
     //     uint8_t oob_data[GAP_OOB_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     //     conn_id = gap_msg.msg_data.gap_bond_oob_input.conn_id;
-    //     log_d("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
+    //     log_v("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
     //     le_bond_set_param(GAP_PARAM_BOND_OOB_DATA, GAP_OOB_LEN, oob_data);
     //     le_bond_oob_input_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
     // }
     // break;
     // case GAP_MSG_LE_BOND_USER_CONFIRMATION:
     // {
-    //     log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION");
+    //     log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION");
     //     uint32_t display_value = 0;
     //     conn_id = gap_msg.msg_data.gap_bond_user_conf.conn_id;
     //     le_bond_get_display_key(conn_id, &display_value);
-    //     log_d("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
+    //     log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
     //     le_bond_user_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
     // }
     // break;
     // case GAP_MSG_LE_BOND_JUST_WORK:
     // {
-    //     log_d("GAP_MSG_LE_BOND_JUST_WORK");
+    //     log_v("GAP_MSG_LE_BOND_JUST_WORK");
     //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
     //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    //     log_d("GAP_MSG_LE_BOND_JUST_WORK\r\n");
+    //     log_v("GAP_MSG_LE_BOND_JUST_WORK\r\n");
     // }
     // break;
     // default:
-    //     log_d("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
+    //     log_v("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
     //     break;
     // }
     binary_t callback_io_msg;
     callback_io_msg.dataLength = sizeof(T_IO_MSG);
-    log_d("callback_io_msg.dataLength: %d",   callback_io_msg.dataLength);
+    log_v("callback_io_msg.dataLength: %d", callback_io_msg.dataLength);
     callback_io_msg.data = p_gap_msg;
     rpc_ble_handle_gap_msg(&callback_io_msg);
-    log_d("rpc_ble_handle_gap_msg over");
+    log_v("rpc_ble_handle_gap_msg over");
     return;
 }
 
