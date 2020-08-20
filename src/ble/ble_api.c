@@ -335,12 +335,47 @@ RPC_T_GAP_CAUSE rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, const bina
 
 RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *value)
 {
-  log_d("rpc_le_scan_get_param called");
+  printf("rpc_le_scan_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
-  value->dataLength = DEFAULT_PARAM_SIZE;
-  uint8_t *p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t));
-  ret = le_scan_get_param(param, p_value);
-  value->data = (uint8_t *)p_value;
+  uint8_t *p_value = NULL;
+  switch ((T_LE_SCAN_PARAM_TYPE)param)
+  {
+  case GAP_PARAM_SCAN_LOCAL_ADDR_TYPE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_scan_get_param, GAP_PARAM_SCAN_LOCAL_ADDR_TYPE);
+    break;
+  }
+  case GAP_PARAM_SCAN_MODE:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_scan_get_param, GAP_PARAM_SCAN_MODE);
+    break;
+  }
+  case GAP_PARAM_SCAN_INTERVAL:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_scan_get_param, GAP_PARAM_SCAN_INTERVAL);
+    break;
+  }
+  case GAP_PARAM_SCAN_WINDOW:
+  {
+    FORMTION_BINARY_GET_PARAM(2, le_scan_get_param, GAP_PARAM_SCAN_WINDOW);
+    break;
+  }
+  case GAP_PARAM_SCAN_FILTER_POLICY:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_scan_get_param, GAP_PARAM_SCAN_FILTER_POLICY);
+    break;
+  }
+  case GAP_PARAM_SCAN_FILTER_DUPLICATES:
+  {
+    FORMTION_BINARY_GET_PARAM(1, le_scan_get_param, GAP_PARAM_SCAN_FILTER_DUPLICATES);
+    break;
+  }
+  default:
+  {
+    FORMTION_BINARY_GET_PARAM_INVALID;
+    break;
+  }
+  }
   return ret;
 }
 
