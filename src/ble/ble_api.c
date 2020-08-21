@@ -794,3 +794,84 @@ RPC_T_GAP_CAUSE rpc_le_update_conn_param(uint8_t conn_id, uint16_t conn_interval
   return le_update_conn_param(conn_id, conn_interval_min, conn_interval_max, conn_latency, supervision_timeout, ce_length_min, ce_length_max);
 }
 //@}
+
+//! @name rpc_gatt_client
+//@{
+void rpc_client_init(uint8_t client_num)
+{
+  log_d("rpc_client_init called");
+  return rpc_client_init(client_num);
+}
+
+RPC_T_GAP_CAUSE rpc_client_all_primary_srv_discovery(uint8_t conn_id, uint8_t client_id)
+{
+  log_d("rpc_client_all_primary_srv_discovery called");
+  return rpc_client_all_primary_srv_discovery(conn_id, client_id);
+}
+
+RPC_T_GAP_CAUSE rpc_client_by_uuid_srv_discovery(uint8_t conn_id, uint8_t client_id, uint16_t uuid16)
+{
+  log_d("rpc_client_all_primary_srv_discovery called");
+  return rpc_client_by_uuid_srv_discovery(conn_id, client_id, uuid16);
+}
+
+RPC_T_GAP_CAUSE rpc_client_by_uuid128_srv_discovery(uint8_t conn_id, uint8_t client_id, const uint8_t p_uuid128[16])
+{
+  log_d("rpc_client_by_uuid128_srv_discovery called");
+  return client_by_uuid_srv_discovery(conn_id, client_id, p_uuid128);
+}
+
+RPC_T_GAP_CAUSE rpc_client_relationship_discovery(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle)
+{
+  log_d("rpc_client_by_uuid128_srv_discovery called");
+  return client_relationship_discovery(conn_id, client_id, start_handle, end_handle);
+}
+
+RPC_T_GAP_CAUSE rpc_client_all_char_discovery(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle)
+{
+  log_d("rpc_client_by_uuid128_srv_discovery called");
+  return client_all_char_discovery(conn_id, client_id, start_handle, end_handle);
+}
+
+RPC_T_GAP_CAUSE rpc_client_by_uuid_char_discovery(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle, uint16_t uuid16)
+{
+  log_d("rpc_client_by_uuid_char_discovery called");
+  return client_by_uuid_char_discovery(conn_id, client_id, start_handle, end_handle, uuid16);
+}
+
+RPC_T_GAP_CAUSE rpc_client_by_uuid128_char_discovery(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle, const uint8_t p_uuid128[16])
+{
+  log_d("rpc_client_by_uuid128_char_discovery called");
+  return client_by_uuid128_char_discovery(conn_id, client_id, start_handle, end_handle, p_uuid128);
+}
+
+RPC_T_GAP_CAUSE rpc_client_all_char_descriptor_discovery(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle)
+{
+  log_d("rpc_client_all_char_descriptor_discovery called");
+  return client_all_char_descriptor_discovery(conn_id, client_id, start_handle, end_handle);
+}
+
+RPC_T_GAP_CAUSE rpc_client_attr_read(uint8_t conn_id, uint8_t client_id, uint16_t handle)
+{
+  log_d("rpc_client_attr_read called");
+  return rpc_client_attr_read(conn_id, client_id, handle);
+}
+
+RPC_T_GAP_CAUSE rpc_client_attr_read_using_uuid(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle, uint16_t uuid16, const uint8_t p_uuid128[16])
+{
+  log_d("rpc_client_all_char_descriptor_discovery called");
+  return rpc_client_attr_read_using_uuid(conn_id, client_id, start_handle, end_handle, uuid16, p_uuid128);
+}
+
+RPC_T_GAP_CAUSE rpc_client_attr_write(uint8_t conn_id, uint8_t client_id, RPC_T_GATT_WRITE_TYPE write_type, uint16_t handle, const binary_t *data)
+{
+  log_d("rpc_client_attr_write called");
+  return client_attr_write(conn_id, client_id, write_type, handle, data->dataLength, data->data);
+}
+
+RPC_T_GAP_CAUSE rpc_client_attr_ind_confirm(uint8_t conn_id)
+{
+  log_d("rpc_client_attr_ind_confirm called");
+  return client_attr_ind_confirm(conn_id);
+}
+//@}

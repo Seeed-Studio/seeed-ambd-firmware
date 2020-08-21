@@ -12,3 +12,4 @@ interface host {
 }
 
 import "rpc_ble_gap.erpc"
+import "rpc_ble_gatt.erpc"
