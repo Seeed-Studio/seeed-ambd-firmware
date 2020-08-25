@@ -53,7 +53,9 @@ extern "C"
 #include "ble_utils.h"
 #include "ble_callback.h"
 #include "ble_main.h"
+#include "rpc_ble_header.h"
 #include "rpc_ble_api.h"
+
 
 //! @name host
 //@{

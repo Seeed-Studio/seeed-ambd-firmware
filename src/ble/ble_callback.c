@@ -715,7 +715,7 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
         break;
     }
     }
-    result = rpc_ble_gatt_client_callback(client_id, conn_id, cb_data, read_or_notify_data);
+    result = rpc_ble_gattc_callback(client_id, conn_id, cb_data, read_or_notify_data);
 #endif
     return result;
 }

@@ -1,5 +1,5 @@
-@output_dir("../erpc_shim/server") 
-
+@output_dir("erpc_shim") 
+@types_header("rpc_ble_header.h")
 program rpc
 
 import "rpc_ble_common.erpc"
@@ -13,3 +13,4 @@ interface host {
 
 import "rpc_ble_gap.erpc"
 import "rpc_ble_gatt.erpc"
+import "rpc_ble_callback.erpc"
