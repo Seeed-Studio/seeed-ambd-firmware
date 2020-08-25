@@ -27,10 +27,12 @@
  *============================================================================*/
 
 /** @brief  Config client LE link number */
-#define BLE_CLIENT_MAX_LINKS 3
+#define BLE_CLIENT_MAX_LINKS 1
+
+/** @brief  Config client app number*/
+#define BLE_CLIENT_MAX_APPS 1
 
 /** @brief  Config the discovery table number of gcs_client */
-#define BLE_CLIENT_MAX_DISCOV_TABLE_NUM 40
 
 /** @brief  Config set physical: 0-Not built in, 1-built in*/
 #define F_BT_LE_5_0_SET_PHY_SUPPORT 1

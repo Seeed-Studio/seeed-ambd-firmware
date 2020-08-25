@@ -24,9 +24,7 @@ extern "C"
 #include <bt_flags.h>
 #include <profile_client.h>
 #include "elog.h"
-
-#define BLE_CLIENT_MAX_APPS 2
-#define BLE_CLIENT_MAX_LINKS 4
+#include "ble_common.h"
 
   /** @brief  Discovery result type.*/
   typedef enum
@@ -54,9 +52,9 @@ extern "C"
   /** @brief BLE client callback type */
   typedef enum
   {
-    BLE_CLIENT_CB_TYPE_DISCOVERY_STATE, //!< Discovery procedure state, done or pending.
+    BLE_CLIENT_CB_TYPE_DISCOVERY_STATE,  //!< Discovery procedure state, done or pending.
     BLE_CLIENT_CB_TYPE_DISCOVERY_RESULT, //!< Discovery procedure state, done or pending.
-    BLE_CLIENT_CB_TYPE_READ_RESULT, //!< Read request's result data, responsed from server.
+    BLE_CLIENT_CB_TYPE_READ_RESULT,      //!< Read request's result data, responsed from server.
     BLE_CLIENT_CB_TYPE_WRITE_RESULT,
     BLE_CLIENT_CB_TYPE_NOTIF_IND,
     BLE_CLIENT_CB_TYPE_DISCONNECT_RESULT, //!< Invalid callback type, no practical usage.
@@ -65,23 +63,22 @@ extern "C"
 
   /** @brief BLE client discovery result */
 
-   typedef struct
+  typedef struct
   {
     T_DISCOVERY_STATE state;
   } T_BLE_CLIENT_DISCOVERY_STATE;
 
   typedef struct
   {
-    T_BLE_CLIENT_DISCOV_TYPE discov_type;
+    T_DISCOVERY_RESULT_TYPE discov_type;
     T_BLE_CLIENT_DISCOV_RESULT_DATA result;
   } T_BLE_CLIENT_DISCOVERY_RESULT;
 
-   /** @brief BLE client discovery result */
+  /** @brief BLE client discovery result */
   typedef struct
   {
     uint8_t conn_id;
   } T_BLE_CLIENT_DISCONNECT_RESULT;
-
 
   /** @brief BLE client read data, used to inform app read response data */
   typedef struct
@@ -127,12 +124,10 @@ extern "C"
     T_BLE_CLIENT_CB_CONTENT cb_content;
   } T_BLE_CLIENT_CB_DATA;
 
-bool ble_client_init(uint8_t num);
-T_CLIENT_ID ble_add_client(uint8_t app_id, P_FUN_GENERAL_APP_CB app_cb, uint8_t link_num,
-                           uint16_t max_discov_table_size);
+  bool ble_client_init(uint8_t num);
+  T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num, P_FUN_GENERAL_APP_CB app_cb);
 
 #ifdef __cplusplus
-  extern "C"
 }
 #endif
 

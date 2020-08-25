@@ -26,12 +26,14 @@ extern "C" {
  *============================================================================*/
 #include <profile_client.h>
 #include <app_msg.h>
+#include "ble_main.h"
 #include "elog.h"
 
 
 void ble_handle_gap_msg(T_IO_MSG *p_gap_msg);
 void ble_handle_io_msg(T_IO_MSG io_msg);
 T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data);
+T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, void *p_data);
 
 #ifdef __cplusplus
 }

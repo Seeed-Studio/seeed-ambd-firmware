@@ -23,6 +23,7 @@
 #include <gap_conn_le.h>
 #include "ble_common.h"
 #include "rpc_ble_api.h"
+#include "erpc_port.h"
 
 /*============================================================================*
  *                              Constants
@@ -36,9 +37,13 @@
  *                              Marcos
  *============================================================================*/
 #define FORMATION_BINARY(dest, source, dataType) \
-  dest->dataLength = sizeof(dataType);           \
-  dest->data = (uint8_t *)source
+  dest.dataLength = sizeof(dataType);           \
+  dest.data = (uint8_t *)source
 
+#define FORMATION_BINARY_CLIENT_READ_NOTIF(dest, source) \
+  dest.dataLength = source.value_size; \
+  dest.data = (uint8_t *)source.p_value
+  
 #define FORMTION_BINARY_GET_PARAM(LEN, FUN, PARAM)                       \
   value->dataLength = LEN;                                               \
   p_value = (uint8_t *)erpc_malloc(value->dataLength * sizeof(uint8_t)); \

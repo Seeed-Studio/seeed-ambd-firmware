@@ -133,7 +133,7 @@ void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uint16_t disc_cause)
 {
 
-    log_v("ble_conn_state_evt_handler: conn_id %d old_state %d new_state %d, disc_cause 0x%x", conn_id, ble_gap_conn_state, new_state, disc_cause);
+    log_v("ble_conn_state_evt_handler: conn_id %d, conn_state(%d -> %d), disc_cause 0x%x\r\n", conn_id, ble_clinet_link_table[conn_id].conn_state, new_state, disc_cause);
 
     if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
     {
@@ -318,8 +318,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
 {
     T_APP_RESULT result = APP_RESULT_SUCCESS;
     T_LE_CB_DATA *p_data = (T_LE_CB_DATA *)p_cb_data;
-    binary_t *cb_data = NULL;
-    cb_data = (binary_t *)erpc_malloc(sizeof(binary_t));
+    binary_t cb_data;
 
     log_v("ble_gap_callback: cb_type %d", cb_type);
     switch (cb_type)
@@ -450,8 +449,11 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     }
 
-    log_v("p_data->dataLength: %d", cb_data->dataLength);
+    log_v("p_data->dataLength: %d", cb_data.dataLength);
+
+#ifndef DEBUG_LOCAL
     result = rpc_ble_gap_callback(cb_type, cb_data);
+#endif
 
     return result;
 }
@@ -465,102 +467,104 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
  */
 void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
 {
-    // T_LE_GAP_MSG gap_msg;
-    // uint8_t conn_id;
-    // memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
+#ifdef DEBUG_LOCAL
+    T_LE_GAP_MSG gap_msg;
+    uint8_t conn_id;
+    memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
 
-    // log_v("ble_central_app_handle_gap_msg: subtype %d", p_gap_msg->subtype);
+    log_v("ble_handle_gap_msg: subtype %d\n\r", p_gap_msg->subtype);
 
-    // switch (p_gap_msg->subtype)
-    // {
-    // case GAP_MSG_LE_DEV_STATE_CHANGE:
-    // {
-    //     log_v("GAP_MSG_LE_DEV_STATE_CHANGE");
-    //     ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
-    //                               gap_msg.msg_data.gap_dev_state_change.cause);
-    // }
-    // break;
-    // case GAP_MSG_LE_CONN_STATE_CHANGE:
-    // {
-    //     log_v("GAP_MSG_LE_CONN_STATE_CHANGE");
-    //     ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
-    //                                (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
-    //                                gap_msg.msg_data.gap_conn_state_change.disc_cause);
-    // }
-    // break;
-    // case GAP_MSG_LE_CONN_PARAM_UPDATE:
-    // {
-    //     log_v("GAP_MSG_LE_CONN_PARAM_UPDATE");
-    //     ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
-    //                                  gap_msg.msg_data.gap_conn_param_update.status,
-    //                                  gap_msg.msg_data.gap_conn_param_update.cause);
-    // }
-    // break;
-    // case GAP_MSG_LE_CONN_MTU_INFO:
-    // {
-    //     log_v("GAP_MSG_LE_CONN_MTU_INFO");
-    //     ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
-    //                              gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
-    // }
-    // break;
-    // case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
-    // {
-    //     log_v("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
-    //     ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
-    //                                  gap_msg.msg_data.gap_authen_state.new_state,
-    //                                  gap_msg.msg_data.gap_authen_state.status);
-    // }
-    // break;
-    // case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
-    // {
-    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
-    //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
-    //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    // }
-    // break;
-    // case GAP_MSG_LE_BOND_PASSKEY_INPUT:
-    // {
-    //     log_v("GAP_MSG_LE_BOND_PASSKEY_INPUT");
-    //     uint32_t display_value = 0;
-    //     conn_id = gap_msg.msg_data.gap_bond_passkey_display.conn_id;
-    //     le_bond_get_display_key(conn_id, &display_value);
-    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
-    //     le_bond_passkey_display_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    //     log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
-    // }
-    // break;
-    // case GAP_MSG_LE_BOND_OOB_INPUT:
-    // {
-    //     log_v("GAP_MSG_LE_BOND_OOB_INPUT");
-    //     uint8_t oob_data[GAP_OOB_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    //     conn_id = gap_msg.msg_data.gap_bond_oob_input.conn_id;
-    //     log_v("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
-    //     le_bond_set_param(GAP_PARAM_BOND_OOB_DATA, GAP_OOB_LEN, oob_data);
-    //     le_bond_oob_input_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    // }
-    // break;
-    // case GAP_MSG_LE_BOND_USER_CONFIRMATION:
-    // {
-    //     log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION");
-    //     uint32_t display_value = 0;
-    //     conn_id = gap_msg.msg_data.gap_bond_user_conf.conn_id;
-    //     le_bond_get_display_key(conn_id, &display_value);
-    //     log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
-    //     le_bond_user_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    // }
-    // break;
-    // case GAP_MSG_LE_BOND_JUST_WORK:
-    // {
-    //     log_v("GAP_MSG_LE_BOND_JUST_WORK");
-    //     conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
-    //     le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
-    //     log_v("GAP_MSG_LE_BOND_JUST_WORK\r\n");
-    // }
-    // break;
-    // default:
-    //     log_v("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
-    //     break;
-    // }
+    switch (p_gap_msg->subtype)
+    {
+    case GAP_MSG_LE_DEV_STATE_CHANGE:
+    {
+        log_v("GAP_MSG_LE_DEV_STATE_CHANGE");
+        ble_dev_state_evt_handler(gap_msg.msg_data.gap_dev_state_change.new_state,
+                                  gap_msg.msg_data.gap_dev_state_change.cause);
+    }
+    break;
+    case GAP_MSG_LE_CONN_STATE_CHANGE:
+    {
+        log_v("GAP_MSG_LE_CONN_STATE_CHANGE");
+        ble_conn_state_evt_handler(gap_msg.msg_data.gap_conn_state_change.conn_id,
+                                   (T_GAP_CONN_STATE)gap_msg.msg_data.gap_conn_state_change.new_state,
+                                   gap_msg.msg_data.gap_conn_state_change.disc_cause);
+    }
+    break;
+    case GAP_MSG_LE_CONN_PARAM_UPDATE:
+    {
+        log_v("GAP_MSG_LE_CONN_PARAM_UPDATE");
+        ble_param_update_evt_handler(gap_msg.msg_data.gap_conn_param_update.conn_id,
+                                     gap_msg.msg_data.gap_conn_param_update.status,
+                                     gap_msg.msg_data.gap_conn_param_update.cause);
+    }
+    break;
+    case GAP_MSG_LE_CONN_MTU_INFO:
+    {
+        log_v("GAP_MSG_LE_CONN_MTU_INFO");
+        ble_mtu_info_evt_handler(gap_msg.msg_data.gap_conn_mtu_info.conn_id,
+                                 gap_msg.msg_data.gap_conn_mtu_info.mtu_size);
+    }
+    break;
+    case GAP_MSG_LE_AUTHEN_STATE_CHANGE:
+    {
+        log_v("GAP_MSG_LE_AUTHEN_STATE_CHANGE");
+        ble_authen_state_evt_handler(gap_msg.msg_data.gap_authen_state.conn_id,
+                                     gap_msg.msg_data.gap_authen_state.new_state,
+                                     gap_msg.msg_data.gap_authen_state.status);
+    }
+    break;
+    case GAP_MSG_LE_BOND_PASSKEY_DISPLAY:
+    {
+        log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY");
+        conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
+        le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    }
+    break;
+    case GAP_MSG_LE_BOND_PASSKEY_INPUT:
+    {
+        log_v("GAP_MSG_LE_BOND_PASSKEY_INPUT");
+        uint32_t display_value = 0;
+        conn_id = gap_msg.msg_data.gap_bond_passkey_display.conn_id;
+        le_bond_get_display_key(conn_id, &display_value);
+        log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+        le_bond_passkey_display_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+        log_v("GAP_MSG_LE_BOND_PASSKEY_DISPLAY:passkey %d", display_value);
+    }
+    break;
+    case GAP_MSG_LE_BOND_OOB_INPUT:
+    {
+        log_v("GAP_MSG_LE_BOND_OOB_INPUT");
+        uint8_t oob_data[GAP_OOB_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        conn_id = gap_msg.msg_data.gap_bond_oob_input.conn_id;
+        log_v("GAP_MSG_LE_BOND_OOB_INPUT\r\n");
+        le_bond_set_param(GAP_PARAM_BOND_OOB_DATA, GAP_OOB_LEN, oob_data);
+        le_bond_oob_input_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    }
+    break;
+    case GAP_MSG_LE_BOND_USER_CONFIRMATION:
+    {
+        log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION");
+        uint32_t display_value = 0;
+        conn_id = gap_msg.msg_data.gap_bond_user_conf.conn_id;
+        le_bond_get_display_key(conn_id, &display_value);
+        log_v("GAP_MSG_LE_BOND_USER_CONFIRMATION: passkey %ld\r\n", display_value);
+        le_bond_user_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+    }
+    break;
+    case GAP_MSG_LE_BOND_JUST_WORK:
+    {
+        log_v("GAP_MSG_LE_BOND_JUST_WORK");
+        conn_id = gap_msg.msg_data.gap_bond_just_work_conf.conn_id;
+        le_bond_just_work_confirm(conn_id, GAP_CFM_CAUSE_ACCEPT);
+        log_v("GAP_MSG_LE_BOND_JUST_WORK\r\n");
+    }
+    break;
+    default:
+        log_v("gapMsgHandlerDefault: unknown subtype %d", p_gap_msg->subtype);
+        break;
+    }
+#else
     binary_t callback_io_msg;
     callback_io_msg.dataLength = sizeof(T_IO_MSG);
     log_v("callback_io_msg.dataLength: %d", callback_io_msg.dataLength);
@@ -568,6 +572,7 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     rpc_ble_handle_gap_msg(&callback_io_msg);
     log_v("rpc_ble_handle_gap_msg over");
     return;
+#endif
 }
 
 /**
@@ -591,4 +596,126 @@ void ble_handle_io_msg(T_IO_MSG io_msg)
     default:
         break;
     }
+}
+
+/**
+ * @brief   All the client gatt callback are handled in this function
+ * @note            
+ * @param[in] client_id  client gatt if
+ * @param[in] conn_id    connect id
+ * @param[in] p_data     data
+ * @return   void
+ */
+T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, void *p_data)
+{
+    T_APP_RESULT result = APP_RESULT_SUCCESS;
+    T_BLE_CLIENT_CB_DATA *p_ble_client_cb_data = (T_BLE_CLIENT_CB_DATA *)p_data;
+    log_d("ble_gatt_client_callback conn_id:%d, client_id: %d, app_id:%d, cb_type:%d", conn_id, client_id, p_ble_client_cb_data->app_id, p_ble_client_cb_data->cb_type);
+
+#ifdef DEBUG_LOCAL
+    switch (p_ble_client_cb_data->cb_type)
+    {
+    case BLE_CLIENT_CB_TYPE_DISCOVERY_STATE:
+        log_d("discov_state:%d\n\r", p_ble_client_cb_data->cb_content.discov_state.state);
+        break;
+    case BLE_CLIENT_CB_TYPE_DISCOVERY_RESULT:
+    {
+        T_BLE_CLIENT_DISCOV_TYPE discov_type = p_ble_client_cb_data->cb_content.discov_result.discov_type;
+        switch (discov_type)
+        {
+            log_d("discov_type:%d\n\r", discov_type);
+        case DISC_RESULT_ALL_SRV_UUID16:
+        {
+            T_GATT_SERVICE_ELEM16 *disc_data = (T_GATT_SERVICE_ELEM16 *)&(p_ble_client_cb_data->cb_content.discov_result.result.srv_uuid16_disc_data);
+            log_d("start_handle:%d, end handle:%d UUID16:%02x%02x",
+                  disc_data->att_handle, disc_data->end_group_handle, (uint8_t)(disc_data->uuid16 >> 8), disc_data->uuid16 & 0xFF);
+            break;
+        }
+        case DISC_RESULT_ALL_SRV_UUID128:
+        {
+            T_GATT_SERVICE_ELEM128 *disc_data = (T_GATT_SERVICE_ELEM128 *)&(p_ble_client_cb_data->cb_content.discov_result.result.srv_uuid128_disc_data);
+            log_d("start_handle:%d, end handle:%d UUID128:%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x",
+                  disc_data->att_handle, disc_data->end_group_handle,
+                  disc_data->uuid128[15], disc_data->uuid128[14], disc_data->uuid128[13], disc_data->uuid128[12],
+                  disc_data->uuid128[11], disc_data->uuid128[10], disc_data->uuid128[9], disc_data->uuid128[8],
+                  disc_data->uuid128[7], disc_data->uuid128[6], disc_data->uuid128[5], disc_data->uuid128[4],
+                  disc_data->uuid128[3], disc_data->uuid128[2], disc_data->uuid128[1], disc_data->uuid128[0]);
+            break;
+        }
+        case DISC_RESULT_SRV_DATA:
+        {
+            T_GATT_SERVICE_BY_UUID_ELEM *disc_data = (T_GATT_SERVICE_BY_UUID_ELEM *)&(p_ble_client_cb_data->cb_content.discov_result.result.srv_disc_data);
+            log_d("start_handle:%d, end handle:%d", disc_data->att_handle, disc_data->end_group_handle);
+            break;
+        }
+        case DISC_RESULT_CHAR_UUID16:
+        {
+            T_GATT_CHARACT_ELEM16 *disc_data = (T_GATT_CHARACT_ELEM16 *)&(p_ble_client_cb_data->cb_content.discov_result.result.char_uuid16_disc_data);
+            log_d("decl_handle:%d, properties:%d value_handle:%d UUID16:%02x02x", disc_data->decl_handle, disc_data->properties, disc_data->value_handle, (uint8_t)(disc_data->uuid16 >> 8), disc_data->uuid16 & 0xFF);
+            break;
+        }
+        case DISC_RESULT_CHAR_UUID128:
+        {
+            T_GATT_CHARACT_ELEM128 *disc_data = (T_GATT_CHARACT_ELEM128 *)&(p_ble_client_cb_data->cb_content.discov_result.result.char_uuid128_disc_data);
+            log_d("decl_handle:%d, properties:%d value_handle:%d UUID128:%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x", disc_data->decl_handle, disc_data->properties, disc_data->value_handle,
+                  disc_data->uuid128[15], disc_data->uuid128[14], disc_data->uuid128[13], disc_data->uuid128[12],
+                  disc_data->uuid128[11], disc_data->uuid128[10], disc_data->uuid128[9], disc_data->uuid128[8],
+                  disc_data->uuid128[7], disc_data->uuid128[6], disc_data->uuid128[5], disc_data->uuid128[4],
+                  disc_data->uuid128[3], disc_data->uuid128[2], disc_data->uuid128[1], disc_data->uuid128[0]);
+            break;
+        }
+        case DISC_RESULT_CHAR_DESC_UUID16:
+        {
+            T_GATT_CHARACT_DESC_ELEM16 *disc_data = (T_GATT_CHARACT_DESC_ELEM16 *)&(p_ble_client_cb_data->cb_content.discov_result.result.char_desc_uuid16_disc_data);
+            log_d("handle:%d, UUID16:%02x02x", disc_data->handle, (uint8_t)(disc_data->uuid16 >> 8), disc_data->uuid16 & 0xFF);
+            break;
+        }
+        case DISC_RESULT_CHAR_DESC_UUID128:
+        {
+            T_GATT_CHARACT_DESC_ELEM128 *disc_data = (T_GATT_CHARACT_DESC_ELEM128 *)&(p_ble_client_cb_data->cb_content.discov_result.result.char_desc_uuid128_disc_data);
+            log_d("handle:%d, UUID128:%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x-%02x%02x%02x%02x", disc_data->handle,
+                  disc_data->uuid128[15], disc_data->uuid128[14], disc_data->uuid128[13], disc_data->uuid128[12],
+                  disc_data->uuid128[11], disc_data->uuid128[10], disc_data->uuid128[9], disc_data->uuid128[8],
+                  disc_data->uuid128[7], disc_data->uuid128[6], disc_data->uuid128[5], disc_data->uuid128[4],
+                  disc_data->uuid128[3], disc_data->uuid128[2], disc_data->uuid128[1], disc_data->uuid128[0]);
+            break;
+        }
+        default:
+            break;
+        }
+        break;
+    }
+    case BLE_CLIENT_CB_TYPE_READ_RESULT:
+        break;
+    case BLE_CLIENT_CB_TYPE_WRITE_RESULT:
+        break;
+    case BLE_CLIENT_CB_TYPE_NOTIF_IND:
+        break;
+    case BLE_CLIENT_CB_TYPE_DISCONNECT_RESULT:
+        break;
+    default:
+        break;
+    }
+#else
+    binary_t cb_data;
+    binary_t read_or_notify_data;
+    FORMATION_BINARY(cb_data, p_ble_client_cb_data, sizeof(T_BLE_CLIENT_CB_DATA));
+    switch (p_ble_client_cb_data->cb_type)
+    {
+    case BLE_CLIENT_CB_TYPE_READ_RESULT:
+        FORMATION_BINARY_CLIENT_READ_NOTIF(read_or_notify_data, p_ble_client_cb_data->cb_content.read_result);
+        break;
+    case BLE_CLIENT_CB_TYPE_NOTIF_IND:
+        FORMATION_BINARY_CLIENT_READ_NOTIF(read_or_notify_data, p_ble_client_cb_data->cb_content.notif_ind);
+        break;
+    default:
+    {
+        uint8_t value = 0;
+        FORMATION_BINARY(read_or_notify_data, &value, 1);
+        break;
+    }
+    }
+    result = rpc_ble_gatt_client_callback(client_id, conn_id, cb_data, read_or_notify_data);
+#endif
+    return result;
 }

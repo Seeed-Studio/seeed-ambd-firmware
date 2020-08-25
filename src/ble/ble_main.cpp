@@ -54,10 +54,6 @@ extern "C"
 #endif
 
 #include "ble_main.h"
-#include "ble_common.h"
-#include "ble_callback.h"
-#include "ble_task.h"
-#include "ble_utils.h"
 
 /*============================================================================*
  *                              Constants
@@ -66,7 +62,7 @@ extern "C"
 T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
 T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
 T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-uint8_t ble_dev_role = 0; // 0:close 1:server 2:client
+uint8_t ble_dev_role = 2; // 0:close 1:server 2:client
 
 bool ble_init()
 {
@@ -107,11 +103,9 @@ void ble_start(void)
 {
   log_v("ble_start");
   T_GAP_DEV_STATE new_state;
-  le_register_app_cb(ble_gap_callback);
   ble_task_init();
   
   bt_coex_init();
-
   /*Wait BT init complete*/
   do
   {
