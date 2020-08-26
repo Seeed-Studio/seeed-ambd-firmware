@@ -81,7 +81,7 @@ void ble_dev_state_evt_handler(T_GAP_DEV_STATE new_state, uint16_t cause)
 
     // Assign different tasks according to different roles
     // As a Client
-    if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
+    if (ble_dev_role == GAP_LINK_ROLE_MASTER)
     {
         if (ble_gap_dev_state.gap_scan_state != new_state.gap_scan_state)
         {
@@ -135,7 +135,7 @@ void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uin
 
     log_v("ble_conn_state_evt_handler: conn_id %d, conn_state(%d -> %d), disc_cause 0x%x\r\n", conn_id, ble_clinet_link_table[conn_id].conn_state, new_state, disc_cause);
 
-    if (ble_dev_role == BLE_DEVICE_ROLE_CLIENT)
+    if (ble_dev_role == GAP_LINK_ROLE_MASTER)
     {
 
         if (conn_id >= BLE_CLIENT_MAX_LINKS)
@@ -318,20 +318,17 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
 {
     T_APP_RESULT result = APP_RESULT_SUCCESS;
     T_LE_CB_DATA *p_data = (T_LE_CB_DATA *)p_cb_data;
-    binary_t cb_data;
-
+#if DEBUG_LOCAL
     log_v("ble_gap_callback: cb_type %d", cb_type);
     switch (cb_type)
     {
     case GAP_MSG_LE_MODIFY_WHITE_LIST:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_modify_white_list_rsp, T_LE_MODIFY_WHITE_LIST_RSP);
         log_v("GAP_MSG_LE_MODIFY_WHITE_LIST: operation %d, cause 0x%x", p_data->p_le_modify_white_list_rsp->operation, p_data->p_le_modify_white_list_rsp->cause);
         break;
     }
     case GAP_MSG_LE_CONN_UPDATE_IND:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CONN_UPDATE_IND);
         log_v("GAP_MSG_LE_CONN_UPDATE_IND: conn_id %d, conn_interval_max 0x%x, conn_interval_min 0x%x, conn_latency 0x%x,supervision_timeout 0x%x", p_data->p_le_conn_update_ind->conn_id, p_data->p_le_conn_update_ind->conn_interval_max, p_data->p_le_conn_update_ind->conn_interval_min, p_data->p_le_conn_update_ind->conn_latency, p_data->p_le_conn_update_ind->supervision_timeout);
         /* if reject the proposed connection parameter from peer device, use APP_RESULT_REJECT. */
         result = APP_RESULT_ACCEPT;
@@ -339,13 +336,11 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_PHY_UPDATE_INFO:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_phy_update_info, T_LE_PHY_UPDATE_INFO);
         log_v("GAP_MSG_LE_PHY_UPDATE_INFO:conn_id %d, cause 0x%x, rx_phy %d, tx_phy %d", p_data->p_le_phy_update_info->conn_id, p_data->p_le_phy_update_info->cause, p_data->p_le_phy_update_info->rx_phy, p_data->p_le_phy_update_info->tx_phy);
         break;
     }
     case GAP_MSG_LE_REMOTE_FEATS_INFO:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_remote_feats_info, T_LE_REMOTE_FEATS_INFO);
         uint8_t remote_feats[8];
         log_v("GAP_MSG_LE_REMOTE_FEATS_INFO: conn id %d, cause 0x%x, remote_feats %b", p_data->p_le_remote_feats_info->conn_id, p_data->p_le_remote_feats_info->cause, TRACE_BINARY(8, p_data->p_le_remote_feats_info->remote_feats));
         if (p_data->p_le_remote_feats_info->cause == GAP_SUCCESS)
@@ -364,7 +359,6 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_SCAN_INFO:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_scan_info, T_LE_SCAN_INFO);
         log_v("GAP_MSG_LE_SCAN_INFO:adv_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x, remote_addr_type %d, rssi %d, data_len %d",
               p_data->p_le_scan_info->adv_type,
               (p_data->p_le_scan_info->bd_addr)[5],
@@ -380,14 +374,12 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_ADV_UPDATE_PARAM:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_adv_update_param_rsp, T_LE_ADV_UPDATE_PARAM_RSP);
         log_v("GAP_MSG_LE_ADV_UPDATE_PARAM: cause 0x%x",
               p_data->p_le_adv_update_param_rsp->cause);
         break;
     }
     case GAP_MSG_LE_CREATE_CONN_IND:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CREATE_CONN_IND);
         log_v("GAP_MSG_LE_GATT_SIGNED_STATUS_INFO:remote_addr_type 0x%x, bd_addr %02x:%02x:%02x:%02x:%02x:%02x,",
               p_data->p_le_create_conn_ind->remote_addr_type,
               (p_data->p_le_create_conn_ind->bd_addr)[5],
@@ -400,21 +392,18 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_SET_RAND_ADDR:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_set_rand_addr_rsp, T_LE_SET_RAND_ADDR_RSP);
         log_v("GAP_MSG_LE_SET_RAND_ADDR: cause 0x%x",
               p_data->p_le_set_rand_addr_rsp->cause);
         break;
     }
     case GAP_MSG_LE_SET_HOST_CHANN_CLASSIF:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_set_host_chann_classif_rsp, T_LE_SET_HOST_CHANN_CLASSIF_RSP);
         log_v("GAP_MSG_LE_SET_HOST_CHANN_CLASSIF: cause 0x%x",
               p_data->p_le_set_host_chann_classif_rsp->cause);
         break;
     }
     case GAP_MSG_LE_READ_RSSI:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_read_rssi_rsp, T_LE_READ_RSSI_RSP);
         log_v("GAP_MSG_LE_READ_RSSI: conn_id 0x%x, cause 0x%x, rssi %d",
               p_data->p_le_read_rssi_rsp->conn_id,
               p_data->p_le_read_rssi_rsp->cause,
@@ -423,7 +412,6 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_SET_DATA_LEN:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_set_data_len_rsp, T_LE_SET_DATA_LEN_RSP);
         log_v("GAP_MSG_LE_SET_DATA_LEN: conn_id 0x%x, cause 0x%x",
               p_data->p_le_set_data_len_rsp->conn_id,
               p_data->p_le_set_data_len_rsp->cause);
@@ -431,7 +419,6 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_DATA_LEN_CHANGE_INFO:
     {
-        FORMATION_BINARY(cb_data, p_data->p_le_data_len_change_info, T_LE_DATA_LEN_CHANGE_INFO);
         log_v("GAP_MSG_LE_DATA_LEN_CHANGE_INFO: conn_id 0x%x, max_tx_octets 0x%x, max_tx_time 0x%x,max_rx_octets 0x%x, max_rx_time 0x%x",
               p_data->p_le_data_len_change_info->conn_id,
               p_data->p_le_data_len_change_info->max_tx_octets,
@@ -442,17 +429,81 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     default:
     {
-        uint8_t value = 0;
-        FORMATION_BINARY(cb_data, &value, 1);
-        log_v("gapCallbackDefault: unhandled cb_type 0x%x", cb_type);
         break;
     }
     }
-
-    log_v("p_data->dataLength: %d", cb_data.dataLength);
-
-#ifndef DEBUG_LOCAL
-    result = rpc_ble_gap_callback(cb_type, cb_data);
+#else
+    binary_t cb_data;
+    switch (cb_type)
+    {
+    case GAP_MSG_LE_MODIFY_WHITE_LIST:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_modify_white_list_rsp, T_LE_MODIFY_WHITE_LIST_RSP);
+        break;
+    }
+    case GAP_MSG_LE_CONN_UPDATE_IND:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CONN_UPDATE_IND);
+        break;
+    }
+    case GAP_MSG_LE_PHY_UPDATE_INFO:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_phy_update_info, T_LE_PHY_UPDATE_INFO);
+        break;
+    }
+    case GAP_MSG_LE_REMOTE_FEATS_INFO:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_remote_feats_info, T_LE_REMOTE_FEATS_INFO);
+        break;
+    }
+    case GAP_MSG_LE_SCAN_INFO:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_scan_info, T_LE_SCAN_INFO);
+        break;
+    }
+    case GAP_MSG_LE_ADV_UPDATE_PARAM:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_adv_update_param_rsp, T_LE_ADV_UPDATE_PARAM_RSP);
+        break;
+    }
+    case GAP_MSG_LE_CREATE_CONN_IND:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_create_conn_ind, T_LE_CREATE_CONN_IND);
+        break;
+    }
+    case GAP_MSG_LE_SET_RAND_ADDR:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_rand_addr_rsp, T_LE_SET_RAND_ADDR_RSP);
+        break;
+    }
+    case GAP_MSG_LE_SET_HOST_CHANN_CLASSIF:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_host_chann_classif_rsp, T_LE_SET_HOST_CHANN_CLASSIF_RSP);
+        break;
+    }
+    case GAP_MSG_LE_READ_RSSI:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_read_rssi_rsp, T_LE_READ_RSSI_RSP);
+        break;
+    }
+    case GAP_MSG_LE_SET_DATA_LEN:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_set_data_len_rsp, T_LE_SET_DATA_LEN_RSP);
+        break;
+    }
+    case GAP_MSG_LE_DATA_LEN_CHANGE_INFO:
+    {
+        FORMATION_BINARY(cb_data, p_data->p_le_data_len_change_info, T_LE_DATA_LEN_CHANGE_INFO);
+        break;
+    }
+    default:
+    {
+        uint8_t value = 0;
+        FORMATION_BINARY(cb_data, &value, 1);
+        break;
+    }
+    }
+    result = rpc_ble_gap_callback(cb_type, &cb_data);
 #endif
 
     return result;
@@ -467,7 +518,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
  */
 void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
 {
-#ifdef DEBUG_LOCAL
+#if DEBUG_LOCAL
     T_LE_GAP_MSG gap_msg;
     uint8_t conn_id;
     memcpy(&gap_msg, &p_gap_msg->u.param, sizeof(p_gap_msg->u.param));
@@ -567,12 +618,10 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
 #else
     binary_t callback_io_msg;
     callback_io_msg.dataLength = sizeof(T_IO_MSG);
-    log_v("callback_io_msg.dataLength: %d", callback_io_msg.dataLength);
     callback_io_msg.data = p_gap_msg;
     rpc_ble_handle_gap_msg(&callback_io_msg);
-    log_v("rpc_ble_handle_gap_msg over");
-    return;
 #endif
+     return;
 }
 
 /**
@@ -610,9 +659,9 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
 {
     T_APP_RESULT result = APP_RESULT_SUCCESS;
     T_BLE_CLIENT_CB_DATA *p_ble_client_cb_data = (T_BLE_CLIENT_CB_DATA *)p_data;
-    log_d("ble_gatt_client_callback conn_id:%d, client_id: %d, app_id:%d, cb_type:%d", conn_id, client_id, p_ble_client_cb_data->app_id, p_ble_client_cb_data->cb_type);
 
-#ifdef DEBUG_LOCAL
+#if DEBUG_LOCAL
+     log_d("ble_gatt_client_callback conn_id:%d, client_id: %d, app_id:%d, cb_type:%d", conn_id, client_id, p_ble_client_cb_data->app_id, p_ble_client_cb_data->cb_type);
     switch (p_ble_client_cb_data->cb_type)
     {
     case BLE_CLIENT_CB_TYPE_DISCOVERY_STATE:
@@ -699,7 +748,7 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
 #else
     binary_t cb_data;
     binary_t read_or_notify_data;
-    FORMATION_BINARY(cb_data, p_ble_client_cb_data, sizeof(T_BLE_CLIENT_CB_DATA));
+    FORMATION_BINARY(cb_data, p_ble_client_cb_data, T_BLE_CLIENT_CB_DATA);
     switch (p_ble_client_cb_data->cb_type)
     {
     case BLE_CLIENT_CB_TYPE_READ_RESULT:
@@ -711,11 +760,11 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
     default:
     {
         uint8_t value = 0;
-        FORMATION_BINARY(read_or_notify_data, &value, 1);
+        FORMATION_BINARY(read_or_notify_data, &value, uint8_t);
         break;
     }
     }
-    result = rpc_ble_gattc_callback(client_id, conn_id, cb_data, read_or_notify_data);
+    result = rpc_ble_gattc_callback(client_id, conn_id, &cb_data, &read_or_notify_data);
 #endif
     return result;
 }

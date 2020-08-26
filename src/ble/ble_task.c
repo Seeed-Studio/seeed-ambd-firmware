@@ -30,8 +30,8 @@
 /*============================================================================*
  *                              Macros
  *============================================================================*/
-#define RPC_BLE_TASK_PRIORITY 1                                                                                            //!< Task priorities
-#define RPC_BLE_TASK_STACK_SIZE 256 * 6                                                                                    //!<  Task stack size
+#define RPC_BLE_TASK_PRIORITY 2                                                                                            //!< Task priorities
+#define RPC_BLE_TASK_STACK_SIZE 256 * 8                                                                                    //!<  Task stack size
 #define RPC_BLE_MAX_NUMBER_OF_GAP_MESSAGE 0x20                                                                             //!<  GAP message queue size
 #define RPC_BLE_MAX_NUMBER_OF_IO_MESSAGE 0x20                                                                              //!<  IO message queue size
 #define RPC_BLE_MAX_NUMBER_OF_EVENT_MESSAGE (RPC_BLE_MAX_NUMBER_OF_GAP_MESSAGE + RPC_BLE_MAX_NUMBER_OF_IO_MESSAGE) //!< Event message queue size
@@ -89,10 +89,8 @@ void ble_main_task(void *p_param)
  */
 void ble_task_init()
 {
-    log_v("Entry");
     os_task_create(&ble_task_handle, "ble task", ble_main_task, 0, RPC_BLE_TASK_STACK_SIZE,
                    RPC_BLE_TASK_PRIORITY);
-    log_v("Exit");
 }
 
 void ble_task_deinit(void)

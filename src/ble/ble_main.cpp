@@ -62,7 +62,7 @@ extern "C"
 T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
 T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
 T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-uint8_t ble_dev_role = 2; // 0:close 1:server 2:client
+T_GAP_ROLE ble_dev_role = GAP_LINK_ROLE_MASTER; // 0:close 1:server 2:client
 
 bool ble_init()
 {
@@ -96,6 +96,66 @@ bool ble_init()
     bte_init();
   }
 
+  gap_config_max_le_link_num(BLE_CLIENT_MAX_LINKS);
+  le_gap_init(BLE_CLIENT_MAX_LINKS);
+
+  /* Device name and device appearance */
+  uint8_t device_name[GAP_DEVICE_NAME_LEN] = "BLE_CENTRAL_CLIENT";
+  uint16_t appearance = GAP_GATT_APPEARANCE_UNKNOWN;
+
+  uint8_t scan_mode = GAP_SCAN_MODE_ACTIVE;
+  uint16_t scan_interval = DEFAULT_SCAN_INTERVAL;
+  uint16_t scan_window = DEFAULT_SCAN_WINDOW;
+  uint8_t scan_filter_policy = GAP_SCAN_FILTER_ANY;
+  uint8_t scan_filter_duplicate = GAP_SCAN_FILTER_DUPLICATE_ENABLE;
+
+  /* GAP Bond Manager parameters */
+  uint8_t auth_pair_mode = GAP_PAIRING_MODE_PAIRABLE;
+  uint16_t auth_flags = GAP_AUTHEN_BIT_BONDING_FLAG;
+  uint8_t auth_io_cap = GAP_IO_CAP_NO_INPUT_NO_OUTPUT;
+  uint8_t auth_oob = false;
+  uint8_t auth_use_fix_passkey = false;
+  uint32_t auth_fix_passkey = 0;
+  uint8_t auth_sec_req_enable = false;
+  uint16_t auth_sec_req_flags = GAP_AUTHEN_BIT_BONDING_FLAG;
+
+  /* Set device name and device appearance */
+  le_set_gap_param(GAP_PARAM_DEVICE_NAME, GAP_DEVICE_NAME_LEN, device_name);
+  le_set_gap_param(GAP_PARAM_APPEARANCE, sizeof(appearance), &appearance);
+
+  /* Set scan parameters */
+  le_scan_set_param(GAP_PARAM_SCAN_MODE, sizeof(scan_mode), &scan_mode);
+  le_scan_set_param(GAP_PARAM_SCAN_INTERVAL, sizeof(scan_interval), &scan_interval);
+  le_scan_set_param(GAP_PARAM_SCAN_WINDOW, sizeof(scan_window), &scan_window);
+  le_scan_set_param(GAP_PARAM_SCAN_FILTER_POLICY, sizeof(scan_filter_policy),
+                    &scan_filter_policy);
+  le_scan_set_param(GAP_PARAM_SCAN_FILTER_DUPLICATES, sizeof(scan_filter_duplicate),
+                    &scan_filter_duplicate);
+
+  /* Setup the GAP Bond Manager */
+  gap_set_param(GAP_PARAM_BOND_PAIRING_MODE, sizeof(auth_pair_mode), &auth_pair_mode);
+  gap_set_param(GAP_PARAM_BOND_AUTHEN_REQUIREMENTS_FLAGS, sizeof(auth_flags), &auth_flags);
+  gap_set_param(GAP_PARAM_BOND_IO_CAPABILITIES, sizeof(auth_io_cap), &auth_io_cap);
+  gap_set_param(GAP_PARAM_BOND_OOB_ENABLED, sizeof(auth_oob), &auth_oob);
+  le_bond_set_param(GAP_PARAM_BOND_FIXED_PASSKEY, sizeof(auth_fix_passkey), &auth_fix_passkey);
+  le_bond_set_param(GAP_PARAM_BOND_FIXED_PASSKEY_ENABLE, sizeof(auth_use_fix_passkey),
+                    &auth_use_fix_passkey);
+  le_bond_set_param(GAP_PARAM_BOND_SEC_REQ_ENABLE, sizeof(auth_sec_req_enable), &auth_sec_req_enable);
+  le_bond_set_param(GAP_PARAM_BOND_SEC_REQ_REQUIREMENT, sizeof(auth_sec_req_flags),
+                    &auth_sec_req_flags);
+
+  uint8_t phys_prefer = GAP_PHYS_PREFER_ALL;
+  uint8_t tx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
+                           GAP_PHYS_PREFER_CODED_BIT;
+  uint8_t rx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
+                           GAP_PHYS_PREFER_CODED_BIT;
+  le_set_gap_param(GAP_PARAM_DEFAULT_PHYS_PREFER, sizeof(phys_prefer), &phys_prefer);
+  le_set_gap_param(GAP_PARAM_DEFAULT_TX_PHYS_PREFER, sizeof(tx_phys_prefer), &tx_phys_prefer);
+  le_set_gap_param(GAP_PARAM_DEFAULT_RX_PHYS_PREFER, sizeof(rx_phys_prefer), &rx_phys_prefer);
+
+  le_register_app_cb(ble_gap_callback);
+  client_register_general_client_cb(ble_gatt_client_callback);
+
   return true;
 }
 
@@ -104,7 +164,7 @@ void ble_start(void)
   log_v("ble_start");
   T_GAP_DEV_STATE new_state;
   ble_task_init();
-  
+
   bt_coex_init();
   /*Wait BT init complete*/
   do
@@ -123,7 +183,6 @@ void ble_deinit(void)
   ble_task_deinit();
   T_GAP_DEV_STATE state;
   le_get_gap_param(GAP_PARAM_DEV_STATE, &state);
-
 
   if (state.gap_init_state != GAP_INIT_STATE_STACK_READY)
   {

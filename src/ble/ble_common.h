@@ -21,6 +21,7 @@
 #include "elog.h"
 #include "gap.h"
 #include "gap_msg.h"
+#include "gap_conn_le.h"
 
 /*============================================================================*
  *                              Constants
@@ -40,10 +41,10 @@
 /** @brief  Config server LE link number */
 #define BLE_SERVER_MAX_LINKS 1
 
-#define BLE_DEVICE_ROLE_SERVER 1
-#define BLE_DEVICE_ROLE_CLIENT 2
-
-
+/** @brief Default scan interval (units of 0.625ms, 0x520=820ms) */
+#define DEFAULT_SCAN_INTERVAL 0x520
+/** @brief Default scan window (units of 0.625ms, 0x520=820ms) */
+#define DEFAULT_SCAN_WINDOW 0x520
 /**
  * @brief  Application Link control block defination.
  */
@@ -57,6 +58,6 @@ typedef struct
 extern T_GAP_DEV_STATE ble_gap_dev_state;
 extern T_GAP_CONN_STATE ble_gap_conn_state;
 extern T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-extern uint8_t ble_dev_role;
+extern T_GAP_ROLE ble_dev_role;
 
 #endif /* _RPC_BLE_FLAGS_H_ */

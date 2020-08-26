@@ -125,7 +125,7 @@ extern "C"
   } T_BLE_CLIENT_CB_DATA;
 
   bool ble_client_init(uint8_t num);
-  T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num, P_FUN_GENERAL_APP_CB app_cb);
+  T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num);
 
 #ifdef __cplusplus
 }

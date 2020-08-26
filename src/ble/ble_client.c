@@ -28,7 +28,6 @@ static uint8_t ble_client_link_num[BLE_CLIENT_MAX_APPS];
 /**<  GATTS client ID. */
 static T_CLIENT_ID ble_client_id[BLE_CLIENT_MAX_APPS];
 /**<  Callback used to send data to app from ble_client client layer. */
-static P_FUN_GENERAL_APP_CB ble_client_client_cb = NULL;
 
 static void ble_client_discover_state_cb0(uint8_t conn_id, T_DISCOVERY_STATE discovery_state)
 {
@@ -37,10 +36,9 @@ static void ble_client_discover_state_cb0(uint8_t conn_id, T_DISCOVERY_STATE dis
     cb_data.cb_type = BLE_CLIENT_CB_TYPE_DISCOVERY_STATE;
     cb_data.app_id = 0;
     cb_data.cb_content.discov_state.state = discovery_state;
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
+    
     return;
 }
 
@@ -53,10 +51,7 @@ static void ble_client_discover_result_cb0(uint8_t conn_id, T_DISCOVERY_RESULT_T
     cb_data.app_id = 0;
     cb_data.cb_content.discov_result.discov_type = result_type;
     memcpy(&(cb_data.cb_content.discov_result.result), result_data.p_srv_disc_data, sizeof(T_BLE_CLIENT_DISCOV_RESULT_DATA));
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
     return;
 }
 
@@ -73,10 +68,7 @@ static void ble_client_read_result_cb0(uint8_t conn_id, uint16_t cause,
     cb_data.cb_content.read_result.value_size = value_size;
     cb_data.cb_content.read_result.p_value = p_value;
 
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
     return;
 }
 
@@ -94,10 +86,7 @@ static void ble_client_write_result_cb0(uint8_t conn_id, T_GATT_WRITE_TYPE type,
     cb_data.cb_content.write_result.handle = handle;
     cb_data.cb_content.write_result.type = type;
 
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
     return;
 }
 
@@ -115,10 +104,7 @@ static T_APP_RESULT ble_client_notify_ind_cb0(uint8_t conn_id, bool notify,
     cb_data.cb_content.notif_ind.value_size = value_size;
     cb_data.cb_content.notif_ind.p_value = p_value;
 
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
     return app_result;
 }
 
@@ -131,10 +117,7 @@ static void ble_client_disc_cb0(uint8_t conn_id)
     cb_data.app_id = 0;
     cb_data.cb_content.disconn_result.conn_id = conn_id;
 
-    if (ble_client_client_cb)
-    {
-        (*ble_client_client_cb)(ble_client_id[0], conn_id, &cb_data);
-    }
+    ble_gatt_client_callback(ble_client_id[0], conn_id, &cb_data);
 
     return;
 }
@@ -171,7 +154,7 @@ bool ble_client_init(uint8_t num)
     return true;
 }
 
-T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num, P_FUN_GENERAL_APP_CB app_cb)
+T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num)
 {
     if (link_num > BLE_CLIENT_MAX_LINKS)
     {
@@ -182,7 +165,6 @@ T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num, P_FUN_GENERAL_APP_C
         return 0xff;
     }
 
-    ble_client_client_cb = app_cb;
     ble_client_link_num[app_id] = link_num;
 
     if (false == client_register_spec_client_cb(&ble_client_id[app_id], &ble_client_cbs[app_id]))

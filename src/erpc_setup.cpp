@@ -86,6 +86,7 @@ void add_services(erpc::SimpleServer *server)
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_config_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_conn_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_scan_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gatt_client_service()));
 }
 
 /**
@@ -125,7 +126,7 @@ void erpc_ble_init()
     g_server.setTransport(&g_arbitrator);
     g_server.setCodecFactory(&g_basicCodecFactory);
     g_server.setMessageBufferFactory(&g_msgFactory);
-    Thread serverThread(&run_erpc_server, 8, 4096, "erpc task");
+    Thread serverThread(&run_erpc_server, 8, 4096, "erpc server");
     serverThread.start();
 
     add_services(&g_server);

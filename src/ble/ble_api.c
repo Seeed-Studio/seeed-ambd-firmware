@@ -56,7 +56,6 @@ extern "C"
 #include "rpc_ble_header.h"
 #include "rpc_ble_api.h"
 
-
 //! @name host
 //@{
 
@@ -87,7 +86,7 @@ RPC_T_GAP_CAUSE rpc_le_adv_set_param(RPC_T_LE_ADV_PARAM_TYPE param, const binary
 
 RPC_T_GAP_CAUSE rpc_le_adv_get_param(RPC_T_LE_ADV_PARAM_TYPE param, binary_t *value)
 {
-  printf("rpc_le_adv_get_param called\n\r");
+  log_d("rpc_le_adv_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_LE_ADV_PARAM_TYPE)param)
@@ -199,7 +198,7 @@ RPC_T_GAP_CAUSE rpc_le_set_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, const binary
 
 RPC_T_GAP_CAUSE rpc_le_get_gap_param(RPC_T_GAP_LE_PARAM_TYPE param, binary_t *value)
 {
-  printf("rpc_le_get_gap_param called\n\r");
+  log_d("rpc_le_get_gap_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_GAP_LE_PARAM_TYPE)param)
@@ -337,7 +336,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, const bina
 
 RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *value)
 {
-  printf("rpc_le_scan_get_param called\n\r");
+  log_d("rpc_le_scan_get_param called");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_LE_SCAN_PARAM_TYPE)param)
@@ -395,6 +394,7 @@ RPC_T_GAP_CAUSE rpc_le_scan_stop(void)
 
 bool rpc_le_scan_info_filter(bool enable, uint8_t offset, uint8_t len, const uint8_t p_filter[31])
 {
+  log_d("rpc_le_scan_info_filter called");
   return le_scan_info_filter(enable, offset, len, p_filter);
 }
 //@}
@@ -467,7 +467,7 @@ RPC_T_GAP_CAUSE rpc_gap_set_param(RPC_T_GAP_PARAM_TYPE param, const binary_t *va
 
 RPC_T_GAP_CAUSE rpc_gap_get_param(RPC_T_GAP_PARAM_TYPE param, binary_t *value)
 {
-  printf("rpc_gap_get_param called\n\r");
+  log_d("rpc_gap_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_GAP_PARAM_TYPE)param)
@@ -528,7 +528,7 @@ RPC_T_GAP_CAUSE rpc_le_bond_set_param(RPC_T_LE_BOND_PARAM_TYPE param, const bina
 
 RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *value)
 {
-  printf("rpc_le_bond_get_param called\n\r");
+  log_d("rpc_le_bond_get_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_LE_BOND_PARAM_TYPE)param)
@@ -655,7 +655,7 @@ RPC_T_GAP_CAUSE rpc_le_bond_get_sec_level(uint8_t conn_id, RPC_T_GAP_SEC_LEVEL *
 //@{
 RPC_T_GAP_CAUSE rpc_le_get_conn_param(RPC_T_LE_CONN_PARAM_TYPE param, binary_t *value, uint8_t conn_id)
 {
-  printf("rpc_le_get_conn_param called\n\r");
+  log_d("rpc_le_get_conn_param called\n\r");
   RPC_T_GAP_CAUSE ret = RPC_GAP_CAUSE_SUCCESS;
   uint8_t *p_value = NULL;
   switch ((T_LE_CONN_PARAM_TYPE)param)
@@ -739,7 +739,7 @@ bool rpc_le_get_conn_addr(uint8_t conn_id, uint8_t bd_addr[6], uint8_t *bd_type)
 bool rpc_le_get_conn_id(const uint8_t bd_addr[6], uint8_t bd_type, uint8_t *p_conn_id)
 {
   log_d("rpc_le_get_conn_id called");
-  return le_get_conn_addr(bd_addr, bd_type, p_conn_id);
+  return le_get_conn_id(bd_addr, bd_type, p_conn_id);
 }
 
 uint8_t rpc_le_get_active_link_num(void)
@@ -799,22 +799,34 @@ RPC_T_GAP_CAUSE rpc_le_update_conn_param(uint8_t conn_id, uint16_t conn_interval
 
 //! @name rpc_gatt_client
 //@{
+bool rpc_ble_client_init(uint8_t num)
+{
+  log_d("rpc_client_init called");
+  return ble_client_init(num);
+}
+
+uint8_t rpc_ble_add_client(uint8_t app_id, uint8_t link_num)
+{
+  log_d("rpc_ble_add_client called");
+  return ble_add_client(app_id, link_num);
+}
+
 void rpc_client_init(uint8_t client_num)
 {
   log_d("rpc_client_init called");
-  return rpc_client_init(client_num);
+  return client_init(client_num);
 }
 
 RPC_T_GAP_CAUSE rpc_client_all_primary_srv_discovery(uint8_t conn_id, uint8_t client_id)
 {
   log_d("rpc_client_all_primary_srv_discovery called");
-  return rpc_client_all_primary_srv_discovery(conn_id, client_id);
+  return client_all_primary_srv_discovery(conn_id, client_id);
 }
 
 RPC_T_GAP_CAUSE rpc_client_by_uuid_srv_discovery(uint8_t conn_id, uint8_t client_id, uint16_t uuid16)
 {
   log_d("rpc_client_all_primary_srv_discovery called");
-  return rpc_client_by_uuid_srv_discovery(conn_id, client_id, uuid16);
+  return client_by_uuid_srv_discovery(conn_id, client_id, uuid16);
 }
 
 RPC_T_GAP_CAUSE rpc_client_by_uuid128_srv_discovery(uint8_t conn_id, uint8_t client_id, const uint8_t p_uuid128[16])
@@ -856,13 +868,13 @@ RPC_T_GAP_CAUSE rpc_client_all_char_descriptor_discovery(uint8_t conn_id, uint8_
 RPC_T_GAP_CAUSE rpc_client_attr_read(uint8_t conn_id, uint8_t client_id, uint16_t handle)
 {
   log_d("rpc_client_attr_read called");
-  return rpc_client_attr_read(conn_id, client_id, handle);
+  return client_attr_read(conn_id, client_id, handle);
 }
 
 RPC_T_GAP_CAUSE rpc_client_attr_read_using_uuid(uint8_t conn_id, uint8_t client_id, uint16_t start_handle, uint16_t end_handle, uint16_t uuid16, const uint8_t p_uuid128[16])
 {
   log_d("rpc_client_all_char_descriptor_discovery called");
-  return rpc_client_attr_read_using_uuid(conn_id, client_id, start_handle, end_handle, uuid16, p_uuid128);
+  return client_attr_read_using_uuid(conn_id, client_id, start_handle, end_handle, uuid16, p_uuid128);
 }
 
 RPC_T_GAP_CAUSE rpc_client_attr_write(uint8_t conn_id, uint8_t client_id, RPC_T_GATT_WRITE_TYPE write_type, uint16_t handle, const binary_t *data)
