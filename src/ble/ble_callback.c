@@ -138,7 +138,7 @@ void ble_conn_state_evt_handler(uint8_t conn_id, T_GAP_CONN_STATE new_state, uin
     if (ble_dev_role == GAP_LINK_ROLE_MASTER)
     {
 
-        if (conn_id >= BLE_CLIENT_MAX_LINKS)
+        if (conn_id >= BLE_LE_MAX_LINKS)
         {
             return;
         }
@@ -767,4 +767,21 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
     result = rpc_ble_gattc_callback(client_id, conn_id, &cb_data, &read_or_notify_data);
 #endif
     return result;
+}
+
+/**
+    * @brief    All the BT Profile service callback events are handled in this function
+    * @note     Then the event handling function shall be called according to the
+    *           service_id
+    * @param    service_id  Profile service ID
+    * @param    p_data      Pointer to callback data
+    * @return   T_APP_RESULT, which indicates the function call is successful or not
+    * @retval   APP_RESULT_SUCCESS  Function run successfully
+    * @retval   others              Function run failed, and return number indicates the reason
+    */
+T_APP_RESULT ble_gatt_server_callback(T_SERVER_ID service_id, void *p_data)
+{
+    T_APP_RESULT app_result = APP_RESULT_SUCCESS;
+    log_d("ble_gatt_server_callback");
+    return app_result;
 }

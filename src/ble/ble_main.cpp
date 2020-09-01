@@ -61,8 +61,8 @@ extern "C"
 
 T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
 T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
-T_APP_LINK ble_clinet_link_table[BLE_CLIENT_MAX_LINKS];
-T_GAP_ROLE ble_dev_role = GAP_LINK_ROLE_MASTER; // 0:close 1:server 2:client
+T_APP_LINK ble_clinet_link_table[BLE_LE_MAX_LINKS];
+T_GAP_ROLE ble_dev_role = GAP_LINK_ROLE_SLAVE; // 0:close 1:server 2:client
 
 bool ble_init()
 {
@@ -96,18 +96,29 @@ bool ble_init()
     bte_init();
   }
 
-  gap_config_max_le_link_num(BLE_CLIENT_MAX_LINKS);
-  le_gap_init(BLE_CLIENT_MAX_LINKS);
+  gap_config_max_le_link_num(BLE_LE_MAX_LINKS);
+  le_gap_init(BLE_LE_MAX_LINKS);
 
   /* Device name and device appearance */
-  uint8_t device_name[GAP_DEVICE_NAME_LEN] = "BLE_CENTRAL_CLIENT";
+  uint8_t device_name[GAP_DEVICE_NAME_LEN] = "Wio Terminal";
   uint16_t appearance = GAP_GATT_APPEARANCE_UNKNOWN;
+  uint8_t slave_init_mtu_req = false;
 
+  /* Scan parameters */
   uint8_t scan_mode = GAP_SCAN_MODE_ACTIVE;
   uint16_t scan_interval = DEFAULT_SCAN_INTERVAL;
   uint16_t scan_window = DEFAULT_SCAN_WINDOW;
   uint8_t scan_filter_policy = GAP_SCAN_FILTER_ANY;
   uint8_t scan_filter_duplicate = GAP_SCAN_FILTER_DUPLICATE_ENABLE;
+
+  /* Advertising parameters */
+  uint8_t adv_evt_type = GAP_ADTYPE_ADV_IND;
+  uint8_t adv_direct_type = GAP_REMOTE_ADDR_LE_PUBLIC;
+  uint8_t adv_direct_addr[GAP_BD_ADDR_LEN] = {0};
+  uint8_t adv_chann_map = GAP_ADVCHAN_ALL;
+  uint8_t adv_filter_policy = GAP_ADV_FILTER_ANY;
+  uint16_t adv_int_min = DEFAULT_ADVERTISING_INTERVAL_MIN;
+  uint16_t adv_int_max = DEFAULT_ADVERTISING_INTERVAL_MAX;
 
   /* GAP Bond Manager parameters */
   uint8_t auth_pair_mode = GAP_PAIRING_MODE_PAIRABLE;
@@ -122,6 +133,8 @@ bool ble_init()
   /* Set device name and device appearance */
   le_set_gap_param(GAP_PARAM_DEVICE_NAME, GAP_DEVICE_NAME_LEN, device_name);
   le_set_gap_param(GAP_PARAM_APPEARANCE, sizeof(appearance), &appearance);
+  le_set_gap_param(GAP_PARAM_SLAVE_INIT_GATT_MTU_REQ, sizeof(slave_init_mtu_req),
+                   &slave_init_mtu_req);
 
   /* Set scan parameters */
   le_scan_set_param(GAP_PARAM_SCAN_MODE, sizeof(scan_mode), &scan_mode);
@@ -131,6 +144,15 @@ bool ble_init()
                     &scan_filter_policy);
   le_scan_set_param(GAP_PARAM_SCAN_FILTER_DUPLICATES, sizeof(scan_filter_duplicate),
                     &scan_filter_duplicate);
+
+  /* Set advertising parameters */
+  le_adv_set_param(GAP_PARAM_ADV_EVENT_TYPE, sizeof(adv_evt_type), &adv_evt_type);
+  le_adv_set_param(GAP_PARAM_ADV_DIRECT_ADDR_TYPE, sizeof(adv_direct_type), &adv_direct_type);
+  le_adv_set_param(GAP_PARAM_ADV_DIRECT_ADDR, sizeof(adv_direct_addr), adv_direct_addr);
+  le_adv_set_param(GAP_PARAM_ADV_CHANNEL_MAP, sizeof(adv_chann_map), &adv_chann_map);
+  le_adv_set_param(GAP_PARAM_ADV_FILTER_POLICY, sizeof(adv_filter_policy), &adv_filter_policy);
+  le_adv_set_param(GAP_PARAM_ADV_INTERVAL_MIN, sizeof(adv_int_min), &adv_int_min);
+  le_adv_set_param(GAP_PARAM_ADV_INTERVAL_MAX, sizeof(adv_int_max), &adv_int_max);
 
   /* Setup the GAP Bond Manager */
   gap_set_param(GAP_PARAM_BOND_PAIRING_MODE, sizeof(auth_pair_mode), &auth_pair_mode);
@@ -155,6 +177,7 @@ bool ble_init()
 
   le_register_app_cb(ble_gap_callback);
   client_register_general_client_cb(ble_gatt_client_callback);
+  server_register_app_cb(ble_gatt_server_callback);
 
   return true;
 }
@@ -162,6 +185,7 @@ bool ble_init()
 void ble_start(void)
 {
   log_v("ble_start");
+
   T_GAP_DEV_STATE new_state;
   ble_task_init();
 

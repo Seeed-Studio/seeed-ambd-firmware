@@ -24,6 +24,7 @@
 #include "gap_scan.h"
 #include "gap_storage_le.h"
 #include "ble_client.h"
+#include "ble_server.h"
 #include "ble_common.h"
 #include "ble_callback.h"
 #include "ble_task.h"
@@ -34,7 +35,7 @@ extern "C"
 {
 #endif
 
-#define DEBUG_LOCAL 0
+#define DEBUG_LOCAL 1
 
 bool ble_init(void);
 void ble_deinit(void);

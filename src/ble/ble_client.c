@@ -156,7 +156,7 @@ bool ble_client_init(uint8_t num)
 
 T_CLIENT_ID ble_add_client(uint8_t app_id, uint8_t link_num)
 {
-    if (link_num > BLE_CLIENT_MAX_LINKS)
+    if (link_num > BLE_LE_MAX_LINKS)
     {
         return 0xff;
     }
