@@ -8,208 +8,6 @@
 #include "bas_client.h"
 #include "gatt.h"
 
-#define GATT_UUID_SIMPLE_PROFILE 0xA00A
-#define GATT_UUID_CHAR_SIMPLE_V1_READ 0xB001
-#define GATT_UUID_CHAR_SIMPLE_V2_WRITE 0xB002
-#define GATT_UUID_CHAR_SIMPLE_V3_NOTIFY 0xB003
-#define GATT_UUID_CHAR_SIMPLE_V4_INDICATE 0xB004
-#define SIMPLE_BLE_SERVICE_CHAR_V1_READ_INDEX 0x02
-#define SIMPLE_BLE_SERVICE_CHAR_V2_WRITE_INDEX 0x05
-#define SIMPLE_BLE_SERVICE_CHAR_V3_NOTIFY_INDEX 0x07
-#define SIMPLE_BLE_SERVICE_CHAR_V4_INDICATE_INDEX 0x0a
-#define SIMPLE_BLE_SERVICE_CHAR_NOTIFY_CCCD_INDEX (SIMPLE_BLE_SERVICE_CHAR_V3_NOTIFY_INDEX + 1)
-#define SIMPLE_BLE_SERVICE_CHAR_INDICATE_CCCD_INDEX (SIMPLE_BLE_SERVICE_CHAR_V4_INDICATE_INDEX + 1)
-
-char v1_user_descr[] = "V1 read characteristic";
-
-/**< @brief  profile/service definition.  */
-const T_ATTRIB_APPL simple_ble_service_tbl[] =
-	{
-		/* <<Primary Service>>, .. */
-		{
-			(ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE), /* flags     */
-			{										   /* type_value */
-			 LO_WORD(GATT_UUID_PRIMARY_SERVICE),
-			 HI_WORD(GATT_UUID_PRIMARY_SERVICE),
-			 LO_WORD(GATT_UUID_SIMPLE_PROFILE), /* service UUID */
-			 HI_WORD(GATT_UUID_SIMPLE_PROFILE)},
-			UUID_16BIT_SIZE, /* bValueLen     */
-			NULL,			 /* p_value_context */
-			GATT_PERM_READ	 /* permissions  */
-		},
-		/* <<Characteristic>> demo for read */
-		{
-			ATTRIB_FLAG_VALUE_INCL, /* flags */
-			{
-				/* type_value */
-				LO_WORD(GATT_UUID_CHARACTERISTIC),
-				HI_WORD(GATT_UUID_CHARACTERISTIC),
-				GATT_CHAR_PROP_READ /* characteristic properties */
-				/* characteristic UUID not needed here, is UUID of next attrib. */
-			},
-			1, /* bValueLen */
-			NULL,
-			GATT_PERM_READ /* permissions */
-		},
-		{
-			ATTRIB_FLAG_VALUE_APPL, /* flags */
-			{						/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_SIMPLE_V1_READ),
-			 HI_WORD(GATT_UUID_CHAR_SIMPLE_V1_READ)},
-			0, /* bValueLen */
-			NULL,
-			GATT_PERM_READ /* permissions */
-		},
-		{
-			ATTRIB_FLAG_VOID | ATTRIB_FLAG_ASCII_Z, /* flags */
-			{
-				/* type_value */
-				LO_WORD(GATT_UUID_CHAR_USER_DESCR),
-				HI_WORD(GATT_UUID_CHAR_USER_DESCR),
-			},
-			(sizeof(v1_user_descr) - 1), /* bValueLen */
-			(void *)v1_user_descr,
-			GATT_PERM_READ /* permissions */
-		},
-		/* <<Characteristic>> demo for write */
-		{
-			ATTRIB_FLAG_VALUE_INCL, /* flags */
-			{
-				/* type_value */
-				LO_WORD(GATT_UUID_CHARACTERISTIC),
-				HI_WORD(GATT_UUID_CHARACTERISTIC),
-				(GATT_CHAR_PROP_WRITE | GATT_CHAR_PROP_WRITE_NO_RSP) /* characteristic properties */
-				/* characteristic UUID not needed here, is UUID of next attrib. */
-			},
-			1, /* bValueLen */
-			NULL,
-			GATT_PERM_READ /* permissions */
-		},
-		{
-			ATTRIB_FLAG_VALUE_APPL, /* flags */
-			{						/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_SIMPLE_V2_WRITE),
-			 HI_WORD(GATT_UUID_CHAR_SIMPLE_V2_WRITE)},
-			0, /* bValueLen */
-			NULL,
-			GATT_PERM_WRITE /* permissions */
-		},
-		/* <<Characteristic>>, demo for notify */
-		{
-			ATTRIB_FLAG_VALUE_INCL, /* flags */
-			{
-				/* type_value */
-				LO_WORD(GATT_UUID_CHARACTERISTIC),
-				HI_WORD(GATT_UUID_CHARACTERISTIC),
-				(GATT_CHAR_PROP_NOTIFY) /* characteristic properties */
-				/* characteristic UUID not needed here, is UUID of next attrib. */
-			},
-			1, /* bValueLen */
-			NULL,
-			GATT_PERM_READ /* permissions */
-		},
-		{
-			ATTRIB_FLAG_VALUE_APPL, /* flags */
-			{						/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_SIMPLE_V3_NOTIFY),
-			 HI_WORD(GATT_UUID_CHAR_SIMPLE_V3_NOTIFY)},
-			0, /* bValueLen */
-			NULL,
-			GATT_PERM_NONE /* permissions */
-		},
-		/* client characteristic configuration */
-		{
-			ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_CCCD_APPL, /* flags */
-			{												/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_CLIENT_CONFIG),
-			 HI_WORD(GATT_UUID_CHAR_CLIENT_CONFIG),
-			 /* NOTE: this value has an instantiation for each client, a write to */
-			 /* this attribute does not modify this default value:                */
-			 LO_WORD(GATT_CLIENT_CHAR_CONFIG_DEFAULT), /* client char. config. bit field */
-			 HI_WORD(GATT_CLIENT_CHAR_CONFIG_DEFAULT)},
-			2, /* bValueLen */
-			NULL,
-			(GATT_PERM_READ | GATT_PERM_WRITE) /* permissions */
-		},
-		/* <<Characteristic>> demo for indicate */
-		{
-			ATTRIB_FLAG_VALUE_INCL, /* flags */
-			{
-				/* type_value */
-				LO_WORD(GATT_UUID_CHARACTERISTIC),
-				HI_WORD(GATT_UUID_CHARACTERISTIC),
-				(GATT_CHAR_PROP_INDICATE) /* characteristic properties */
-				/* characteristic UUID not needed here, is UUID of next attrib. */
-			},
-			1, /* bValueLen */
-			NULL,
-			GATT_PERM_READ /* permissions */
-		},
-		{
-			ATTRIB_FLAG_VALUE_APPL, /* flags */
-			{						/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_SIMPLE_V4_INDICATE),
-			 HI_WORD(GATT_UUID_CHAR_SIMPLE_V4_INDICATE)},
-			0, /* bValueLen */
-			NULL,
-			GATT_PERM_NONE /* permissions */
-		},
-		/* client characteristic configuration */
-		{
-			ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_CCCD_APPL, /* flags */
-			{												/* type_value */
-			 LO_WORD(GATT_UUID_CHAR_CLIENT_CONFIG),
-			 HI_WORD(GATT_UUID_CHAR_CLIENT_CONFIG),
-			 /* NOTE: this value has an instantiation for each client, a write to */
-			 /* this attribute does not modify this default value:                */
-			 LO_WORD(GATT_CLIENT_CHAR_CONFIG_DEFAULT), /* client char. config. bit field */
-			 HI_WORD(GATT_CLIENT_CHAR_CONFIG_DEFAULT)},
-			2, /* bValueLen */
-			NULL,
-			(GATT_PERM_READ | GATT_PERM_WRITE) /* permissions */
-		},
-};
-
-/** @brief  GAP - scan response data (max size = 31 bytes) */
-static const uint8_t scan_rsp_data[] =
-	{
-		0x03,				   /* length */
-		GAP_ADTYPE_APPEARANCE, /* type="Appearance" */
-		LO_WORD(GAP_GATT_APPEARANCE_UNKNOWN),
-		HI_WORD(GAP_GATT_APPEARANCE_UNKNOWN),
-};
-
-/** @brief  GAP - Advertisement data (max size = 31 bytes, best kept short to conserve power) */
-static const uint8_t adv_data[] =
-	{
-		/* Flags */
-		0x02,			  /* length */
-		GAP_ADTYPE_FLAGS, /* type="Flags" */
-		GAP_ADTYPE_FLAGS_LIMITED | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
-		/* Service */
-		0x03, /* length */
-		GAP_ADTYPE_16BIT_COMPLETE,
-		LO_WORD(GATT_UUID_SIMPLE_PROFILE),
-		HI_WORD(GATT_UUID_SIMPLE_PROFILE),
-		/* Local name */
-		0x0F, /* length */
-		GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-		'B',
-		'L',
-		'E',
-		'_',
-		'P',
-		'E',
-		'R',
-		'I',
-		'P',
-		'H',
-		'E',
-		'R',
-		'A',
-		'L',
-};
-
 /*init the easylogger moudle*/
 void app_elog_init(void)
 {
@@ -238,23 +36,62 @@ void setup()
 {
 	app_elog_init();
 #if DEBUG_LOCAL
-	ble_init();
-	ble_client_init(BLE_CLIENT_MAX_APPS);
-	ble_server_init(BLE_SERVER_MAX_APPS);
+	// ble_init();
+	// ble_client_init(BLE_CLIENT_MAX_APPS);
+	// ble_server_init(BLE_SERVER_MAX_APPS);
 
 	// //delay(2000);
-	T_SERVER_ID server_id0 = ble_add_service(simple_ble_service_tbl, sizeof(simple_ble_service_tbl));
-	T_SERVER_ID server_id1 = ble_add_service(simple_ble_service_tbl, sizeof(simple_ble_service_tbl));
 
-	le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
-	le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
+	//le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
+	//le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
 	// T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
 	// printf("client id: %d\n\r", client_id);
+	ble_server_init(5);
+	ble_service_t srcv;
 
-	ble_start();
+	srcv.flag = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
+	srcv.uuid_length = UUID_16BIT_SIZE;
+	uint16_t srcv_uuid = 0x180F;
+	memcpy(&(srcv.uuid), &srcv_uuid, 2);
+	srcv.is_primary = true;
+	srcv.p_value = NULL;
+	srcv.vlaue_length = UUID_16BIT_SIZE;
+	srcv.permissions = GATT_PERM_READ;
+
+	uint8_t srcv_app_id = ble_create_service(srcv);
+	printf("srcv_app_id: %d\n\r", srcv_app_id);
+	ble_char_t CHAR;
+	CHAR.flag = ATTRIB_FLAG_VALUE_APPL;
+	CHAR.uuid_length = UUID_16BIT_SIZE;
+	uint16_t CHAR_uuid = 0x2A19;
+	memcpy(&(CHAR.uuid), &CHAR_uuid, 2);
+	CHAR.p_value = NULL;
+	CHAR.vlaue_length = 0;
+	CHAR.properties = (GATT_CHAR_PROP_READ | GATT_CHAR_PROP_NOTIFY);
+	CHAR.permissions = GATT_PERM_READ;
+	uint8_t char_handle1 = ble_create_char(srcv_app_id, CHAR);
+	printf("char_handle1: %d\n\r", char_handle1);
+	ble_desc_t desc;
+
+	desc.flag = ATTRIB_FLAG_VALUE_APPL;
+	desc.uuid_length = UUID_16BIT_SIZE;
+	uint16_t desc_uuid = 0x2902;
+	uint16_t default_vlaue = 0x0000;
+	memcpy(&(desc.uuid), &desc_uuid, 2);
+	memcpy(&(desc.uuid[2]), &default_vlaue, 2);
+	desc.p_value = NULL;
+	desc.vlaue_length = 2;
+	desc.permissions =   (GATT_PERM_READ | GATT_PERM_WRITE) ;
+	uint8_t desc_handle1 = ble_create_desc(srcv_app_id, char_handle1, desc);
+	printf("desc_handle1: %d\n\r", desc_handle1);
+
+	uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
+	printf("char_handle2: %d\n\r", char_handle2);
+	print_ble_serive_list();
+	//ble_start();
 
 	//delay(2000);
-	le_adv_start();
+	//le_adv_start();
 
 	// printf("scanning...\n\r");
 	// int16_t _scanInterval = 0x600;

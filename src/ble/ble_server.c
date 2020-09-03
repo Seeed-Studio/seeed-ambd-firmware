@@ -19,6 +19,8 @@
 #include <os_mem.h>
 #include <ble_server.h>
 
+static ble_service_list_t ble_service_list[BLE_SERVER_MAX_APPS];
+
 void write_post_callback(uint8_t conn_id, T_SERVER_ID service_id, uint16_t attrib_index,
                          uint16_t length, uint8_t *p_value)
 {
@@ -106,20 +108,336 @@ T_SERVER_ID ble_add_service(const T_ATTRIB_APPL *ble_service_tbl, uint16_t lengt
                                    length,
                                    ble_service_cbs))
    {
-      log_e("simp_ble_service_add_service: failure");
+      log_e("simp_service_add_service: failure");
       service_id = 0xff;
-   }else{
-       log_e("simp_ble_service_add_service: success");
    }
-   
+   else
+   {
+      log_e("simp_service_add_service: success");
+   }
+
    return service_id;
+}
+
+static void print_ble_desc_list(uint8_t app_id, uint8_t char_handle)
+{
+   ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
+   bool is_match = false;
+   while (p_char_list_tail != NULL)
+   {
+      if (p_char_list_tail->handle == char_handle)
+      {
+         is_match = true;
+         break;
+      }
+      p_char_list_tail = p_char_list_tail->next;
+   }
+
+   if (is_match == false)
+      return;
+
+   ble_desc_list_t *p_desc_list_tail = p_char
+   
+   p_desc_list_tail->desc_list;
+
+   printf("\tdesc_list: length: %d\n\r", p_char_list_tail->desc_length);
+   while (p_desc_list_tail != NULL)
+   {
+      printf("\t\t===============================\n\r");
+      printf("\t\tdesc handle %d \n\r", p_desc_list_tail->handle);
+      printf("\t\tflag: %d\n\r", p_desc_list_tail->desc.flag);
+      printf("\t\tUUID: ");
+      if (p_desc_list_tail->desc.uuid_length == 16)
+      {
+         printf("\t\t%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x\n\r",
+                p_desc_list_tail->desc.uuid[0], p_desc_list_tail->desc.uuid[1], p_desc_list_tail->desc.uuid[2], p_desc_list_tail->desc.uuid[3],
+                p_desc_list_tail->desc.uuid[4], p_desc_list_tail->desc.uuid[5], p_desc_list_tail->desc.uuid[6], p_desc_list_tail->desc.uuid[7],
+                p_desc_list_tail->desc.uuid[8], p_desc_list_tail->desc.uuid[9], p_desc_list_tail->desc.uuid[10], p_desc_list_tail->desc.uuid[11],
+                p_desc_list_tail->desc.uuid[12], p_desc_list_tail->desc.uuid[13], p_desc_list_tail->desc.uuid[14], p_desc_list_tail->desc.uuid[15]);
+      }
+      else
+      {
+         printf("\t\t0X%02X%02X\n\r", p_desc_list_tail->desc.uuid[0], p_desc_list_tail->desc.uuid[1]);
+      }
+      printf("\t\tvalue");
+      if (p_desc_list_tail->desc.p_value != NULL)
+      {
+         printf("\t\t(p_value): ");
+         for (uint8_t k = 0; k < p_desc_list_tail->desc.vlaue_length; k++)
+         {
+            printf("\t\t%02X ", p_desc_list_tail->desc.p_value[k]);
+         }
+      }
+      else
+      {
+         printf("\t\t(uuid): ");
+         for (uint8_t k = 0; k < p_desc_list_tail->desc.vlaue_length; k++)
+         {
+            printf("\t\t%02X ", p_desc_list_tail->desc.uuid[k + 2]);
+         }
+      }
+      printf("\n\r");
+      printf("\t\t===============================\n\r");
+      p_desc_list_tail = p_desc_list_tail->next;
+   }
+}
+
+static void print_ble_char_list(uint8_t app_id)
+{
+   ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
+   printf("char_list: length: %d\n\r", ble_service_list[app_id].char_length);
+   while (p_char_list_tail != NULL)
+   {
+      printf("\t*******************************\n\r");
+      printf("\tCHAR handle %d \n\r", p_char_list_tail->handle);
+      printf("\tflag: %d\n\r", p_char_list_tail->CHAR.flag);
+      printf("\tproperties: %d\n\r", p_char_list_tail->CHAR.properties);
+      printf("\tUUID: ");
+      if (p_char_list_tail->CHAR.uuid_length == 16)
+      {
+         printf("\t%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x\n\r",
+                p_char_list_tail->CHAR.uuid[0], p_char_list_tail->CHAR.uuid[1], p_char_list_tail->CHAR.uuid[2], p_char_list_tail->CHAR.uuid[3],
+                p_char_list_tail->CHAR.uuid[4], p_char_list_tail->CHAR.uuid[5], p_char_list_tail->CHAR.uuid[6], p_char_list_tail->CHAR.uuid[7],
+                p_char_list_tail->CHAR.uuid[8], p_char_list_tail->CHAR.uuid[9], p_char_list_tail->CHAR.uuid[10], p_char_list_tail->CHAR.uuid[11],
+                p_char_list_tail->CHAR.uuid[12], p_char_list_tail->CHAR.uuid[13], p_char_list_tail->CHAR.uuid[14], p_char_list_tail->CHAR.uuid[15]);
+      }
+      else
+      {
+         printf("\t0X%02X%02X\n\r", p_char_list_tail->CHAR.uuid[0], p_char_list_tail->CHAR.uuid[1]);
+      }
+      printf("\tvalue");
+      if (p_char_list_tail->CHAR.p_value != NULL)
+      {
+         printf("\t(p_value): ");
+         for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
+         {
+            printf("\t%02X ", p_char_list_tail->CHAR.p_value[k]);
+         }
+      }
+      else
+      {
+         printf("\t(uuid): ");
+         for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
+         {
+            printf("\t%02X ", p_char_list_tail->CHAR.uuid[k + 4]);
+         }
+      }
+      printf("\n\r");
+      print_ble_desc_list(app_id, p_char_list_tail->handle);
+      printf("\t*******************************\n\r");
+      p_char_list_tail = p_char_list_tail->next;
+   }
+}
+
+void print_ble_serive_list()
+{
+   printf("print_ble_serive_list: length: %d\n\r", BLE_SERVER_MAX_APPS);
+   for (uint8_t i = 0; i < BLE_SERVER_MAX_APPS; i++)
+   {
+      if (ble_service_list[i].is_alloc)
+      {
+         printf("-------------------------------\n\r");
+         printf("service app_id %d \n\r", i);
+         printf("service handle %d \n\r", ble_service_list[i].handle);
+         printf("flag: %d\n\r", ble_service_list[i].service.flag);
+         if (ble_service_list[i].service.is_primary)
+            printf("is primary: true\n\r");
+         else
+            printf("is primary: false\n\r");
+
+         printf("UUID: ");
+         if (ble_service_list[i].service.uuid_length == 16)
+         {
+            printf("%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x\n\r",
+                   ble_service_list[i].service.uuid[0], ble_service_list[i].service.uuid[1], ble_service_list[i].service.uuid[2], ble_service_list[i].service.uuid[3],
+                   ble_service_list[i].service.uuid[4], ble_service_list[i].service.uuid[5], ble_service_list[i].service.uuid[6], ble_service_list[i].service.uuid[7],
+                   ble_service_list[i].service.uuid[8], ble_service_list[i].service.uuid[9], ble_service_list[i].service.uuid[10], ble_service_list[i].service.uuid[11],
+                   ble_service_list[i].service.uuid[12], ble_service_list[i].service.uuid[13], ble_service_list[i].service.uuid[14], ble_service_list[i].service.uuid[15]);
+         }
+         else
+         {
+            printf("0X%02X%02X\n\r", ble_service_list[i].service.uuid[0], ble_service_list[i].service.uuid[1]);
+         }
+         printf("value");
+         if (ble_service_list[i].service.p_value != NULL)
+         {
+            printf("(p_value): ");
+            for (uint8_t k = 0; k < ble_service_list[i].service.vlaue_length; k++)
+            {
+               printf("%02X ", ble_service_list[i].service.p_value[k]);
+            }
+         }
+         else
+         {
+            printf("(uuid): ");
+            for (uint8_t k = 0; k < ble_service_list[i].service.vlaue_length; k++)
+            {
+               printf("%02X ", ble_service_list[i].service.uuid[k + 4]);
+            }
+         }
+         printf("\n\r");
+         printf("characteristic: \n\r");
+         print_ble_char_list(i);
+         printf("-------------------------------\n\r");
+      }
+      // else
+      // {
+      //    printf("Unallocated \n\r");
+      // }
+   }
+}
+
+static void free_ble_service_list()
+{
+   for (uint8_t i = 0; i < BLE_SERVER_MAX_APPS; i++)
+   {
+      free(ble_service_list[i].service.p_value);
+   }
 }
 
 bool ble_server_init(uint8_t num)
 {
-    if(num > BLE_SERVER_MAX_APPS)
-        return false;
-    server_init(num);
+   log_d("ble_server_init %d\n\r", num);
 
-    return true;
+   server_init(num);
+
+   for (uint8_t i = 0; i < BLE_SERVER_MAX_APPS; i++)
+   {
+      ble_service_list[i].is_alloc = false;
+      ble_service_list[i].handle = 0xff;
+   }
+
+   return true;
+}
+
+uint8_t ble_create_service(ble_service_t service)
+{
+   if (ble_service_list == NULL)
+   {
+      return 0xFF;
+   }
+
+   uint8_t i = 0;
+   for (i = 0; i < BLE_SERVER_MAX_APPS; i++)
+   {
+      if (ble_service_list[i].is_alloc)
+      {
+         continue;
+      }
+      else
+      {
+         memcpy(&(ble_service_list[i].service), &service, sizeof(ble_service_t));
+         ble_service_list[i].is_alloc = true;
+         ble_service_list[i].char_list = NULL;
+         ble_service_list[i].char_length = 0;
+         break;
+      }
+   }
+   if (i != BLE_SERVER_MAX_APPS)
+      return i;
+
+   return 0xFF;
+}
+
+bool ble_delete_service(uint8_t app_id)
+{
+
+   if (app_id > BLE_SERVER_MAX_APPS)
+      return false;
+
+   ble_service_list[app_id].is_alloc = false;
+   ble_service_list[app_id].handle = 0xff;
+
+   return true;
+}
+
+uint8_t ble_get_servie_handle(uint8_t app_id)
+{
+   if (app_id > BLE_SERVER_MAX_APPS)
+      return 0xFF;
+
+   return ble_service_list[app_id].handle;
+}
+
+uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
+{
+   if (app_id > BLE_SERVER_MAX_APPS)
+      return 0xFF;
+
+   if (ble_service_list[app_id].is_alloc == false)
+      return 0xFF;
+
+   ble_char_list_t *ble_char_list_item = malloc(sizeof(ble_char_list_t));
+   memcpy(&(ble_char_list_item->CHAR), &CHAR, sizeof(ble_char_t));
+   ble_char_list_item->desc_length = 0;
+   ble_char_list_item->desc_list = NULL;
+   ble_char_list_item->next = NULL;
+
+   uint16_t desc_num = 0;
+   ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
+   if (ble_service_list[app_id].char_list == NULL)
+   {
+      ble_service_list[app_id].char_list = ble_char_list_item;
+   }
+   else
+   {
+      while (p_char_list_tail->next != NULL)
+      {
+         desc_num += p_char_list_tail->desc_length;
+         p_char_list_tail = p_char_list_tail->next;
+      }
+      p_char_list_tail->next = ble_char_list_item;
+   }
+   ble_char_list_item->handle = ble_service_list[app_id].char_length + desc_num + 2;
+   ble_service_list[app_id].char_length++;
+
+   return ble_char_list_item->handle;
+}
+
+uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc)
+{
+   if (app_id > BLE_SERVER_MAX_APPS)
+      return 0xFF;
+
+   if (ble_service_list[app_id].is_alloc == false)
+      return 0xFF;
+
+   ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
+   bool is_match = false;
+   while (p_char_list_tail != NULL)
+   {
+      if (p_char_list_tail->handle == char_handle)
+      {
+         is_match = true;
+         break;
+      }
+      p_char_list_tail = p_char_list_tail->next;
+   }
+
+   if (is_match == false)
+      return 0xff;
+
+   ble_desc_list_t *ble_desc_list_item = malloc(sizeof(ble_desc_list_t));
+   memcpy(&(ble_desc_list_item->desc), &desc, sizeof(ble_desc_t));
+   ble_desc_list_item->next = NULL;
+
+   ble_desc_list_t *p_desc_list_tail = p_char_list_tail->desc_list;
+
+   if (p_desc_list_tail == NULL)
+   {
+      p_desc_list_tail = ble_desc_list_item;
+   }
+   else
+   {
+      while (p_desc_list_tail->next != NULL)
+      {
+         p_desc_list_tail = p_desc_list_tail->next;
+      }
+      p_desc_list_tail->next = ble_desc_list_item;
+   }
+
+   p_char_list_tail->desc_length++;
+   ble_desc_list_item->handle = char_handle + p_char_list_tail->desc_length;
+
+   return ble_desc_list_item->handle;
 }
