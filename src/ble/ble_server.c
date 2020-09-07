@@ -136,11 +136,10 @@ static void print_ble_desc_list(uint8_t app_id, uint8_t char_handle)
    if (is_match == false)
       return;
 
-   ble_desc_list_t *p_desc_list_tail = p_char
+   ble_desc_list_t *p_desc_list_tail = p_char_list_tail->desc_list;
    
-   p_desc_list_tail->desc_list;
 
-   printf("\tdesc_list: length: %d\n\r", p_char_list_tail->desc_length);
+   printf("\tdesc_list: length: %d \n\r", p_char_list_tail->desc_length);
    while (p_desc_list_tail != NULL)
    {
       printf("\t\t===============================\n\r");
@@ -149,7 +148,7 @@ static void print_ble_desc_list(uint8_t app_id, uint8_t char_handle)
       printf("\t\tUUID: ");
       if (p_desc_list_tail->desc.uuid_length == 16)
       {
-         printf("\t\t%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x\n\r",
+         printf("\t%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x\n\r",
                 p_desc_list_tail->desc.uuid[0], p_desc_list_tail->desc.uuid[1], p_desc_list_tail->desc.uuid[2], p_desc_list_tail->desc.uuid[3],
                 p_desc_list_tail->desc.uuid[4], p_desc_list_tail->desc.uuid[5], p_desc_list_tail->desc.uuid[6], p_desc_list_tail->desc.uuid[7],
                 p_desc_list_tail->desc.uuid[8], p_desc_list_tail->desc.uuid[9], p_desc_list_tail->desc.uuid[10], p_desc_list_tail->desc.uuid[11],
@@ -157,23 +156,23 @@ static void print_ble_desc_list(uint8_t app_id, uint8_t char_handle)
       }
       else
       {
-         printf("\t\t0X%02X%02X\n\r", p_desc_list_tail->desc.uuid[0], p_desc_list_tail->desc.uuid[1]);
+         printf("\t0X%02X%02X\n\r", p_desc_list_tail->desc.uuid[0], p_desc_list_tail->desc.uuid[1]);
       }
       printf("\t\tvalue");
       if (p_desc_list_tail->desc.p_value != NULL)
       {
-         printf("\t\t(p_value): ");
+         printf("(p_value): ");
          for (uint8_t k = 0; k < p_desc_list_tail->desc.vlaue_length; k++)
          {
-            printf("\t\t%02X ", p_desc_list_tail->desc.p_value[k]);
+            printf("\t%02X ", p_desc_list_tail->desc.p_value[k]);
          }
       }
       else
       {
-         printf("\t\t(uuid): ");
+         printf("(uuid): ");
          for (uint8_t k = 0; k < p_desc_list_tail->desc.vlaue_length; k++)
          {
-            printf("\t\t%02X ", p_desc_list_tail->desc.uuid[k + 2]);
+            printf("\t%02X ", p_desc_list_tail->desc.uuid[k + 2]);
          }
       }
       printf("\n\r");
@@ -208,7 +207,7 @@ static void print_ble_char_list(uint8_t app_id)
       printf("\tvalue");
       if (p_char_list_tail->CHAR.p_value != NULL)
       {
-         printf("\t(p_value): ");
+         printf("(p_value): ");
          for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
          {
             printf("\t%02X ", p_char_list_tail->CHAR.p_value[k]);
@@ -216,7 +215,7 @@ static void print_ble_char_list(uint8_t app_id)
       }
       else
       {
-         printf("\t(uuid): ");
+         printf("(uuid): ");
          for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
          {
             printf("\t%02X ", p_char_list_tail->CHAR.uuid[k + 4]);
@@ -385,9 +384,12 @@ uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
       {
          desc_num += p_char_list_tail->desc_length;
          p_char_list_tail = p_char_list_tail->next;
+         //printf("char handle:%d desc_num: %d\n\r", p_char_list_tail->handle, p_char_list_tail->desc_length);
       }
+      desc_num += p_char_list_tail->desc_length;
       p_char_list_tail->next = ble_char_list_item;
    }
+
    ble_char_list_item->handle = ble_service_list[app_id].char_length + desc_num + 2;
    ble_service_list[app_id].char_length++;
 
@@ -425,7 +427,7 @@ uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc)
 
    if (p_desc_list_tail == NULL)
    {
-      p_desc_list_tail = ble_desc_list_item;
+      p_char_list_tail->desc_list = ble_desc_list_item;
    }
    else
    {

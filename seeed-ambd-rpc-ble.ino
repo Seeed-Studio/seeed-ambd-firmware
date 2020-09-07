@@ -60,6 +60,10 @@ void setup()
 
 	uint8_t srcv_app_id = ble_create_service(srcv);
 	printf("srcv_app_id: %d\n\r", srcv_app_id);
+
+	uint8_t srcv_app_id2 = ble_create_service(srcv);
+	printf("srcv_app_id2: %d\n\r", srcv_app_id);
+
 	ble_char_t CHAR;
 	CHAR.flag = ATTRIB_FLAG_VALUE_APPL;
 	CHAR.uuid_length = UUID_16BIT_SIZE;
@@ -84,9 +88,22 @@ void setup()
 	desc.permissions =   (GATT_PERM_READ | GATT_PERM_WRITE) ;
 	uint8_t desc_handle1 = ble_create_desc(srcv_app_id, char_handle1, desc);
 	printf("desc_handle1: %d\n\r", desc_handle1);
+	uint8_t desc_handle2 = ble_create_desc(srcv_app_id, char_handle1, desc);
+	printf("desc_handle2: %d\n\r", desc_handle2);
 
 	uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
 	printf("char_handle2: %d\n\r", char_handle2);
+	uint8_t desc_handle21 = ble_create_desc(srcv_app_id, char_handle2, desc);
+	printf("desc_handle21: %d\n\r", desc_handle21);
+
+	uint8_t char_handle21 = ble_create_char(srcv_app_id2, CHAR);
+	printf("char_handle21: %d\n\r", char_handle21);
+
+	
+	
+
+
+
 	print_ble_serive_list();
 	//ble_start();
 
