@@ -36,32 +36,32 @@ extern "C"
 
   typedef struct
   {
-    uint8_t flag; // service flag
+    uint16_t flags; // service flags
     bool is_primary;
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
-    uint8_t permissions;
+    uint32_t permissions;
     uint16_t vlaue_length;
     uint8_t *p_value;
   } ble_service_t;
 
   typedef struct
   {
-    uint8_t flag; // CHAR flag
+    uint16_t flags; // CHAR flags
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
     uint8_t properties;
-    uint8_t permissions;
+    uint32_t permissions;
     uint16_t vlaue_length;
     uint8_t *p_value;
   } ble_char_t;
 
   typedef struct
   {
-    uint8_t flag; // desc flag
+    uint16_t flags; // desc flags
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
-    uint8_t permissions;
+    uint32_t permissions;
     uint16_t vlaue_length;
     uint8_t *p_value;
   } ble_desc_t;
@@ -89,9 +89,15 @@ extern "C"
     uint8_t handle;
     ble_char_list_t *char_list;
     uint8_t char_length;
+    uint8_t attr_num;
+    T_ATTRIB_APPL *attr_tbl;
   } ble_service_list_t;
 
   bool ble_server_init(uint8_t num);
+
+  void free_attr_tbl(T_SERVER_ID srvc_id);
+
+  T_SERVER_ID ble_service_start(uint8_t app_id);
 
   uint8_t ble_create_service(ble_service_t service);
 

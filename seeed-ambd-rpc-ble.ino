@@ -31,53 +31,80 @@ void app_elog_init(void)
 extern void erpc_ble_init();
 
 uint8_t conn_id = 0xff;
+/** @brief  GAP - scan response data (max size = 31 bytes) */
+static const uint8_t scan_rsp_data[] =
+{
+    0x03,                             /* length */
+    GAP_ADTYPE_APPEARANCE,            /* type="Appearance" */
+    LO_WORD(GAP_GATT_APPEARANCE_UNKNOWN),
+    HI_WORD(GAP_GATT_APPEARANCE_UNKNOWN),
+};
+
+/** @brief  GAP - Advertisement data (max size = 31 bytes, best kept short to conserve power) */
+static const uint8_t adv_data[] =
+{
+    /* Flags */
+    0x02,             /* length */
+    GAP_ADTYPE_FLAGS, /* type="Flags" */
+    GAP_ADTYPE_FLAGS_LIMITED | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
+    /* Service */
+    0x03,             /* length */
+    GAP_ADTYPE_16BIT_COMPLETE,
+    LO_WORD(0x180F),
+    HI_WORD(0x180F),
+    /* Local name */
+    0x0F,             /* length */
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE,
+    'B', 'L', 'E', '_', 'P', 'E', 'R', 'I', 'P', 'H', 'E', 'R', 'A', 'L',
+};
 
 void setup()
 {
 	app_elog_init();
 #if DEBUG_LOCAL
-	// ble_init();
-	// ble_client_init(BLE_CLIENT_MAX_APPS);
-	// ble_server_init(BLE_SERVER_MAX_APPS);
-
+	ble_init();
+	ble_client_init(BLE_CLIENT_MAX_APPS);
+	ble_server_init(BLE_SERVER_MAX_APPS);
+	ble_server_init(5);
 	// //delay(2000);
 
-	//le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
-	//le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
-	// T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
-	// printf("client id: %d\n\r", client_id);
-	ble_server_init(5);
+	le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
+	le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
+	//uint8_t service_id = ble_add_service(bas_attr_tbl, sizeof(bas_attr_tbl));
+	// // T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
+	// // printf("client id: %d\n\r", client_id);
+	// ble_server_init(5);
 	ble_service_t srcv;
 
-	srcv.flag = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
+	srcv.flags = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
 	srcv.uuid_length = UUID_16BIT_SIZE;
 	uint16_t srcv_uuid = 0x180F;
 	memcpy(&(srcv.uuid), &srcv_uuid, 2);
 	srcv.is_primary = true;
-	srcv.p_value = NULL;
+    srcv.p_value = NULL;
 	srcv.vlaue_length = UUID_16BIT_SIZE;
 	srcv.permissions = GATT_PERM_READ;
 
 	uint8_t srcv_app_id = ble_create_service(srcv);
 	printf("srcv_app_id: %d\n\r", srcv_app_id);
 
-	uint8_t srcv_app_id2 = ble_create_service(srcv);
-	printf("srcv_app_id2: %d\n\r", srcv_app_id);
+	// uint8_t srcv_app_id2 = ble_create_service(srcv);
+	// printf("srcv_app_id2: %d\n\r", srcv_app_id2);
 
 	ble_char_t CHAR;
-	CHAR.flag = ATTRIB_FLAG_VALUE_APPL;
+	CHAR.flags = ATTRIB_FLAG_VALUE_APPL;
 	CHAR.uuid_length = UUID_16BIT_SIZE;
 	uint16_t CHAR_uuid = 0x2A19;
 	memcpy(&(CHAR.uuid), &CHAR_uuid, 2);
 	CHAR.p_value = NULL;
 	CHAR.vlaue_length = 0;
 	CHAR.properties = (GATT_CHAR_PROP_READ | GATT_CHAR_PROP_NOTIFY);
-	CHAR.permissions = GATT_PERM_READ;
+    CHAR.permissions = GATT_PERM_READ;
 	uint8_t char_handle1 = ble_create_char(srcv_app_id, CHAR);
 	printf("char_handle1: %d\n\r", char_handle1);
 	ble_desc_t desc;
 
-	desc.flag = ATTRIB_FLAG_VALUE_APPL;
+	desc.flags = ATTRIB_FLAG_VALUE_APPL;
 	desc.uuid_length = UUID_16BIT_SIZE;
 	uint16_t desc_uuid = 0x2902;
 	uint16_t default_vlaue = 0x0000;
@@ -88,27 +115,26 @@ void setup()
 	desc.permissions =   (GATT_PERM_READ | GATT_PERM_WRITE) ;
 	uint8_t desc_handle1 = ble_create_desc(srcv_app_id, char_handle1, desc);
 	printf("desc_handle1: %d\n\r", desc_handle1);
-	uint8_t desc_handle2 = ble_create_desc(srcv_app_id, char_handle1, desc);
-	printf("desc_handle2: %d\n\r", desc_handle2);
+	//uint8_t desc_handle2 = ble_create_desc(srcv_app_id, char_handle1, desc);
+	// printf("desc_handle2: %d\n\r", desc_handle2);
 
-	uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
-	printf("char_handle2: %d\n\r", char_handle2);
-	uint8_t desc_handle21 = ble_create_desc(srcv_app_id, char_handle2, desc);
-	printf("desc_handle21: %d\n\r", desc_handle21);
+	// uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
+	// printf("char_handle2: %d\n\r", char_handle2);
+	// uint8_t desc_handle21 = ble_create_desc(srcv_app_id, char_handle2, desc);
+	// printf("desc_handle21: %d\n\r", desc_handle21);
 
-	uint8_t char_handle21 = ble_create_char(srcv_app_id2, CHAR);
-	printf("char_handle21: %d\n\r", char_handle21);
-
-	
-	
-
-
+	// uint8_t char_handle21 = ble_create_char(srcv_app_id2, CHAR);
+	// printf("char_handle21: %d\n\r", char_handle21);
 
 	print_ble_serive_list();
-	//ble_start();
 
-	//delay(2000);
-	//le_adv_start();
+	ble_service_start(srcv_app_id);
+
+
+	ble_start();
+
+	delay(2000);
+	le_adv_start();
 
 	// printf("scanning...\n\r");
 	// int16_t _scanInterval = 0x600;
@@ -162,5 +188,6 @@ void setup()
 
 void loop()
 {
+	printf(".");
 	delay(2000);
 }
