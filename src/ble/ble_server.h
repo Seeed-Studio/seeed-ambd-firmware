@@ -36,24 +36,17 @@ extern "C"
 
   typedef struct
   {
-    uint16_t flags; // service flags
     bool is_primary;
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
-    uint32_t permissions;
-    uint16_t vlaue_length;
-    uint8_t *p_value;
   } ble_service_t;
 
   typedef struct
   {
-    uint16_t flags; // CHAR flags
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
     uint8_t properties;
     uint32_t permissions;
-    uint16_t vlaue_length;
-    uint8_t *p_value;
   } ble_char_t;
 
   typedef struct

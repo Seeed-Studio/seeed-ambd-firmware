@@ -160,7 +160,6 @@ static void print_ble_char_list(uint8_t app_id)
    {
       printf("\t*******************************\n\r");
       printf("\tCHAR handle %d \n\r", p_char_list_tail->handle);
-      printf("\tflags: %d\n\r", p_char_list_tail->CHAR.flags);
       printf("\tproperties: %d\n\r", p_char_list_tail->CHAR.properties);
       printf("\tUUID: ");
       if (p_char_list_tail->CHAR.uuid_length == 16)
@@ -174,23 +173,6 @@ static void print_ble_char_list(uint8_t app_id)
       else
       {
          printf("\t0X%02X%02X\n\r", p_char_list_tail->CHAR.uuid[0], p_char_list_tail->CHAR.uuid[1]);
-      }
-      printf("\tvalue");
-      if (p_char_list_tail->CHAR.p_value != NULL)
-      {
-         printf("(p_value): ");
-         for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
-         {
-            printf("\t%02X ", p_char_list_tail->CHAR.p_value[k]);
-         }
-      }
-      else
-      {
-         printf("(uuid): ");
-         for (uint8_t k = 0; k < p_char_list_tail->CHAR.vlaue_length; k++)
-         {
-            printf("\t%02X ", p_char_list_tail->CHAR.uuid[k + 4]);
-         }
       }
       printf("\n\r");
       print_ble_desc_list(app_id, p_char_list_tail->handle);
@@ -210,7 +192,6 @@ void print_ble_serive_list()
          printf("service app_id %d \n\r", i);
          printf("service handle %d \n\r", ble_service_list[i].handle);
          printf("service attr num %d \n\r", ble_service_list[i].attr_num);
-         printf("flags: %d\n\r", ble_service_list[i].service.flags);
          if (ble_service_list[i].service.is_primary)
             printf("is primary: true\n\r");
          else
@@ -229,24 +210,6 @@ void print_ble_serive_list()
          {
             printf("0X%02X%02X\n\r", ble_service_list[i].service.uuid[0], ble_service_list[i].service.uuid[1]);
          }
-         printf("value");
-         if (ble_service_list[i].service.p_value != NULL)
-         {
-            printf("(p_value): ");
-            for (uint8_t k = 0; k < ble_service_list[i].service.vlaue_length; k++)
-            {
-               printf("%02X ", ble_service_list[i].service.p_value[k]);
-            }
-         }
-         else
-         {
-            printf("(uuid): ");
-            for (uint8_t k = 0; k < ble_service_list[i].service.vlaue_length; k++)
-            {
-               printf("%02X ", ble_service_list[i].service.uuid[k + 4]);
-            }
-         }
-         printf("\n\r");
          printf("characteristic: \n\r");
          print_ble_char_list(i);
          printf("-------------------------------\n\r");
@@ -277,7 +240,6 @@ static uint16_t format_server_attr_tbl(uint8_t app_id, T_ATTRIB_APPL *p_attr_tbl
    uint16_t attr_index = 0;
 
    /* attr index 0 Service */
-   attr_tbl[attr_index].flags = ble_service_list[app_id].service.flags;
    if (ble_service_list[app_id].service.is_primary)
    {
       attr_tbl[attr_index].type_value[0] = LO_WORD(GATT_UUID_PRIMARY_SERVICE);
@@ -289,9 +251,7 @@ static uint16_t format_server_attr_tbl(uint8_t app_id, T_ATTRIB_APPL *p_attr_tbl
       attr_tbl[attr_index].type_value[1] = HI_WORD(GATT_UUID_SECONDARY_SERVICE);
    }
    memcpy(&attr_tbl[attr_index].type_value[2], ble_service_list[app_id].service.uuid, 14);
-   attr_tbl[attr_index].value_len = ble_service_list[app_id].service.vlaue_length;
-   attr_tbl[attr_index].p_value_context = ble_service_list[app_id].service.p_value;
-   attr_tbl[attr_index].permissions = ble_service_list[app_id].service.permissions;
+   attr_tbl[attr_index].permissions = GATT_PERM_READ;
    attr_index++;
 
    ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
@@ -371,7 +331,7 @@ void free_ble_service_list()
       {
          continue;
       }
-    
+
       ble_char_list_t *p_char_list_tail = ble_service_list[i].char_list;
       /* char & desc */
       while (p_char_list_tail != NULL)
@@ -452,7 +412,7 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
    uint16_t attr_index = 0;
 
    /* attr index 0 Service */
-   attr_tbl[attr_index].flags = ble_service_list[app_id].service.flags;
+   attr_tbl[attr_index].flags = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
    if (ble_service_list[app_id].service.is_primary)
    {
       attr_tbl[attr_index].type_value[0] = LO_WORD(GATT_UUID_PRIMARY_SERVICE);
@@ -464,9 +424,9 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       attr_tbl[attr_index].type_value[1] = HI_WORD(GATT_UUID_SECONDARY_SERVICE);
    }
    memcpy(&attr_tbl[attr_index].type_value[2], ble_service_list[app_id].service.uuid, 14);
-   attr_tbl[attr_index].value_len = ble_service_list[app_id].service.vlaue_length;
-   attr_tbl[attr_index].p_value_context = ble_service_list[app_id].service.p_value;
-   attr_tbl[attr_index].permissions = ble_service_list[app_id].service.permissions;
+   attr_tbl[attr_index].value_len = ble_service_list[app_id].service.uuid_length;
+   attr_tbl[attr_index].p_value_context = NULL;
+   attr_tbl[attr_index].permissions = GATT_PERM_READ;
    attr_index++;
 
    ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
@@ -603,6 +563,26 @@ bool ble_delete_service(uint8_t app_id)
 
    ble_service_list[app_id].is_alloc = false;
    ble_service_list[app_id].handle = 0xff;
+   free(ble_service_list[app_id].attr_tbl);
+   ble_service_list[app_id].attr_tbl = NULL;
+
+   ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
+   /* char & desc */
+   while (p_char_list_tail != NULL)
+   {
+      ble_desc_list_t *p_desc_list_tail = p_char_list_tail->desc_list;
+      while (p_desc_list_tail != NULL)
+      {
+         ble_desc_list_t *p_desc_list_index = p_desc_list_tail;
+         p_desc_list_tail = p_desc_list_tail->next;
+         free(p_desc_list_index);
+      }
+      ble_char_list_t *p_char_list_index = p_char_list_tail;
+      p_char_list_tail = p_char_list_tail->next;
+      free(p_char_list_index->desc_list);
+      free(p_char_list_index);
+   }
+   free(ble_service_list[app_id].char_list);
 
    return true;
 }

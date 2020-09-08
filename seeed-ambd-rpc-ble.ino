@@ -76,14 +76,10 @@ void setup()
 	// ble_server_init(5);
 	ble_service_t srcv;
 
-	srcv.flags = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
 	srcv.uuid_length = UUID_16BIT_SIZE;
 	uint16_t srcv_uuid = 0x180F;
 	memcpy(&(srcv.uuid), &srcv_uuid, 2);
 	srcv.is_primary = true;
-    srcv.p_value = NULL;
-	srcv.vlaue_length = UUID_16BIT_SIZE;
-	srcv.permissions = GATT_PERM_READ;
 
 	uint8_t srcv_app_id = ble_create_service(srcv);
 	printf("srcv_app_id: %d\n\r", srcv_app_id);
@@ -92,19 +88,16 @@ void setup()
 	// printf("srcv_app_id2: %d\n\r", srcv_app_id2);
 
 	ble_char_t CHAR;
-	CHAR.flags = ATTRIB_FLAG_VALUE_APPL;
 	CHAR.uuid_length = UUID_16BIT_SIZE;
 	uint16_t CHAR_uuid = 0x2A19;
 	memcpy(&(CHAR.uuid), &CHAR_uuid, 2);
-	CHAR.p_value = NULL;
-	CHAR.vlaue_length = 0;
 	CHAR.properties = (GATT_CHAR_PROP_READ | GATT_CHAR_PROP_NOTIFY);
     CHAR.permissions = GATT_PERM_READ;
 	uint8_t char_handle1 = ble_create_char(srcv_app_id, CHAR);
 	printf("char_handle1: %d\n\r", char_handle1);
 	ble_desc_t desc;
 
-	desc.flags = ATTRIB_FLAG_VALUE_APPL;
+	desc.flags = ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_CCCD_APPL;
 	desc.uuid_length = UUID_16BIT_SIZE;
 	uint16_t desc_uuid = 0x2902;
 	uint16_t default_vlaue = 0x0000;
