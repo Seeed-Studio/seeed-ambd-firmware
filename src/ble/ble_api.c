@@ -956,4 +956,28 @@ uint8_t rpc_ble_create_desc(uint8_t app_id, uint8_t char_handle, const uint8_t u
   }
   return ble_create_desc(app_id, char_handle, desc);
 }
+
+bool rpc_server_send_data(uint8_t conn_id, uint8_t service_id, uint16_t attrib_index, const binary_t *data, RPC_T_GATT_PDU_TYPE pdu_type)
+{
+  log_d("rpc_server_send_data called");
+  return server_send_data(conn_id, service_id, attrib_index, data->data, data->dataLength, (T_GATT_PDU_TYPE)pdu_type);
+}
+
+bool rpc_server_exec_write_confirm(uint8_t conn_id, uint16_t cause, uint16_t handle)
+{
+  log_d("rpc_server_exec_write_confirm called");
+  return server_exec_write_confirm(conn_id, cause, handle);
+}
+
+bool rpc_server_attr_write_confirm(uint8_t conn_id, uint8_t service_id, uint16_t attrib_index, RPC_T_APP_RESULT cause)
+{
+  log_d("rpc_server_attr_write_confirm called");
+  return server_attr_write_confirm(conn_id, cause, attrib_index, (T_APP_RESULT)cause);
+}
+
+bool rpc_server_attr_read_confirm(uint8_t conn_id, uint8_t service_id, uint16_t attrib_index, const binary_t *data, RPC_T_APP_RESULT cause)
+{
+  log_d("rpc_server_attr_read_confirm called");
+  return server_attr_read_confirm(conn_id, service_id, attrib_index, data->data, data->dataLength, (T_APP_RESULT)cause);
+}
 //@}
