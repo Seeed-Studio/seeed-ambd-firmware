@@ -200,7 +200,6 @@ void ble_start(void)
   /*Start BT WIFI coexistence*/
   wifi_btcoex_set_bt_on();
 }
-
 void ble_deinit(void)
 {
   log_v("ble_deinit");

@@ -619,6 +619,7 @@ void ble_handle_gap_msg(T_IO_MSG *p_gap_msg)
     binary_t callback_io_msg;
     callback_io_msg.dataLength = sizeof(T_IO_MSG);
     callback_io_msg.data = p_gap_msg;
+    log_v("rpc_ble_handle_gap_msg");
     rpc_ble_handle_gap_msg(&callback_io_msg);
 #endif
      return;

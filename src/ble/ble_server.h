@@ -21,8 +21,8 @@ extern "C"
 #endif /* __cplusplus */
 
 /* Add Includes here */
-#include <bt_flags.h>
-#include <profile_server.h>
+#include "bt_flags.h"
+#include "profile_server.h"
 #include "elog.h"
 #include "ble_common.h"
 
@@ -30,15 +30,11 @@ extern "C"
  *                              Types
  *============================================================================*/
 
-  /*============================================================================*
- *                              Funtions
- *============================================================================*/
-
   typedef struct
   {
-    bool is_primary;
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
+    bool is_primary;
   } ble_service_t;
 
   typedef struct
@@ -51,9 +47,9 @@ extern "C"
 
   typedef struct
   {
-    uint16_t flags; // desc flags
     uint8_t uuid[2 + 14];
     uint8_t uuid_length;
+    uint16_t flags; // desc flags
     uint32_t permissions;
     uint16_t vlaue_length;
     uint8_t *p_value;
@@ -86,11 +82,11 @@ extern "C"
     T_ATTRIB_APPL *attr_tbl;
   } ble_service_list_t;
 
+  /*============================================================================*
+ *                              Funtions
+ *============================================================================*/
+
   bool ble_server_init(uint8_t num);
-
-  void free_attr_tbl(T_SERVER_ID srvc_id);
-
-  void free_ble_service_list();
 
   T_SERVER_ID ble_service_start(uint8_t app_id);
 
@@ -98,14 +94,13 @@ extern "C"
 
   bool ble_delete_service(uint8_t app_id);
 
-  uint8_t ble_get_servie_handle(uint8_t app_id);
-
-  void print_ble_serive_list(void);
+  T_SERVER_ID ble_get_servie_handle(uint8_t app_id);
 
   uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR);
 
   uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc);
 
+  void free_ble_service_list();
 #ifdef __cplusplus
 }
 #endif

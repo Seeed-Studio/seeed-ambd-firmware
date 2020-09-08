@@ -889,3 +889,71 @@ RPC_T_GAP_CAUSE rpc_client_attr_ind_confirm(uint8_t conn_id)
   return client_attr_ind_confirm(conn_id);
 }
 //@}
+
+//! @name rpc_gatt_server
+//@{
+bool rpc_ble_server_init(uint8_t num)
+{
+  log_d("rpc_ble_server_init called");
+  return ble_server_init(num);
+}
+
+uint8_t rpc_ble_create_service(const uint8_t uuid[16], uint8_t uuid_length, bool is_primary)
+{
+  log_d("rpc_ble_create_service called");
+  ble_service_t srcv;
+  srcv.is_primary = is_primary;
+  srcv.uuid_length = uuid_length;
+  memcpy(srcv.uuid, uuid, uuid_length);
+  return ble_create_service(srcv);
+}
+
+bool rpc_ble_delete_service(uint8_t app_id)
+{
+  log_d("rpc_ble_delete_service called");
+  return ble_delete_service(app_id);
+}
+
+uint8_t rpc_ble_service_start(uint8_t app_id)
+{
+  log_d("rpc_ble_service_start called");
+  return ble_service_start(app_id);
+}
+
+uint8_t rpc_ble_get_servie_handle(uint8_t app_id)
+{
+  log_d("rpc_ble_get_servie_handle called");
+  return ble_get_servie_handle(app_id);
+}
+
+uint8_t rpc_ble_create_char(uint8_t app_id, const uint8_t uuid[16], uint8_t uuid_length, uint8_t properties, uint32_t permissions)
+{
+  log_d("rpc_ble_create_char called");
+  ble_char_t CHAR;
+  CHAR.properties = properties;
+  CHAR.permissions = permissions;
+  CHAR.uuid_length = uuid_length;
+  memcpy(CHAR.uuid, uuid, uuid_length);
+  return ble_create_char(app_id, CHAR);
+}
+
+uint8_t rpc_ble_create_desc(uint8_t app_id, uint8_t char_handle, const uint8_t uuid[16], uint8_t uuid_length, uint8_t flags, uint32_t permissions, uint16_t value_length, const binary_t *p_value)
+{
+  log_d("rpc_ble_create_desc called");
+  ble_desc_t desc;
+  desc.flags = flags;
+  desc.permissions = permissions;
+  desc.uuid_length = uuid_length;
+  memcpy(desc.uuid, uuid, uuid_length);
+  desc.vlaue_length = value_length;
+  if (p_value != NULL)
+  {
+    desc.p_value = p_value->data;
+  }
+  else
+  {
+    desc.p_value = NULL;
+  }
+  return ble_create_desc(app_id, char_handle, desc);
+}
+//@}
