@@ -16,14 +16,11 @@
 #ifndef _PRC_BLE_API_H_
 #define _PRC_BLE_API_H_
 
-#include "esp_gap_ble_api.h"
-#include "esp_err.h"
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-esp_err_t rpc_ble_dev_init(uint8_t role);
+
 #ifdef __cplusplus
 }
 #endif
