@@ -207,7 +207,7 @@ void ble_deinit(void)
   ble_task_deinit();
   T_GAP_DEV_STATE state;
   le_get_gap_param(GAP_PARAM_DEV_STATE, &state);
-
+  free_ble_service_list();
   if (state.gap_init_state != GAP_INIT_STATE_STACK_READY)
   {
     log_d("[BLE Central]BT Stack is not running");

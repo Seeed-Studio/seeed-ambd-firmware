@@ -97,6 +97,8 @@ extern "C"
 
   void free_attr_tbl(T_SERVER_ID srvc_id);
 
+  void free_ble_service_list();
+
   T_SERVER_ID ble_service_start(uint8_t app_id);
 
   uint8_t ble_create_service(ble_service_t service);

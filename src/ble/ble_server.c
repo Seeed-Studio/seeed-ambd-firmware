@@ -42,7 +42,6 @@ void write_post_callback(uint8_t conn_id, T_SERVER_ID service_id, uint16_t attri
 T_APP_RESULT ble_service_attr_read_cb(uint8_t conn_id, T_SERVER_ID service_id,
                                       uint16_t attrib_index, uint16_t offset, uint16_t *p_length, uint8_t **pp_value)
 {
-   free_attr_tbl(service_id);
    T_APP_RESULT cause = APP_RESULT_SUCCESS;
    log_d("ble_service_attr_read_cb");
    return (cause);
@@ -62,7 +61,6 @@ T_APP_RESULT ble_service_attr_write_cb(uint8_t conn_id, T_SERVER_ID service_id,
                                        uint16_t attrib_index, T_WRITE_TYPE write_type, uint16_t length, uint8_t *p_value,
                                        P_FUN_WRITE_IND_POST_PROC *p_write_ind_post_proc)
 {
-   free_attr_tbl(service_id);
    log_d("ble_service_attr_write_cb write_type = 0x%x", write_type);
    *p_write_ind_post_proc = write_post_callback;
    T_APP_RESULT cause = APP_RESULT_SUCCESS;
@@ -80,7 +78,6 @@ T_APP_RESULT ble_service_attr_write_cb(uint8_t conn_id, T_SERVER_ID service_id,
 */
 void ble_service_cccd_update_cb(uint8_t conn_id, T_SERVER_ID service_id, uint16_t index, uint16_t cccbits)
 {
-   free_attr_tbl(service_id);
    log_d("ble_service_cccd_update_cb");
    return;
 }
@@ -366,11 +363,33 @@ static uint16_t format_server_attr_tbl(uint8_t app_id, T_ATTRIB_APPL *p_attr_tbl
    return attr_index;
 }
 
-static void free_ble_service_list()
+void free_ble_service_list()
 {
    for (uint8_t i = 0; i < BLE_SERVER_MAX_APPS; i++)
    {
-      free(ble_service_list[i].service.p_value);
+      if (ble_service_list[i].is_alloc == false)
+      {
+         continue;
+      }
+    
+      ble_char_list_t *p_char_list_tail = ble_service_list[i].char_list;
+      /* char & desc */
+      while (p_char_list_tail != NULL)
+      {
+         ble_desc_list_t *p_desc_list_tail = p_char_list_tail->desc_list;
+         while (p_desc_list_tail != NULL)
+         {
+            ble_desc_list_t *p_desc_list_index = p_desc_list_tail;
+            p_desc_list_tail = p_desc_list_tail->next;
+            free(p_desc_list_index);
+         }
+         ble_char_list_t *p_char_list_index = p_char_list_tail;
+         p_char_list_tail = p_char_list_tail->next;
+         free(p_char_list_index->desc_list);
+         free(p_char_list_index);
+      }
+      free(ble_service_list[i].char_list);
+      ble_service_list[i].is_alloc = false;
    }
 }
 
@@ -387,7 +406,6 @@ bool ble_server_init(uint8_t num)
       ble_service_list[i].attr_num = 0;
       ble_service_list[i].attr_tbl = NULL;
    }
-
    return true;
 }
 
@@ -429,7 +447,7 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
 
    T_SERVER_ID service_id = 0xff;
 
-    T_ATTRIB_APPL *attr_tbl = (T_ATTRIB_APPL *)malloc(sizeof(T_ATTRIB_APPL) * ble_service_list[app_id].attr_num);
+   T_ATTRIB_APPL *attr_tbl = (T_ATTRIB_APPL *)malloc(sizeof(T_ATTRIB_APPL) * ble_service_list[app_id].attr_num);
 
    uint16_t attr_index = 0;
 
@@ -515,11 +533,12 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       printf("permissions: %d\n\r", (uint8_t *)attr_tbl[i].permissions);
       printf("----------------------\n\r");
    }
-  
-   if(attr_index != 0)
+
+   if (attr_index != 0)
    {
-      service_id = ble_add_service(attr_tbl, attr_index*sizeof(T_ATTRIB_APPL));
-      if(service_id != 0xff){
+      service_id = ble_add_service(attr_tbl, attr_index * sizeof(T_ATTRIB_APPL));
+      if (service_id != 0xff)
+      {
          ble_service_list[app_id].handle = service_id;
          ble_service_list[app_id].attr_tbl = attr_tbl;
          return service_id;
@@ -561,11 +580,14 @@ uint8_t ble_create_service(ble_service_t service)
 
 void free_attr_tbl(T_SERVER_ID srvc_id)
 {
-   for(int i = 0; i < BLE_SERVER_MAX_APPS; i++)
+   for (int i = 0; i < BLE_SERVER_MAX_APPS; i++)
    {
-      if(ble_service_list[i].handle == srvc_id){
-         if(ble_service_list[i].attr_tbl != NULL){
+      if (ble_service_list[i].handle == srvc_id)
+      {
+         if (ble_service_list[i].attr_tbl != NULL)
+         {
             free(ble_service_list[i].attr_tbl);
+            ble_service_list[i].attr_tbl = NULL;
             log_d("srvc id:%d app_id: %d, free attr tbl", srvc_id, i);
             return;
          }
