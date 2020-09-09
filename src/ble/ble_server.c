@@ -441,7 +441,7 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       attr_tbl[attr_index].type_value[2] = p_char_list_tail->CHAR.properties;
       attr_tbl[attr_index].value_len = 1;
       attr_tbl[attr_index].p_value_context = NULL;
-      attr_tbl[attr_index].permissions = p_char_list_tail->CHAR.permissions;
+      attr_tbl[attr_index].permissions = GATT_PERM_READ;
       attr_index++;
       attr_tbl[attr_index].flags = ATTRIB_FLAG_VALUE_APPL;
       memcpy(attr_tbl[attr_index].type_value, p_char_list_tail->CHAR.uuid, p_char_list_tail->CHAR.uuid_length);
@@ -624,7 +624,7 @@ uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
       p_char_list_tail->next = ble_char_list_item;
    }
    ble_service_list[app_id].char_length++;
-   ble_char_list_item->handle = ble_service_list[app_id].attr_num + 2;
+   ble_char_list_item->handle = ble_service_list[app_id].attr_num + 1;
    ble_service_list[app_id].attr_num += 2;
 
    return ble_char_list_item->handle;
@@ -673,7 +673,7 @@ uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc)
    }
 
    p_char_list_tail->desc_length++;
-   ble_desc_list_item->handle = ble_service_list[app_id].attr_num + 1;
+   ble_desc_list_item->handle = ble_service_list[app_id].attr_num;
    ble_service_list[app_id].attr_num += 1;
 
    return ble_desc_list_item->handle;
