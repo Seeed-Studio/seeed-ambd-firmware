@@ -18,8 +18,11 @@
 #include <string.h>
 #include <os_mem.h>
 #include <ble_server.h>
+#include "rpc_ble_callback.h"
 
 static ble_service_list_t ble_service_list[BLE_SERVER_MAX_APPS];
+static binary_t read_cb_data;
+extern bool FORCE_NESTCALL;
 
 void write_post_callback(uint8_t conn_id, T_SERVER_ID service_id, uint16_t attrib_index,
                          uint16_t length, uint8_t *p_value)
@@ -42,8 +45,18 @@ void write_post_callback(uint8_t conn_id, T_SERVER_ID service_id, uint16_t attri
 T_APP_RESULT ble_service_attr_read_cb(uint8_t conn_id, T_SERVER_ID service_id,
                                       uint16_t attrib_index, uint16_t offset, uint16_t *p_length, uint8_t **pp_value)
 {
-   T_APP_RESULT cause = APP_RESULT_SUCCESS;
    log_d("ble_service_attr_read_cb");
+   T_APP_RESULT cause = APP_RESULT_SUCCESS;
+#if !DEBUG_LOCAL
+   if (read_cb_data.data != NULL) /*!!! data.data need to be recycled*/
+   {
+      erpc_free(read_cb_data.data);
+      read_cb_data.data = NULL;
+   }
+   cause = rpc_ble_gatts_callback(service_id, conn_id, attrib_index, RPC_SERVICE_CALLBACK_TYPE_READ_CHAR_VALUE, offset, &read_cb_data, NULL, NULL);
+   *p_length = read_cb_data.dataLength;
+   *pp_value = read_cb_data.data;
+#endif
    return (cause);
 }
 
@@ -62,8 +75,14 @@ T_APP_RESULT ble_service_attr_write_cb(uint8_t conn_id, T_SERVER_ID service_id,
                                        P_FUN_WRITE_IND_POST_PROC *p_write_ind_post_proc)
 {
    log_d("ble_service_attr_write_cb write_type = 0x%x", write_type);
-   *p_write_ind_post_proc = write_post_callback;
    T_APP_RESULT cause = APP_RESULT_SUCCESS;
+#if !DEBUG_LOCAL
+   *p_write_ind_post_proc = NULL;
+   binary_t write_cb_data;
+   write_cb_data.dataLength = length;
+   write_cb_data.data = p_value;
+   cause = rpc_ble_gatts_callback(service_id, conn_id, attrib_index, RPC_SERVICE_CALLBACK_TYPE_WRITE_CHAR_VALUE, write_type, NULL, &write_cb_data, NULL);
+#endif
    return cause;
 }
 
@@ -79,6 +98,9 @@ T_APP_RESULT ble_service_attr_write_cb(uint8_t conn_id, T_SERVER_ID service_id,
 void ble_service_cccd_update_cb(uint8_t conn_id, T_SERVER_ID service_id, uint16_t index, uint16_t cccbits)
 {
    log_d("ble_service_cccd_update_cb");
+#if !DEBUG_LOCAL
+   rpc_ble_gatts_callback(service_id, conn_id, index, RPC_SERVICE_CALLBACK_TYPE_INDIFICATION_NOTIFICATION, cccbits, NULL, NULL, NULL);
+#endif
    return;
 }
 
@@ -358,6 +380,9 @@ bool ble_server_init(uint8_t num)
    log_d("ble_server_init %d\n\r", num);
 
    server_init(num);
+
+   read_cb_data.data = NULL;
+   read_cb_data.dataLength = 0;
 
    for (uint8_t i = 0; i < BLE_SERVER_MAX_APPS; i++)
    {

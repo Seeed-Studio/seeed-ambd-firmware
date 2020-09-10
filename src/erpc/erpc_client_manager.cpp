@@ -48,7 +48,6 @@ void ClientManager::performRequest(RequestContext &request)
     assert(m_serverThreadId && "server thread id was not set");
     if (Thread::getCurrentThreadId() == m_serverThreadId)
     {
-        Serial.println("213213");
         return performNestedClientRequest(request);
     }
 #endif

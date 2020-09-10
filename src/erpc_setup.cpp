@@ -41,6 +41,7 @@ ArbitratedClientManager *g_client;
 TransportArbitrator g_arbitrator;
 SimpleServer g_server;
 Crc16 g_crc16;
+bool FORCE_NESTCALL = false;
 
 /*============================================================================*
  *                              Functions

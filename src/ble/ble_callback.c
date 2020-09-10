@@ -780,9 +780,18 @@ T_APP_RESULT ble_gatt_client_callback(T_CLIENT_ID client_id, uint8_t conn_id, vo
     * @retval   APP_RESULT_SUCCESS  Function run successfully
     * @retval   others              Function run failed, and return number indicates the reason
     */
+extern bool FORCE_NESTCALL;
 T_APP_RESULT ble_gatt_server_callback(T_SERVER_ID service_id, void *p_data)
 {
-    T_APP_RESULT app_result = APP_RESULT_SUCCESS;
     log_d("ble_gatt_server_callback");
+    T_APP_RESULT app_result = APP_RESULT_SUCCESS;
+// #if !DEBUG_LOCAL
+//     binary_t app_cb_data;
+//     app_cb_data.dataLength = sizeof(T_SERVER_APP_CB_DATA);
+//     app_cb_data.data = (uint8_t *)p_data;
+//     FORCE_NESTCALL = true;
+//     app_result = rpc_ble_gatts_callback(service_id, 0, 0, 0, 0, NULL, NULL, &app_cb_data);
+//     FORCE_NESTCALL = false;
+// #endif
     return app_result;
 }

@@ -1,6 +1,16 @@
+/** @brief Event type to inform app*/
+enum RPC_T_SERVICE_CALLBACK_TYPE
+{
+    RPC_SERVICE_CALLBACK_TYPE_INDIFICATION_NOTIFICATION = 1,    /**< CCCD update event */
+    RPC_SERVICE_CALLBACK_TYPE_READ_CHAR_VALUE = 2,              /**< client read event */
+    RPC_SERVICE_CALLBACK_TYPE_WRITE_CHAR_VALUE = 3,             /**< client write event */
+};
+
+
 @group("ble_callback")
 interface rpc_ble_callback {
     rpc_ble_handle_gap_msg(in binary gap_msg) -> RPC_T_APP_RESULT
     rpc_ble_gap_callback(uint8 cb_type, in binary cb_data) -> RPC_T_APP_RESULT
     rpc_ble_gattc_callback(uint8 gatt_if, uint8 conn_id, in binary cb_data, in binary extra_data) -> RPC_T_APP_RESULT
+    rpc_ble_gatts_callback(uint8 gatt_if, uint8 conn_id, uint16 attrib_index, RPC_T_SERVICE_CALLBACK_TYPE event, uint16 property, out binary read_cb_data @nullable, in binary write_cb_data @nullable, in binary app_cb_data @nullable) -> RPC_T_APP_RESULT
 }
