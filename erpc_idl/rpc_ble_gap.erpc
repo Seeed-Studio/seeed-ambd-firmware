@@ -302,7 +302,7 @@ interface rpc_gap_scan {
     rpc_le_scan_set_param(RPC_T_LE_SCAN_PARAM_TYPE param, in binary value) -> RPC_T_GAP_CAUSE
     rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, out binary value) -> RPC_T_GAP_CAUSE
     rpc_le_scan_start() -> RPC_T_GAP_CAUSE
-    rpc_le_scan_start2(uint32 tick) -> RPC_T_GAP_CAUSE
+    rpc_le_scan_timer_start(uint32 tick) -> RPC_T_GAP_CAUSE
     rpc_le_scan_stop() -> RPC_T_GAP_CAUSE;
     rpc_le_scan_info_filter(bool enable, uint8 offset, uint8 len, in uint8[31] p_filter) -> bool
 };

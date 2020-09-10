@@ -51,18 +51,34 @@ extern "C"
 #include "ble_common.h"
 #include "ble_callback.h"
 
-static void le_scan_cmpl_callback( TimerHandle_t xTimer)
+TimerHandle_t le_scan_timer;
+static bool le_scan_timer_flag = false;
+
+static void le_scan_cmpl_callback(TimerHandle_t xTimer)
 {
+  log_d("le_scan_cmpl_callback");
+  le_scan_timer_flag = false;
   ble_gap_callback(GAP_MSG_LE_SCAN_CMPL, NULL);
   le_scan_stop();
 }
 
-T_GAP_CAUSE le_scan_start2(uint32_t tick)
+void le_scan_timer_stop()
 {
+  log_d("le_scan_timer_stop");
+  if (le_scan_timer_flag == true)
+  {
+    le_scan_timer_flag = false;
+    xTimerStop(le_scan_timer, 0);
+  }
+}
+
+T_GAP_CAUSE le_scan_timer_start(uint32_t tick)
+{
+  log_d("le_scan_timer_start");
   T_GAP_CAUSE ret = GAP_CAUSE_SUCCESS;
-  TimerHandle_t xTimers;
-  xTimers = xTimerCreate("le_scan", pdMS_TO_TICKS(tick), pdFALSE, 0, le_scan_cmpl_callback);
+  le_scan_timer = xTimerCreate("le_scan", pdMS_TO_TICKS(tick), pdFALSE, 0, le_scan_cmpl_callback);
   le_scan_start();
-  xTimerStart(xTimers, 0);
+  le_scan_timer_flag = true;
+  xTimerStart(le_scan_timer, 0);
   return ret;
 }

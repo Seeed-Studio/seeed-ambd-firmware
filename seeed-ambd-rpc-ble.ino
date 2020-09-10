@@ -124,9 +124,11 @@ void setup()
 	// ble_service_start(srcv_app_id);
 
 	ble_start();
-	le_scan_start2(5000);
+	le_scan_timer_start(10000);
 	delay(2000);
-	//le_adv_start();
+	rpc_le_scan_stop();
+	delay(1000);
+	le_scan_timer_start(5000);
 
 	// printf("scanning...\n\r");
 	// int16_t _scanInterval = 0x600;

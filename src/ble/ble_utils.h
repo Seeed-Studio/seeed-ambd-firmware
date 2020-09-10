@@ -69,5 +69,6 @@
 /*============================================================================*
  *                              Functions
  *============================================================================*/
-T_GAP_CAUSE le_scan_start2(uint32_t tick);
+T_GAP_CAUSE le_scan_timer_start(uint32_t tick);
+void le_scan_timer_stop();
 #endif

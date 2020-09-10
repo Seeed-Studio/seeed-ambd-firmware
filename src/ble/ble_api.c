@@ -157,12 +157,6 @@ RPC_T_GAP_CAUSE rpc_le_adv_start(void)
   return le_adv_start();
 }
 
-RPC_T_GAP_CAUSE rpc_le_scan_start2(uint32_t tick)
-{
-  log_d("rpc_le_scan_start2 called");
-  return le_scan_start2(tick);
-}
-
 RPC_T_GAP_CAUSE rpc_le_adv_stop(void)
 {
   log_d("rpc_le_adv_start called");
@@ -393,9 +387,15 @@ RPC_T_GAP_CAUSE rpc_le_scan_start(void)
   return le_scan_start();
 }
 
+RPC_T_GAP_CAUSE rpc_le_scan_timer_start(uint32_t tick)
+{
+  log_d("rpc_le_scan_timer_start called");
+  return le_scan_timer_start(tick);
+}
 RPC_T_GAP_CAUSE rpc_le_scan_stop(void)
 {
   log_d("rpc_le_scan_stop called");
+  le_scan_timer_stop();
   return le_scan_stop();
 }
 
