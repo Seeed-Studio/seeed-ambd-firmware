@@ -29,6 +29,7 @@
 #include "ble_callback.h"
 #include "ble_task.h"
 #include "ble_utils.h"
+#include "ble_api.h"
 
 #ifdef __cplusplus
 extern "C"

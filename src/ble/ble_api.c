@@ -20,6 +20,7 @@ extern "C"
 #endif
 
 #include "FreeRTOS.h"
+#include "timers.h"
 #include "mpu_wrappers.h"
 #include "wifi_conf.h"
 #include "wifi_constants.h"
@@ -154,6 +155,12 @@ RPC_T_GAP_CAUSE rpc_le_adv_start(void)
 {
   log_d("rpc_le_adv_start called");
   return le_adv_start();
+}
+
+RPC_T_GAP_CAUSE rpc_le_scan_start2(uint32_t tick)
+{
+  log_d("rpc_le_scan_start2 called");
+  return le_scan_start2(tick);
 }
 
 RPC_T_GAP_CAUSE rpc_le_adv_stop(void)

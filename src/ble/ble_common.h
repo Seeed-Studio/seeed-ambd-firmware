@@ -56,6 +56,9 @@
 /** @brief  Default maximum advertising interval */
 #define DEFAULT_ADVERTISING_INTERVAL_MAX 400
 
+/** @brief For GAP le scan complete evernt */
+#define GAP_MSG_LE_SCAN_CMPL     0x34
+
 /**
  * @brief  Application Link control block defination.
  */

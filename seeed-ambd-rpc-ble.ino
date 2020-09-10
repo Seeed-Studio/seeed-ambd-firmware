@@ -68,66 +68,65 @@ void setup()
 	ble_server_init(5);
 	// //delay(2000);
 
-	le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
-	le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
-	//uint8_t service_id = ble_add_service(bas_attr_tbl, sizeof(bas_attr_tbl));
-	// // T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
-	// // printf("client id: %d\n\r", client_id);
-	// ble_server_init(5);
-	ble_service_t srcv;
+	// le_adv_set_param(GAP_PARAM_ADV_DATA, sizeof(adv_data), (void *)adv_data);
+	// le_adv_set_param(GAP_PARAM_SCAN_RSP_DATA, sizeof(scan_rsp_data), (void *)scan_rsp_data);
+	// //uint8_t service_id = ble_add_service(bas_attr_tbl, sizeof(bas_attr_tbl));
+	// // // T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
+	// // // printf("client id: %d\n\r", client_id);
+	// // ble_server_init(5);
+	// ble_service_t srcv;
 
-	srcv.uuid_length = UUID_16BIT_SIZE;
-	uint16_t srcv_uuid = 0x180F;
-	memcpy(&(srcv.uuid), &srcv_uuid, 2);
-	srcv.is_primary = true;
+	// srcv.uuid_length = UUID_16BIT_SIZE;
+	// uint16_t srcv_uuid = 0x180F;
+	// memcpy(&(srcv.uuid), &srcv_uuid, 2);
+	// srcv.is_primary = true;
 
-	uint8_t srcv_app_id = ble_create_service(srcv);
-	printf("srcv_app_id: %d\n\r", srcv_app_id);
+	// uint8_t srcv_app_id = ble_create_service(srcv);
+	// printf("srcv_app_id: %d\n\r", srcv_app_id);
 
-	// uint8_t srcv_app_id2 = ble_create_service(srcv);
-	// printf("srcv_app_id2: %d\n\r", srcv_app_id2);
+	// // uint8_t srcv_app_id2 = ble_create_service(srcv);
+	// // printf("srcv_app_id2: %d\n\r", srcv_app_id2);
 
-	ble_char_t CHAR;
-	CHAR.uuid_length = UUID_16BIT_SIZE;
-	uint16_t CHAR_uuid = 0x2A19;
-	memcpy(&(CHAR.uuid), &CHAR_uuid, 2);
-	CHAR.properties = (GATT_CHAR_PROP_READ | GATT_CHAR_PROP_NOTIFY);
-    CHAR.permissions = GATT_PERM_READ;
-	uint8_t char_handle1 = ble_create_char(srcv_app_id, CHAR);
-	printf("char_handle1: %d\n\r", char_handle1);
-	ble_desc_t desc;
+	// ble_char_t CHAR;
+	// CHAR.uuid_length = UUID_16BIT_SIZE;
+	// uint16_t CHAR_uuid = 0x2A19;
+	// memcpy(&(CHAR.uuid), &CHAR_uuid, 2);
+	// CHAR.properties = (GATT_CHAR_PROP_READ | GATT_CHAR_PROP_NOTIFY);
+    // CHAR.permissions = GATT_PERM_READ;
+	// uint8_t char_handle1 = ble_create_char(srcv_app_id, CHAR);
+	// printf("char_handle1: %d\n\r", char_handle1);
+	// ble_desc_t desc;
 
-	desc.flags = ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_CCCD_APPL;
-	desc.uuid_length = UUID_16BIT_SIZE;
-	uint16_t desc_uuid = 0x2902;
-	uint16_t default_vlaue = 0x0000;
-	memcpy(&(desc.uuid), &desc_uuid, 2);
-	memcpy(&(desc.uuid[2]), &default_vlaue, 2);
-	desc.p_value = NULL;
-	desc.vlaue_length = 2;
-	desc.permissions =   (GATT_PERM_READ | GATT_PERM_WRITE) ;
-	uint8_t desc_handle1 = ble_create_desc(srcv_app_id, char_handle1, desc);
-	printf("desc_handle1: %d\n\r", desc_handle1);
-	//uint8_t desc_handle2 = ble_create_desc(srcv_app_id, char_handle1, desc);
-	// printf("desc_handle2: %d\n\r", desc_handle2);
+	// desc.flags = ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_CCCD_APPL;
+	// desc.uuid_length = UUID_16BIT_SIZE;
+	// uint16_t desc_uuid = 0x2902;
+	// uint16_t default_vlaue = 0x0000;
+	// memcpy(&(desc.uuid), &desc_uuid, 2);
+	// memcpy(&(desc.uuid[2]), &default_vlaue, 2);
+	// desc.p_value = NULL;
+	// desc.vlaue_length = 2;
+	// desc.permissions =   (GATT_PERM_READ | GATT_PERM_WRITE) ;
+	// uint8_t desc_handle1 = ble_create_desc(srcv_app_id, char_handle1, desc);
+	// printf("desc_handle1: %d\n\r", desc_handle1);
+	// //uint8_t desc_handle2 = ble_create_desc(srcv_app_id, char_handle1, desc);
+	// // printf("desc_handle2: %d\n\r", desc_handle2);
 
-	// uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
-	// printf("char_handle2: %d\n\r", char_handle2);
-	// uint8_t desc_handle21 = ble_create_desc(srcv_app_id, char_handle2, desc);
-	// printf("desc_handle21: %d\n\r", desc_handle21);
+	// // uint8_t char_handle2 = ble_create_char(srcv_app_id, CHAR);
+	// // printf("char_handle2: %d\n\r", char_handle2);
+	// // uint8_t desc_handle21 = ble_create_desc(srcv_app_id, char_handle2, desc);
+	// // printf("desc_handle21: %d\n\r", desc_handle21);
 
-	// uint8_t char_handle21 = ble_create_char(srcv_app_id2, CHAR);
-	// printf("char_handle21: %d\n\r", char_handle21);
+	// // uint8_t char_handle21 = ble_create_char(srcv_app_id2, CHAR);
+	// // printf("char_handle21: %d\n\r", char_handle21);
 
-	print_ble_serive_list();
+	// print_ble_serive_list();
 
-	ble_service_start(srcv_app_id);
-
+	// ble_service_start(srcv_app_id);
 
 	ble_start();
-
+	le_scan_start2(5000);
 	delay(2000);
-	le_adv_start();
+	//le_adv_start();
 
 	// printf("scanning...\n\r");
 	// int16_t _scanInterval = 0x600;

@@ -372,6 +372,11 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
               p_data->p_le_scan_info->data_len);
         break;
     }
+    case GAP_MSG_LE_SCAN_CMPL:
+    {
+        log_v("GAP_MSG_LE_SCAN_CMPL");
+        break;
+    }
     case GAP_MSG_LE_ADV_UPDATE_PARAM:
     {
         log_v("GAP_MSG_LE_ADV_UPDATE_PARAM: cause 0x%x",
@@ -459,6 +464,12 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     case GAP_MSG_LE_SCAN_INFO:
     {
         FORMATION_BINARY(cb_data, p_data->p_le_scan_info, T_LE_SCAN_INFO);
+        break;
+    }
+    case GAP_MSG_LE_SCAN_CMPL:
+    {
+        uint8_t value = 0;
+        FORMATION_BINARY(cb_data, &value, 1);
         break;
     }
     case GAP_MSG_LE_ADV_UPDATE_PARAM:
