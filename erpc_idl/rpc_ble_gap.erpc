@@ -265,10 +265,10 @@ struct RPC_T_LE_CCCD
 /** @brief LE Key Type */
 enum RPC_T_LE_KEY_TYPE
 {
-    LE_KEY_UNAUTHEN              = 0x04, /**< SSP generated link key without MITM protection. */
-    LE_KEY_AUTHEN                = 0x05, /**< SSP generated link key with MITM protection. */
-    LE_KEY_UNAUTHEN_P256         = 0x07, /**< Security Connections generated link key without MITM protection. */
-    LE_KEY_AUTHEN_P256           = 0x08, /**< Security Connections link key with MITM protection. */
+    RPC_LE_KEY_UNAUTHEN              = 0x04, /**< SSP generated link key without MITM protection. */
+    RPC_LE_KEY_AUTHEN                = 0x05, /**< SSP generated link key with MITM protection. */
+    RPC_LE_KEY_UNAUTHEN_P256         = 0x07, /**< Security Connections generated link key without MITM protection. */
+    RPC_LE_KEY_AUTHEN_P256           = 0x08, /**< Security Connections link key with MITM protection. */
 };
 
 /** @brief LE key entry */
