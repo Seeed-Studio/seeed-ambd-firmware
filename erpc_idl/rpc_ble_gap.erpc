@@ -227,6 +227,65 @@ struct RPC_T_GAP_LE_CONN_REQ_PARAM
                              Time = N * 0.625 ms */
 };
 
+/** @brief Local Device Name */
+struct RPC_T_LOCAL_NAME
+{
+    uint8[40]  local_name;
+};
+
+/** @brief Local Device Appearance */
+struct RPC_T_LOCAL_APPEARANCE
+{
+    uint16 local_appearance;
+    uint8[2]  padding;
+};
+
+/** @brief Local IRK */
+struct RPC_T_LOCAL_IRK
+{
+    uint8[16] local_irk;
+};
+
+/** @brief Remote Bluetooth device address info */
+struct RPC_T_LE_REMOTE_BD
+{
+    uint8[6]  addr;
+    uint8  remote_bd_type;
+    uint8  bond_flags;
+};
+
+/** @brief LE CCCD info */
+struct RPC_T_LE_CCCD
+{
+    uint8 data_length;
+    uint8[3] padding;
+    uint8 data;
+};
+
+/** @brief LE Key Type */
+enum RPC_T_LE_KEY_TYPE
+{
+    LE_KEY_UNAUTHEN              = 0x04, /**< SSP generated link key without MITM protection. */
+    LE_KEY_AUTHEN                = 0x05, /**< SSP generated link key with MITM protection. */
+    LE_KEY_UNAUTHEN_P256         = 0x07, /**< Security Connections generated link key without MITM protection. */
+    LE_KEY_AUTHEN_P256           = 0x08, /**< Security Connections link key with MITM protection. */
+};
+
+/** @brief LE key entry */
+struct RPC_T_LE_KEY_ENTRY
+{
+    bool is_used;
+    uint8 idx;
+    uint16 flags;
+    uint8 local_bd_type;
+    uint8 app_data;
+    uint8[2] reserved;
+    RPC_T_LE_REMOTE_BD remote_bd;
+    RPC_T_LE_REMOTE_BD resolved_remote_bd;
+};
+
+
+
 /** @brief define local adress type */
 enum RPC_T_GAP_LOCAL_ADDR_TYPE
 {
@@ -322,6 +381,26 @@ interface rpc_gap_conn {
     rpc_le_set_conn_param(RPC_T_GAP_CONN_PARAM_TYPE conn_type, in RPC_T_GAP_LE_CONN_REQ_PARAM p_conn_param) -> RPC_T_GAP_CAUSE
     rpc_le_connect(uint8 init_phys, in uint8[6] remote_bd,  RPC_T_GAP_REMOTE_ADDR_TYPE remote_bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, uint16 scan_timeout) -> RPC_T_GAP_CAUSE
     rpc_le_update_conn_param(uint8 conn_id, uint16 conn_interval_min, uint16  conn_interval_max, uint16 conn_latency, uint16 supervision_timeout, uint16 ce_length_min, uint16 ce_length_max) -> RPC_T_GAP_CAUSE
+};
+
+@group("ble_api")
+interface rpc_gap_storage {
+    rpc_flash_save_local_name(in RPC_T_LOCAL_NAME p_data) -> uint32
+    rpc_flash_load_local_name(out RPC_T_LOCAL_NAME p_data) -> uint32
+    rpc_flash_save_local_appearance(in RPC_T_LOCAL_APPEARANCE p_data) -> uint32
+    rpc_flash_load_local_appearance(in RPC_T_LOCAL_APPEARANCE p_data) -> uint32
+    rpc_le_find_key_entry(in uint8[6] bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) ->  @nullable RPC_T_LE_KEY_ENTRY 
+    rpc_le_find_key_entry_by_idx(uint8 idx) ->  @nullable RPC_T_LE_KEY_ENTRY 
+    rpc_le_get_bond_dev_num() -> uint8
+    rpc_le_get_low_priority_bond() ->  @nullable RPC_T_LE_KEY_ENTRY 
+    rpc_le_get_high_priority_bond() ->  @nullable RPC_T_LE_KEY_ENTRY 
+    rpc_le_set_high_priority_bond(in uint8[6] bd_addr,  RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) -> bool
+    rpc_le_resolve_random_address(in uint8[6] unresolved_addr, inout uint8[6] resolved_addr, inout RPC_T_GAP_IDENT_ADDR_TYPE resolved_addr_type) -> bool
+    rpc_le_get_cccd_data(in RPC_T_LE_KEY_ENTRY p_entry, out RPC_T_LE_CCCD p_data) -> bool
+    rpc_le_gen_bond_dev(in uint8[6] bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, in binary local_ltk, RPC_T_LE_KEY_TYPE key_type, RPC_T_LE_CCCD p_cccd) -> bool
+    rpc_le_get_dev_bond_info_len() -> uint16
+    rpc_le_set_dev_bond_info(in binary p_data, out bool exist) ->  @nullable RPC_T_LE_KEY_ENTRY 
+    rpc_le_get_dev_bond_info(RPC_T_LE_KEY_ENTRY p_entry, out binary p_data) -> bool
 };
 
 
