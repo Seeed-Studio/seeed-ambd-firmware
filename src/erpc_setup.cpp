@@ -87,6 +87,7 @@ void add_services(erpc::SimpleServer *server)
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_config_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_conn_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_scan_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_gap_storage_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gatt_client_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gatt_server_service()));
 }

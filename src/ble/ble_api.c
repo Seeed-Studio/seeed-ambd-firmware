@@ -988,3 +988,103 @@ bool rpc_server_attr_read_confirm(uint8_t conn_id, uint8_t service_id, uint16_t 
   return server_attr_read_confirm(conn_id, service_id, attrib_index, data->data, data->dataLength, (T_APP_RESULT)cause);
 }
 //@}
+
+//! @name rpc_gap_storage
+//@{
+uint32_t rpc_flash_save_local_name(const RPC_T_LOCAL_NAME *p_data)
+{
+  log_d("rpc_flash_save_local_name called");
+  return flash_save_local_name(p_data);
+}
+
+uint32_t rpc_flash_load_local_name(RPC_T_LOCAL_NAME *p_data)
+{
+  log_d("rpc_flash_load_local_name called");
+  return flash_load_local_name(p_data);
+}
+
+uint32_t rpc_flash_save_local_appearance(const RPC_T_LOCAL_APPEARANCE *p_data)
+{
+  log_d("rpc_flash_load_local_name called");
+  return flash_save_local_appearance(p_data);
+}
+
+uint32_t rpc_flash_load_local_appearance(const RPC_T_LOCAL_APPEARANCE *p_data)
+{
+  log_d("rpc_flash_load_local_appearance called");
+  return flash_load_local_appearance(p_data);
+}
+
+RPC_T_LE_KEY_ENTRY *rpc_le_find_key_entry(const uint8_t bd_addr[6], RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
+{
+  log_d("rpc_le_find_key_entry called");
+  return le_find_key_entry(bd_addr, bd_type);
+}
+
+RPC_T_LE_KEY_ENTRY *rpc_le_find_key_entry_by_idx(uint8_t idx)
+{
+  log_d("rpc_le_find_key_entry called");
+  return le_find_key_entry_by_idx(idx);
+}
+
+uint8_t rpc_le_get_bond_dev_num(void)
+{
+  log_d("rpc_le_get_bond_dev_num called");
+  return le_get_bond_dev_num();
+}
+
+RPC_T_LE_KEY_ENTRY *rpc_le_get_low_priority_bond(void)
+{
+  log_d("rpc_le_get_low_priority_bond called");
+  return le_get_low_priority_bond();
+}
+
+RPC_T_LE_KEY_ENTRY *rpc_le_get_high_priority_bond(void)
+{
+  log_d("rpc_le_get_high_priority_bond called");
+  return le_get_high_priority_bond();
+}
+
+bool rpc_le_set_high_priority_bond(const uint8_t bd_addr[6], RPC_T_GAP_REMOTE_ADDR_TYPE bd_type)
+{
+  log_d("rpc_le_set_high_priority_bond called");
+  return le_set_high_priority_bond(bd_addr, bd_type);
+}
+
+bool rpc_le_resolve_random_address(const uint8_t unresolved_addr[6], uint8_t resolved_addr[6], RPC_T_GAP_IDENT_ADDR_TYPE *resolved_addr_type)
+{
+  log_d("rpc_le_resolve_random_address called");
+  return le_resolve_random_address(unresolved_addr, resolved_addr, resolved_addr_type);
+}
+
+bool rpc_le_get_cccd_data(const RPC_T_LE_KEY_ENTRY *p_entry, RPC_T_LE_CCCD *p_data)
+{
+  log_d("rpc_le_get_cccd_data called");
+  return le_get_cccd_data(p_entry, p_data);
+}
+
+bool rpc_le_gen_bond_dev(const uint8_t bd_addr[6], RPC_T_GAP_REMOTE_ADDR_TYPE bd_type, RPC_T_GAP_LOCAL_ADDR_TYPE local_bd_type, const binary_t *local_ltk, RPC_T_LE_KEY_TYPE key_type, const RPC_T_LE_CCCD *p_cccd)
+{
+  log_d("le_gen_bond_dev called");
+  return le_gen_bond_dev(bd_addr, bd_type, local_bd_type, local_ltk->dataLength, local_ltk->data, key_type, p_cccd);
+}
+
+uint16_t rpc_le_get_dev_bond_info_len(void)
+{
+  log_d("rpc_le_get_dev_bond_info_len called");
+  return le_get_dev_bond_info_len();
+}
+
+RPC_T_LE_KEY_ENTRY *rpc_le_set_dev_bond_info(const binary_t *p_data, bool *exist)
+{
+  log_d("rpc_le_set_dev_bond_info called");
+  return le_set_dev_bond_info(p_data->dataLength, p_data->data, exist);
+}
+
+bool rpc_le_get_dev_bond_info(const RPC_T_LE_KEY_ENTRY *p_entry, binary_t *p_data)
+{
+  log_d("rpc_le_set_dev_bond_info called");
+  p_data->dataLength = 1;
+  return le_get_dev_bond_info(p_entry, p_data->data);
+}
+//@}
