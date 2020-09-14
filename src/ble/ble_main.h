@@ -36,7 +36,7 @@ extern "C"
 {
 #endif
 
-#define DEBUG_LOCAL 1
+#define DEBUG_LOCAL 0
 
 bool ble_init(void);
 void ble_deinit(void);

@@ -62,16 +62,19 @@ extern "C"
 
 bool rpc_ble_init(void)
 {
+  log_d("rpc_ble_init called");
   return ble_init();
 }
 
 void rpc_ble_start(void)
 {
+  log_d("rpc_ble_start called");
   return ble_start();
 }
 
 void rpc_ble_deinit(void)
 {
+  log_d("rpc_ble_deinit called");
   return ble_deinit();
 }
 //@}
@@ -933,7 +936,7 @@ uint8_t rpc_ble_get_servie_handle(uint8_t app_id)
   return ble_get_servie_handle(app_id);
 }
 
-uint8_t rpc_ble_create_char(uint8_t app_id, const uint8_t uuid[16], uint8_t uuid_length, uint8_t properties, uint32_t permissions)
+uint16_t rpc_ble_create_char(uint8_t app_id, const uint8_t uuid[16], uint8_t uuid_length, uint8_t properties, uint32_t permissions)
 {
   log_d("rpc_ble_create_char called");
   ble_char_t CHAR;
@@ -944,7 +947,7 @@ uint8_t rpc_ble_create_char(uint8_t app_id, const uint8_t uuid[16], uint8_t uuid
   return ble_create_char(app_id, CHAR);
 }
 
-uint8_t rpc_ble_create_desc(uint8_t app_id, uint8_t char_handle, const uint8_t uuid[16], uint8_t uuid_length, uint8_t flags, uint32_t permissions, uint16_t value_length, const binary_t *p_value)
+uint16_t rpc_ble_create_desc(uint8_t app_id, uint16_t char_handle, const uint8_t uuid[16], uint8_t uuid_length, uint8_t flags, uint32_t permissions, uint16_t value_length, const binary_t *p_value)
 {
   log_d("rpc_ble_create_desc called");
   ble_desc_t desc;
@@ -962,6 +965,25 @@ uint8_t rpc_ble_create_desc(uint8_t app_id, uint8_t char_handle, const uint8_t u
     desc.p_value = NULL;
   }
   return ble_create_desc(app_id, char_handle, desc);
+}
+
+binary_t *rpc_ble_server_get_attr_value(uint8_t app_id, uint16_t attr_handle)
+{
+  log_d("rpc_ble_server_get_attr_value called\n\r");
+  binary_t *result = NULL;
+  uint8_t *p_value = NULL;
+  uint16_t value_length = 0;
+  value_length = ble_server_get_attr_value(app_id, attr_handle, &p_value);
+  if (p_value != NULL)
+  {
+    log_d("value_length: %d", value_length);
+    result = (binary_t *)erpc_malloc(sizeof(binary_t));
+    uint8_t *value = (uint8_t *)erpc_malloc(sizeof(uint8_t) * value_length);
+    memcpy(value, p_value, value_length);
+    result->dataLength = value_length;
+    result->data = value;
+  }
+  return result;
 }
 
 bool rpc_server_send_data(uint8_t conn_id, uint8_t service_id, uint16_t attrib_index, const binary_t *data, RPC_T_GATT_PDU_TYPE pdu_type)

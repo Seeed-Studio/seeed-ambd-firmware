@@ -113,7 +113,7 @@ const T_FUN_GATT_SERVICE_CBS ble_service_cbs = {
     ble_service_cccd_update_cb // CCCD update callback function pointer
 };
 
-static void print_ble_desc_list(uint8_t app_id, uint8_t char_handle)
+static void print_ble_desc_list(uint8_t app_id, uint16_t char_handle)
 {
    ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
    bool is_match = false;
@@ -469,7 +469,7 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       attr_tbl[attr_index].permissions = GATT_PERM_READ;
       attr_index++;
       attr_tbl[attr_index].flags = ATTRIB_FLAG_VALUE_APPL;
-      memcpy(attr_tbl[attr_index].type_value, p_char_list_tail->CHAR.uuid, p_char_list_tail->CHAR.uuid_length);
+      memcpy(attr_tbl[attr_index].type_value, p_char_list_tail->CHAR.uuid, 16);
       attr_tbl[attr_index].value_len = 0;
       attr_tbl[attr_index].p_value_context = NULL;
       attr_tbl[attr_index].permissions = p_char_list_tail->CHAR.permissions;
@@ -480,7 +480,7 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       while (p_desc_list_tail != NULL)
       {
          attr_tbl[attr_index].flags = p_desc_list_tail->desc.flags;
-         memcpy(attr_tbl[attr_index].type_value, p_desc_list_tail->desc.uuid, p_desc_list_tail->desc.uuid_length);
+         memcpy(attr_tbl[attr_index].type_value, p_desc_list_tail->desc.uuid, 16);
          attr_tbl[attr_index].value_len = p_desc_list_tail->desc.vlaue_length;
          attr_tbl[attr_index].p_value_context = p_desc_list_tail->desc.p_value;
          attr_tbl[attr_index].permissions = p_desc_list_tail->desc.permissions;
@@ -620,7 +620,7 @@ T_SERVER_ID ble_get_servie_handle(uint8_t app_id)
    return ble_service_list[app_id].handle;
 }
 
-uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
+uint16_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
 {
    if (app_id > BLE_SERVER_MAX_APPS)
       return 0xFF;
@@ -655,7 +655,7 @@ uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR)
    return ble_char_list_item->handle;
 }
 
-uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc)
+uint16_t ble_create_desc(uint8_t app_id, uint16_t char_handle, ble_desc_t desc)
 {
    if (app_id > BLE_SERVER_MAX_APPS)
       return 0xFF;
@@ -702,4 +702,40 @@ uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc)
    ble_service_list[app_id].attr_num += 1;
 
    return ble_desc_list_item->handle;
+}
+
+uint16_t ble_server_get_attr_value(uint8_t app_id, uint16_t handle, uint8_t **p_value)
+{
+   if (app_id > BLE_SERVER_MAX_APPS)
+   {
+      *p_value = NULL;
+      return 0;
+   }
+
+   if (ble_service_list[app_id].is_alloc == false)
+   {
+      *p_value = NULL;
+      return 0;
+   }
+
+   if (handle > ble_service_list[app_id].attr_num)
+   {
+      *p_value = NULL;
+      return 0;
+   }
+
+   T_ATTRIB_APPL *attr_appl = &(ble_service_list[app_id].attr_tbl[handle]);
+   if (attr_appl->value_len != 0)
+   {
+      if (attr_appl->p_value_context != NULL)
+      {
+         *p_value = attr_appl->p_value_context;
+      }
+      else
+      {
+         *p_value = &(attr_appl->type_value[2]);
+      }
+   }
+
+   return attr_appl->value_len;
 }
