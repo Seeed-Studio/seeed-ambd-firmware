@@ -388,7 +388,7 @@ interface rpc_gap_storage {
     rpc_flash_save_local_name(in RPC_T_LOCAL_NAME p_data) -> uint32
     rpc_flash_load_local_name(out RPC_T_LOCAL_NAME p_data) -> uint32
     rpc_flash_save_local_appearance(in RPC_T_LOCAL_APPEARANCE p_data) -> uint32
-    rpc_flash_load_local_appearance(in RPC_T_LOCAL_APPEARANCE p_data) -> uint32
+    rpc_flash_load_local_appearance(out RPC_T_LOCAL_APPEARANCE p_data) -> uint32
     rpc_le_find_key_entry(in uint8[6] bd_addr, RPC_T_GAP_REMOTE_ADDR_TYPE bd_type) ->  @nullable RPC_T_LE_KEY_ENTRY 
     rpc_le_find_key_entry_by_idx(uint8 idx) ->  @nullable RPC_T_LE_KEY_ENTRY 
     rpc_le_get_bond_dev_num() -> uint8

@@ -1031,7 +1031,7 @@ uint32_t rpc_flash_save_local_appearance(const RPC_T_LOCAL_APPEARANCE *p_data)
   return flash_save_local_appearance(p_data);
 }
 
-uint32_t rpc_flash_load_local_appearance(const RPC_T_LOCAL_APPEARANCE *p_data)
+uint32_t rpc_flash_load_local_appearance(RPC_T_LOCAL_APPEARANCE *p_data)
 {
   log_d("rpc_flash_load_local_appearance called");
   return flash_load_local_appearance(p_data);
