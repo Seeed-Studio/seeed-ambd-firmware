@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT=seeed-ambd-rpc-ble
+PROJECT=seeed-ambd-rpc-firmware
 BOARD=realtek:AmebaD:ameba_rtl8721d
 COMMAND=$1
 PORT=$2
@@ -28,7 +28,7 @@ FLAGS+=""
 if [ "$COMMAND" = "--build" ];
 then
 	echo "Building $PROJECT"
-	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.project_flags="$INCLUDE $FLAGS" $PROJECT &
+	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.extra_flags="$INCLUDE $FLAGS" $PROJECT &
 	pid=$! # Process Id of the previous running command
 	while kill -0 $pid 2>/dev/null
 	do
@@ -47,7 +47,7 @@ then
 	arduino-cli upload  --fqbn $BOARD -p $PORT
 elif [ "$COMMAND" = "--all" ];
 then
-	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.project_flags="$INCLUDE $FLAGS" $PROJECT
+	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.extra_flags="$INCLUDE $FLAGS" $PROJECT
 	status=$?
 	[ $status -eq 0 ] && arduino-cli upload  --fqbn $BOARD --port $PORT
 else
