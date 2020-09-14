@@ -79,7 +79,7 @@ MyMessageBufferFactory g_msgFactory;
  */
 void add_services(erpc::SimpleServer *server)
 {
-    server->addService(static_cast<erpc::Service *>(create_host_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_ble_host_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_bone_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_adv_service()));

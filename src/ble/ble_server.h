@@ -58,15 +58,15 @@ extern "C"
   typedef struct s_ble_ble_desc_list
   {
     ble_desc_t desc;
-    uint8_t handle;
+    uint16_t handle;
     struct s_ble_ble_desc_list *next;
   } ble_desc_list_t;
 
   typedef struct s_ble_char_list
   {
     ble_char_t CHAR;
-    uint8_t handle;
-    uint8_t desc_length;
+    uint16_t handle;
+    uint16_t desc_length;
     ble_desc_list_t *desc_list;
     struct s_ble_char_list *next;
   } ble_char_list_t;
@@ -75,10 +75,10 @@ extern "C"
   {
     ble_service_t service;
     bool is_alloc;
-    uint8_t handle;
+    uint16_t handle;
     ble_char_list_t *char_list;
-    uint8_t char_length;
-    uint8_t attr_num;
+    uint16_t char_length;
+    uint16_t attr_num;
     T_ATTRIB_APPL *attr_tbl;
   } ble_service_list_t;
 
@@ -96,9 +96,11 @@ extern "C"
 
   T_SERVER_ID ble_get_servie_handle(uint8_t app_id);
 
-  uint8_t ble_create_char(uint8_t app_id, ble_char_t CHAR);
+  uint16_t ble_create_char(uint8_t app_id, ble_char_t CHAR);
 
-  uint8_t ble_create_desc(uint8_t app_id, uint8_t char_handle, ble_desc_t desc);
+  uint16_t ble_create_desc(uint8_t app_id, uint16_t char_handle, ble_desc_t desc);
+
+  uint16_t ble_server_get_attr_value(uint8_t app_id, uint16_t handle, uint8_t **p_value);
 
   void free_ble_service_list();
 #ifdef __cplusplus

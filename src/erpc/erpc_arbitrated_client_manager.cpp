@@ -59,7 +59,7 @@ void ArbitratedClientManager::performClientRequest(RequestContext &request)
     }
 
     erpc_status_t err;
-
+    
 #if ERPC_MESSAGE_LOGGING
     err = logMessage(request.getCodec()->getBuffer());
     if (err)

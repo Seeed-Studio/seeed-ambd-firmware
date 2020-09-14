@@ -40,9 +40,10 @@ interface rpc_gatt_server{
     rpc_ble_delete_service(uint8 app_id) -> bool
     rpc_ble_service_start(uint8 app_id) -> uint8
     rpc_ble_get_servie_handle(uint8 app_id) -> uint8
-    rpc_ble_create_char(uint8 app_id, uint8[16] uuid, uint8 uuid_length, uint8 properties, uint32 permissions) -> uint8
-    rpc_ble_create_desc(uint8 app_id, uint8 char_handle, uint8[16] uuid, uint8 uuid_length, uint8 flags, uint32 permissions, uint16 value_length, in binary p_value @retain @nullable) -> uint8
+    rpc_ble_create_char(uint8 app_id, uint8[16] uuid, uint8 uuid_length, uint8 properties, uint32 permissions) -> uint16
+    rpc_ble_create_desc(uint8 app_id, uint16 char_handle, uint8[16] uuid, uint8 uuid_length, uint8 flags, uint32 permissions, uint16 value_length, in binary p_value @retain @nullable) -> uint16
     rpc_server_send_data(uint8 conn_id, uint8 service_id, uint16 attrib_index, in binary data, RPC_T_GATT_PDU_TYPE pdu_type) -> bool
+    rpc_ble_server_get_attr_value(uint8 app_id, uint16 attr_handle) -> @nullable binary;
     rpc_server_exec_write_confirm(uint8 conn_id, uint16 cause, uint16 handle) -> bool
     rpc_server_attr_write_confirm(uint8 conn_id, uint8 service_id, uint16 attrib_index, RPC_T_APP_RESULT cause) -> bool
     rpc_server_attr_read_confirm(uint8 conn_id, uint8 service_id, uint16 attrib_index, in binary data, RPC_T_APP_RESULT cause) -> bool
