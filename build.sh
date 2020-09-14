@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT=seeed-ambd-rpc-firmware
+PROJECT=seeed-ambd-firmware
 BOARD=realtek:AmebaD:ameba_rtl8721d
 COMMAND=$1
 PORT=$2
