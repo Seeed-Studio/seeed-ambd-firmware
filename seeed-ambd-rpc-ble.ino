@@ -31,6 +31,7 @@ void app_elog_init(void)
 extern void erpc_ble_init();
 
 uint8_t conn_id = 0xff;
+#if DEBUG_LOCAL
 /** @brief  GAP - scan response data (max size = 31 bytes) */
 static const uint8_t scan_rsp_data[] =
 	{
@@ -77,10 +78,11 @@ uint8_t srcv_handle = 0;
 uint8_t char_handle = 0;
 uint8_t desc_handle1 = 0;
 uint8_t desc_handle2 = 0;
+#endif
 
 void setup()
 {
-	app_elog_init();
+	//app_elog_init();
 #if DEBUG_LOCAL
 	ble_init();
 	ble_server_init(BLE_SERVER_MAX_APPS);
@@ -144,6 +146,5 @@ void setup()
 
 void loop()
 {
-	printf(".");
 	delay(2000);
 }
