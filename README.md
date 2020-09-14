@@ -1,4 +1,5 @@
-# Seeed RTL872X RPC firmware
+# Seeed RTL872X RPC firmware  [![Build Status](https://travis-ci.com/Seeed-Studio/seeed-ambd-firmware.svg?branch=master)](https://travis-ci.com/Seeed-Studio/seeed-ambd-firmware)
+
 ## Introduction
 
 This RTL87XX [RPC](https://github.com/EmbeddedRPC) firmware export a RPC server interface through hardware SPI/UART port to MCU.  
@@ -13,7 +14,7 @@ The arduino-cli tool is used to build and upload the Edge Impulse firmware to th
 Before compiling the firmware, you need to install the Arduino core of rtl872x [ambd_arduino](https://github.com/ambiot/ambd_arduino)
 - board index
 ```
-https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek.com_amebad_index.json
+https://files.seeedstudio.com/arduino/package_realtek.com_amebad_index.json
 ```
 
 ### build
