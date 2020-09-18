@@ -20,7 +20,7 @@ $INCLUDE+=" -I$CRTDIR/src/esp_lib"
 #erpc
 $INCLUDE+=" -I$CRTDIR/src/erpc"
 
-#erpc_shim
+#erpc_shim 
 $INCLUDE+=" -I$CRTDIR/src/erpc_shim"
 
 $FLAGS+=""
