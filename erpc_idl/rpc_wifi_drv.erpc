@@ -1,0 +1,5 @@
+
+@group("wifi_api")
+interface rpc_wifi_drv {
+    test() -> void
+}
