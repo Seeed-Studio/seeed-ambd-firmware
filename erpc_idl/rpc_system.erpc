@@ -19,4 +19,4 @@ import "rpc_ble_gatt.erpc"
 import "rpc_ble_callback.erpc"
 
 
-import "rpc_wifi_drv.erpc"
+import "rpc_wifi_conf.erpc"
