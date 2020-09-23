@@ -1,23 +1,21 @@
 
 @group("wifi_api")
 interface rpc_wifi_drv {
-    rpc_wifi_connect(in binary ssid, in binary password, uint32 ecurity_type,int32 key_id, uint32 semaphore) -> int32
-    rpc_wifi_connect_bssid(uint8[6] bssid, in binary ssid, in binary password, uint32 ecurity_type, int32 key_id, uint32 semaphore) -> int32
+    rpc_wifi_connect(in binary ssid, in binary password, uint32 security_type,int32 key_id, uint32 semaphore) -> int32
+    rpc_wifi_connect_bssid(in binary bssid, in binary ssid, in binary password, uint32 security_type, int32 key_id, uint32 semaphore) -> int32
     rpc_wifi_disconnect() -> int32
     rpc_wifi_is_connected_to_ap() -> int32
     rpc_wifi_is_up(uint32 itf) -> int32
     rpc_wifi_is_ready_to_transceive(uint32 itf) -> int32
     rpc_wifi_set_mac_address(in binary mac) -> int32
-    rpc_wifi_get_mac_address(out binary mac) -> int32
+    rpc_wifi_get_mac_address(out uint8[18] mac) -> int32
     rpc_wifi_enable_powersave() -> int32
     rpc_wifi_resume_powersave() -> int32
     rpc_wifi_disable_powersave() -> int32
     rpc_wifi_btcoex_set_bt_on() -> void
     rpc_wifi_btcoex_set_bt_off() -> void
-    rpc_wifi_get_txpower(out int32 poweridx) -> int32
-    rpc_wifi_set_txpower(int32 poweridx) -> int32
     rpc_wifi_get_associated_client_list(out binary client_list_buffer, uint16 buffer_length) -> int32
-    rpc_wifi_get_ap_bssid(out binary bssid) -> int32
+    rpc_wifi_get_ap_bssid(out uint8[6] bssid) -> int32
     rpc_wifi_get_ap_info(out binary ap_info, out uint32 security) -> int32
     rpc_wifi_set_country(uint32 country_code) -> int32
     rpc_wifi_get_sta_max_data_rate(out uint8 inidata_rate) -> int32
@@ -40,14 +38,14 @@ interface rpc_wifi_drv {
     rpc_wifi_set_lps_thresh(uint8 mode) -> int32 
     rpc_wifi_set_lps_level(uint8 lps_level) -> int32
     rpc_wifi_set_mfp_support(uint8 value) -> int32
-    rpc_wifi_start_ap(in binary ssid, in binary password, uint32 ecurity_type, int32 channel) -> int32
-    rpc_wifi_start_ap_with_hidden_ssid(in binary ssid, in binary password, uint32 ecurity_type, int32 channel) -> int32
+    rpc_wifi_start_ap(in binary ssid, in binary password, uint32 security_type, int32 channel) -> int32
+    rpc_wifi_start_ap_with_hidden_ssid(in binary ssid, in binary password, uint32 security_type, int32 channel) -> int32
     rpc_wifi_set_pscan_chan(binary channel_list,uint8 pscan_config) -> int32
     rpc_wifi_get_setting(string ifname,out binary pSetting) -> int32
     rpc_wifi_set_network_mode(uint32 mode) -> int32
     rpc_wifi_get_network_mode(out uint32 pmode) -> int32
     rpc_wifi_set_wps_phase(uint8 is_trigger_wps) -> int32
-    rpc_wifi_restart_ap(in binary ssid, in binary password, uint32 ecurity_type, int32 channel) -> int32
+    rpc_wifi_restart_ap(in binary ssid, in binary password, uint32 security_type, int32 channel) -> int32
     rpc_wifi_config_autoreconnect(uint8 mode, uint8 retry_times, uint16 timeout) -> int32
     rpc_wifi_set_autoreconnect(uint8 mode) -> int32
     rpc_wifi_get_autoreconnect(out uint8 mode) -> int32
@@ -62,7 +60,6 @@ interface rpc_wifi_drv {
     rpc_wifi_enable_forwarding() -> int32
     rpc_wifi_disable_forwarding() -> int32
     rpc_wifi_set_ch_deauth(uint8 enable) -> int32
-    rpc_wifi_set_ap_polling_sta(uint8 enabled) -> void
     rpc_wifi_get_band_type() -> uint8
     rpc_wifi_set_tx_pause_data(int32 NewState) -> int32
 }
