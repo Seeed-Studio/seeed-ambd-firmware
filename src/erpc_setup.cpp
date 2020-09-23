@@ -20,6 +20,8 @@
 
 #include "rpc_ble_api.h"
 #include "rpc_ble_api_server.h"
+#include "rpc_wifi_api.h"
+#include "rpc_wifi_api_server.h"
 #include "erpc_arduino_uart_transport.h"
 #include "erpc_basic_codec.h"
 #include "erpc_simple_server.h"
@@ -90,6 +92,7 @@ void add_services(erpc::SimpleServer *server)
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_storage_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gatt_client_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gatt_server_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_wifi_drv_service()));
 }
 
 /**
