@@ -19,26 +19,34 @@
 #include "wifi_constants.h"
 #include "wifi_structures.h"
 #include "rpc_system_header.h"
+#include "wifi_callback.h"
+
+static uint32_t wifi_work_mode = RTW_MODE_NONE;
 
 //! @name rpc_wifi_drv
 //@{
 int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
 {
     log_d("called");
-    return wifi_connect(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, key_id, NULL);
+    int32_t ret = RTW_ERROR;
+    ret = wifi_connect(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, key_id, NULL);
+    return ret;
 }
 
-int32_t rpc_wifi_connect_bssid(const binary_t * bssid, const binary_t * ssid, const binary_t * password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
+int32_t rpc_wifi_connect_bssid(const binary_t *bssid, const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
 {
     log_d("called");
-    return wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, bssid->dataLength, ssid->dataLength, password->dataLength, key_id, NULL);
-    return 0;
+    int32_t ret = RTW_ERROR;
+    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, bssid->dataLength, ssid->dataLength, password->dataLength, key_id, NULL);
+    return ret;
 }
 
 int32_t rpc_wifi_disconnect(void)
 {
     log_d("called");
-    return wifi_disconnect();
+    int32_t ret = RTW_ERROR;
+    ret = wifi_disconnect();
+    return ret;
 }
 
 int32_t rpc_wifi_is_connected_to_ap(void)
@@ -208,6 +216,14 @@ int32_t rpc_wifi_rf_off(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_rf_off();
+    if (ret != RTW_ERROR)
+    {
+        if (wifi_work_mode == RTW_MODE_STA || wifi_work_mode == RTW_MODE_STA_AP)
+        {
+
+            wifi_callback_ind(SYSTEM_EVENT_STA_STOP);
+        }
+    }
     return ret;
 }
 
@@ -216,6 +232,15 @@ int32_t rpc_wifi_on(uint32_t mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_on(mode);
+    if (ret != RTW_ERROR)
+    {
+        wifi_work_mode = mode;
+        if (mode == RTW_MODE_STA || mode == RTW_MODE_STA_AP)
+        {
+
+            wifi_callback_ind(SYSTEM_EVENT_STA_START);
+        }
+    }
     return ret;
 }
 
@@ -304,6 +329,10 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
     log_d("called");
     int32_t ret = 0;
     ret = wifi_start_ap(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
+    if (ret != RTW_ERROR)
+    {
+        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+    }
     return ret;
 }
 
@@ -312,6 +341,10 @@ int32_t rpc_wifi_start_ap_with_hidden_ssid(const binary_t *ssid, const binary_t 
     log_d("called");
     int32_t ret = 0;
     ret = wifi_start_ap_with_hidden_ssid(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
+    if (ret != RTW_ERROR)
+    {
+        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+    }
     return ret;
 }
 
@@ -363,6 +396,10 @@ int32_t rpc_wifi_restart_ap(const binary_t *ssid, const binary_t *password, uint
     log_d("called");
     int32_t ret = 0;
     ret = wifi_restart_ap(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
+    if (ret != RTW_ERROR)
+    {
+        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+    }
     return ret;
 }
 
@@ -487,7 +524,7 @@ uint8_t rpc_wifi_get_band_type(void)
 
 int32_t rpc_wifi_set_tx_pause_data(int32_t NewState)
 {
-    
+
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_tx_pause_data(NewState);

@@ -12,7 +12,10 @@ $INCLUDE+=" -I$CRTDIR/src/easylogger/inc"
 
 #ble
 $INCLUDE+=" -I$CRTDIR/src/ble"
-$INCLUDE+=" -I$CRTDIR/src/ble_central"
+
+#wifi
+$INCLUDE+=" -I$CRTDIR/src/wifi"
+
 
 #esp_lib
 $INCLUDE+=" -I$CRTDIR/src/esp_lib"
