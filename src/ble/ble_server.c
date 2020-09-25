@@ -437,7 +437,8 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
    uint16_t attr_index = 0;
 
    /* attr index 0 Service */
-   attr_tbl[attr_index].flags = (ATTRIB_FLAG_VALUE_INCL | ATTRIB_FLAG_LE);
+   {
+   attr_tbl[attr_index].flags = (ATTRIB_FLAG_VALUE_APPL | ATTRIB_FLAG_LE);
    if (ble_service_list[app_id].service.is_primary)
    {
       attr_tbl[attr_index].type_value[0] = LO_WORD(GATT_UUID_PRIMARY_SERVICE);
@@ -448,11 +449,11 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       attr_tbl[attr_index].type_value[0] = LO_WORD(GATT_UUID_SECONDARY_SERVICE);
       attr_tbl[attr_index].type_value[1] = HI_WORD(GATT_UUID_SECONDARY_SERVICE);
    }
-   memcpy(&attr_tbl[attr_index].type_value[2], ble_service_list[app_id].service.uuid, 14);
    attr_tbl[attr_index].value_len = ble_service_list[app_id].service.uuid_length;
-   attr_tbl[attr_index].p_value_context = NULL;
+   attr_tbl[attr_index].p_value_context = ble_service_list[app_id].service.uuid;
    attr_tbl[attr_index].permissions = GATT_PERM_READ;
    attr_index++;
+   }
 
    ble_char_list_t *p_char_list_tail = ble_service_list[app_id].char_list;
 
@@ -469,7 +470,9 @@ T_SERVER_ID ble_service_start(uint8_t app_id)
       attr_tbl[attr_index].permissions = GATT_PERM_READ;
       attr_index++;
       attr_tbl[attr_index].flags = ATTRIB_FLAG_VALUE_APPL;
-      memcpy(attr_tbl[attr_index].type_value, p_char_list_tail->CHAR.uuid, 16);
+      if(p_char_list_tail->CHAR.uuid_length == UUID_128BIT_SIZE)
+         attr_tbl[attr_index].flags |= ATTRIB_FLAG_UUID_128BIT;
+      memcpy(attr_tbl[attr_index].type_value, p_char_list_tail->CHAR.uuid, p_char_list_tail->CHAR.uuid_length);
       attr_tbl[attr_index].value_len = 0;
       attr_tbl[attr_index].p_value_context = NULL;
       attr_tbl[attr_index].permissions = p_char_list_tail->CHAR.permissions;
