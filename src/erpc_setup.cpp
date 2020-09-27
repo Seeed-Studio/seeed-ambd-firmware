@@ -115,7 +115,7 @@ void run_erpc_server(void *arg)
  * @brief  Initialize erpc server task
  * @return void
  */
-void erpc_ble_init()
+void erpc_system_init()
 {
     g_transport.init();
 
