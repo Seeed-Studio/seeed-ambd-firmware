@@ -70,30 +70,33 @@ binary_t b_ssid;
 binary_t b_password;
 uint8_t ssid[] = "TE_TEST";
 uint8_t password[] = "123456789";
-
+extern void erpc_system_init();
 void setup()
 {
 	app_elog_init();
-	delay(1000);
-	wifi_init();
-	delay(1000);
+	// delay(1000);
+	// wifi_init();
+	// delay(1000);
 
-	wifi_scan_networks(app_scan_result_handler, NULL);
-	delay(5000);
-	rpc_wifi_on(RTW_MODE_STA);
-	b_ssid.data = ssid;
-	b_ssid.dataLength = 7;
-	b_password.data = password;
-	b_password.dataLength = 9;
+	// wifi_scan_networks(app_scan_result_handler, NULL);
+	// delay(5000);
+	// rpc_wifi_on(RTW_MODE_STA);
+	// b_ssid.data = ssid;
+	// b_ssid.dataLength = 7;
+	// b_password.data = password;
+	// b_password.dataLength = 9;
+	erpc_system_init();
 }
 
 void loop()
 {
-	rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 0, NULL);
-	vTaskDelay(30000);
-	printf("I am here\n\r");
-	rpc_wifi_disconnect();
-	vTaskDelay(5000);
+	delay(2000);
+	printf("1");
+	// rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 0, NULL);
+	// vTaskDelay(30000);
+	// printf("I am here\n\r");
+	// rpc_wifi_disconnect();
+	// vTaskDelay(5000);
 }
 // extern void erpc_ble_init();
 
