@@ -533,7 +533,7 @@ RPC_T_GAP_CAUSE rpc_gap_set_pairable_mode(void)
 RPC_T_GAP_CAUSE rpc_le_bond_set_param(RPC_T_LE_BOND_PARAM_TYPE param, const binary_t *value)
 {
   log_d("rpc_le_bond_set_param called");
-  return le_bond_set_param(param, value->dataLength, value->dataLength);
+  return le_bond_set_param(param, value->dataLength, value->data);
 }
 
 RPC_T_GAP_CAUSE rpc_le_bond_get_param(RPC_T_LE_BOND_PARAM_TYPE param, binary_t *value)
