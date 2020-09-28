@@ -91,7 +91,7 @@ void setup()
 void loop()
 {
 	delay(2000);
-	printf("1");
+	printf(".");
 	// rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 0, NULL);
 	// vTaskDelay(30000);
 	// printf("I am here\n\r");
