@@ -16,7 +16,6 @@ $INCLUDE+=" -I$CRTDIR/src/ble"
 #wifi
 $INCLUDE+=" -I$CRTDIR/src/wifi"
 
-
 #esp_lib
 $INCLUDE+=" -I$CRTDIR/src/esp_lib"
 
