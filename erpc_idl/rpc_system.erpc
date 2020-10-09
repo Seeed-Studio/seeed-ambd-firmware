@@ -20,3 +20,4 @@ import "rpc_ble_callback.erpc"
 
 
 import "rpc_wifi_conf.erpc"
+import "rpc_wifi_tcpip.erpc"
