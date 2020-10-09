@@ -1,0 +1,22 @@
+
+@group("wifi_api")
+interface rpc_wifi_tcpip{
+    rpc_tcpip_adapter_init() -> int32
+    rpc_tcpip_adapter_sta_start(in binary mac, in binary ip_info) -> int32
+    rpc_tcpip_adapter_ap_start(in binary mac, in binary ip_info) -> int32
+    rpc_tcpip_adapter_stop(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_up(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_down(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_get_ip_info(uint32 tcpip_if, in binary ip_info) -> int32
+    rpc_tcpip_adapter_set_ip_info(uint32 tcpip_if, in binary ip_info) -> int32
+    rpc_tcpip_adapter_set_dns_info(uint32 tcpip_if, uint32 dns_type, in binary dns) -> int32
+    rpc_tcpip_adapter_get_dns_info(uint32 tcpip_if, uint32 dns_type, in binary dns) -> int32
+    rpc_tcpip_adapter_dhcps_start(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_dhcps_stop(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_dhcpc_start(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_dhcpc_stop(uint32 tcpip_if) -> int32
+    rpc_tcpip_adapter_set_hostname(uint32 tcpip_if, in string hostname) -> int32
+    rpc_tcpip_adapter_get_hostname(uint32 tcpip_if, out string hostname @max_length(32)) -> int32
+    rpc_tcpip_adapter_get_mac(uint32 tcpip_if, out binary mac) -> int32
+    rpc_tcpip_adapter_set_mac(uint32 tcpip_if, in binary mac) -> int32
+}
