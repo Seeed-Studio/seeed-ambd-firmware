@@ -29,12 +29,14 @@
 
 #include "main.h"
 #include "wifi_tcpip_adapter.h"
+#include "lwip_netconf.h"
+#include "netif.h"
 
 extern struct netif xnetif[NET_IF_NUM];
 
 void tcpip_adapter_init(void)
 {
-    LwIP_init();
+    LwIP_Init();
 }
 
 esp_err_t tcpip_adapter_eth_start(uint8_t *mac, tcpip_adapter_ip_info_t *ip_info)
@@ -228,20 +230,21 @@ esp_err_t tcpip_adapter_dhcpc_stop(tcpip_adapter_if_t tcpip_if)
 
 esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char *hostname)
 {
-    netif_set_hostname(&xnetif[tcpip_if], hostname);
+    //netif_set_hostname(&xnetif[tcpip_if], hostname);
     return ESP_OK;
 }
 
 esp_err_t tcpip_adapter_get_hostname(tcpip_adapter_if_t tcpip_if, const char **hostname)
 {
-    *hostname = netif_get_hostname(&xnetif[tcpip_if]);
+    
+    //*hostname = netif_get_hostname(&xnetif[tcpip_if]);
     return ESP_OK;
 }
 
 esp_err_t tcpip_adapter_get_mac(tcpip_adapter_if_t tcpip_if, uint8_t *mac)
 {
     wifi_get_mac_address(mac);
-     return ESP_OK;
+    return ESP_OK;
 }
 
 esp_err_t tcpip_adapter_set_mac(tcpip_adapter_if_t tcpip_if, uint8_t *mac)

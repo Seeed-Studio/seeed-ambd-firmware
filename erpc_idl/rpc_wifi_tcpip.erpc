@@ -7,10 +7,10 @@ interface rpc_wifi_tcpip{
     rpc_tcpip_adapter_stop(uint32 tcpip_if) -> int32
     rpc_tcpip_adapter_up(uint32 tcpip_if) -> int32
     rpc_tcpip_adapter_down(uint32 tcpip_if) -> int32
-    rpc_tcpip_adapter_get_ip_info(uint32 tcpip_if, in binary ip_info) -> int32
+    rpc_tcpip_adapter_get_ip_info(uint32 tcpip_if, out binary ip_info) -> int32
     rpc_tcpip_adapter_set_ip_info(uint32 tcpip_if, in binary ip_info) -> int32
     rpc_tcpip_adapter_set_dns_info(uint32 tcpip_if, uint32 dns_type, in binary dns) -> int32
-    rpc_tcpip_adapter_get_dns_info(uint32 tcpip_if, uint32 dns_type, in binary dns) -> int32
+    rpc_tcpip_adapter_get_dns_info(uint32 tcpip_if, uint32 dns_type, out binary dns) -> int32
     rpc_tcpip_adapter_dhcps_start(uint32 tcpip_if) -> int32
     rpc_tcpip_adapter_dhcps_stop(uint32 tcpip_if) -> int32
     rpc_tcpip_adapter_dhcpc_start(uint32 tcpip_if) -> int32

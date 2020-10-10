@@ -20,6 +20,7 @@
 #include "wifi_structures.h"
 #include "rpc_system_header.h"
 #include "wifi_callback.h"
+#include "wifi_tcpip_adapter.h"
 
 static uint32_t wifi_work_mode = RTW_MODE_NONE;
 
@@ -529,5 +530,143 @@ int32_t rpc_wifi_set_tx_pause_data(int32_t NewState)
     int32_t ret = 0;
     ret = wifi_set_tx_pause_data(NewState);
     return ret;
+}
+//@}
+
+//! @name rpc_wifi_tcpip
+//@{
+int32_t rpc_tcpip_adapter_init(void)
+{
+    log_d("called");
+    tcpip_adapter_init();
+    return ESP_OK;
+}
+
+int32_t rpc_tcpip_adapter_sta_start(const binary_t *mac, const binary_t *ip_info)
+{
+    log_d("called");
+    uint8_t *_mac = mac->data;
+    tcpip_adapter_ip_info_t *_ip_info = (tcpip_adapter_ip_info_t *)ip_info->data;
+    return tcpip_adapter_sta_start(_mac, _ip_info);
+}
+
+int32_t rpc_tcpip_adapter_ap_start(const binary_t *mac, const binary_t *ip_info)
+{
+    log_d("called");
+    uint8_t *_mac = mac->data;
+    tcpip_adapter_ip_info_t *_ip_info = (tcpip_adapter_ip_info_t *)ip_info->data;
+    return tcpip_adapter_ap_start(_mac, _ip_info);
+}
+
+int32_t rpc_tcpip_adapter_stop(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_stop(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_up(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_up(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_down(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_down(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_get_ip_info(uint32_t tcpip_if, binary_t *ip_info)
+{
+    log_d("called");
+    esp_err_t ret = ESP_OK;
+    tcpip_adapter_ip_info_t *_ip_info = (tcpip_adapter_ip_info_t *)erpc_malloc(sizeof(tcpip_adapter_ip_info_t));
+    ret = tcpip_adapter_get_ip_info(tcpip_if, _ip_info);
+    ip_info->data = _ip_info;
+    ip_info->dataLength = sizeof(tcpip_adapter_ip_info_t);
+    return ret;
+}
+
+int32_t rpc_tcpip_adapter_set_ip_info(uint32_t tcpip_if, const binary_t *ip_info)
+{
+    log_d("called");
+    tcpip_adapter_ip_info_t *_ip_info = (tcpip_adapter_ip_info_t *)ip_info->data;
+    return tcpip_adapter_set_ip_info(tcpip_if, _ip_info);
+}
+
+int32_t rpc_tcpip_adapter_set_dns_info(uint32_t tcpip_if, uint32_t dns_type, const binary_t *dns)
+{
+    log_d("called");
+    tcpip_adapter_dns_info_t *_dns = (tcpip_adapter_dns_info_t *)dns->data;
+    return tcpip_adapter_set_dns_info(tcpip_if, dns_type, _dns);
+}
+
+int32_t rpc_tcpip_adapter_get_dns_info(uint32_t tcpip_if, uint32_t dns_type, binary_t *dns)
+{
+    log_d("called");
+    esp_err_t ret = ESP_OK;
+    tcpip_adapter_dns_info_t *_dns = (tcpip_adapter_dns_info_t *)erpc_malloc(sizeof(tcpip_adapter_dns_info_t));
+    ret = tcpip_adapter_get_dns_info(tcpip_if, dns_type, _dns);
+    dns->data = _dns;
+    dns->dataLength = sizeof(tcpip_adapter_dns_info_t);
+    return ret;
+}
+
+int32_t rpc_tcpip_adapter_dhcps_start(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_dhcps_start(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_dhcps_stop(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_dhcps_stop(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_dhcpc_start(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_dhcpc_stop(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_dhcpc_stop(uint32_t tcpip_if)
+{
+    log_d("called");
+    return tcpip_adapter_dhcpc_stop(tcpip_if);
+}
+
+int32_t rpc_tcpip_adapter_set_hostname(uint32_t tcpip_if, const char *hostname)
+{
+    log_d("called");
+    return tcpip_adapter_set_hostname(tcpip_if, hostname);
+}
+
+int32_t rpc_tcpip_adapter_get_hostname(uint32_t tcpip_if, char *hostname)
+{
+    log_d("called");
+    esp_err_t ret = ESP_OK;
+    uint8_t *_hostname;
+    ret = tcpip_adapter_get_hostname(tcpip_if, &_hostname);
+    memset(hostname, 0, 32);
+    memcpy(hostname, _hostname, strlen((char *)_hostname));
+    return ret;
+}
+
+int32_t rpc_tcpip_adapter_get_mac(uint32_t tcpip_if, binary_t *mac)
+{
+    log_d("called");
+    esp_err_t ret = ESP_OK;
+    uint8_t *_mac = erpc_malloc(32 * sizeof(uint8_t));
+    ret = tcpip_adapter_get_mac(tcpip_if, _mac);
+    mac->data =_mac;
+    mac->dataLength = strlen((char *)_mac);
+    return ret;
+}
+
+int32_t rpc_tcpip_adapter_set_mac(uint32_t tcpip_if, const binary_t *mac)
+{
+    log_d("called");
+    return tcpip_adapter_set_mac(tcpip_if, mac->data);
 }
 //@}
