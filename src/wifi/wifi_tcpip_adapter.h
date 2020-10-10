@@ -32,15 +32,7 @@
 #define _TCPIP_ADAPTER_H_
 
 #include <stdint.h>
-#include <platform/platform_stdlib.h>
-#include "netif.h"
-#include "wifi_conf.h"
-#include "wifi_constants.h"
-#include "wifi_structures.h"
-#include "lwip_netconf.h"
-#include "lwip/err.h"
 #include "lwip/api.h"
-#include <dhcp/dhcps.h>
 
 typedef int32_t esp_err_t;
 

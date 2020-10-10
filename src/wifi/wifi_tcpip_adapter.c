@@ -29,8 +29,15 @@
 
 #include "main.h"
 #include "wifi_tcpip_adapter.h"
-#include "lwip_netconf.h"
+#include <platform/platform_stdlib.h>
 #include "netif.h"
+#include "wifi_conf.h"
+#include "wifi_constants.h"
+#include "wifi_structures.h"
+#include "lwip_netconf.h"
+#include "lwip/err.h"
+#include <dhcp/dhcps.h>
+#include "elog.h"
 
 extern struct netif xnetif[NET_IF_NUM];
 
@@ -99,18 +106,20 @@ exit:
 esp_err_t tcpip_adapter_stop(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
-    uint8_t dhcp_result = LwIP_DHCP(tcpip_if, DHCP_STOP);
+    uint8_t idx = tcpip_if<=1?0:1;
+    uint8_t dhcp_result = LwIP_DHCP(idx, DHCP_STOP);
     if (DHCP_STOP != dhcp_result)
-        ;
-    return ESP_FAIL;
+        return ESP_FAIL;
+    dhcps_deinit();
     return ret;
 }
 
 esp_err_t tcpip_adapter_up(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
-   struct netif *pnetif = &xnetif[tcpip_if];
-    if (tcpip_if <= NET_IF_NUM)
+    uint8_t idx = tcpip_if<=1?0:1;
+    struct netif *pnetif = &xnetif[idx];
+    if (idx <= NET_IF_NUM)
     {
         dhcps_init(pnetif);
     }
@@ -133,30 +142,32 @@ esp_err_t tcpip_adapter_down(tcpip_adapter_if_t tcpip_if)
 esp_err_t tcpip_adapter_get_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_ip_info_t *ip_info)
 {
     esp_err_t ret = ESP_OK;
-    struct netif *pnetif = &xnetif[tcpip_if];
+    uint8_t idx = tcpip_if<=1?0:1;
+    struct netif *pnetif = &xnetif[idx];
     memcpy(&ip_info->ip, &pnetif->ip_addr, sizeof(ip_addr_t));
     memcpy(&ip_info->netmask, &pnetif->netmask, sizeof(ip_addr_t));
     memcpy(&ip_info->gw, &pnetif->gw, sizeof(ip_addr_t));
-
+    log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, ip_info->ip,ip_info->netmask, ip_info->gw);
     return ret;
 }
 
 esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_ip_info_t *ip_info)
 {
     esp_err_t ret = ESP_OK;
-    struct netif *pnetif = &xnetif[tcpip_if];
+    uint8_t idx = tcpip_if<=1?0:1;
+    struct netif *pnetif = &xnetif[idx];
 
     memcpy(&pnetif->ip_addr, &ip_info->ip, sizeof(ip_addr_t));
     memcpy(&pnetif->netmask, &ip_info->netmask, sizeof(ip_addr_t));
     memcpy(&pnetif->gw, &ip_info->gw, sizeof(ip_addr_t));
-
+    log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, pnetif->ip_addr, pnetif->netmask, pnetif->gw);
     return ret;
 }
 esp_err_t tcpip_adapter_set_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_dns_type_t type, tcpip_adapter_dns_info_t *dns)
 {
     esp_err_t ret = ESP_OK;
-
-    dns_setserver(0, &dns->ip);
+    uint8_t idx = tcpip_if<=1?0:1;
+    dns_setserver(idx, &dns->ip);
 
     return ret;
 }
@@ -164,8 +175,8 @@ esp_err_t tcpip_adapter_set_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_
 esp_err_t tcpip_adapter_get_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_dns_type_t type, tcpip_adapter_dns_info_t *dns)
 {
     esp_err_t ret = ESP_OK;
-
-    ip_addr_t *ip = dns_getserver(0);
+    uint8_t idx = tcpip_if<=1?0:1;
+    ip_addr_t *ip = dns_getserver(idx);
 
     memcpy(&dns->ip, ip, sizeof(ip_addr_t));
 
@@ -175,28 +186,18 @@ esp_err_t tcpip_adapter_get_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_
 esp_err_t tcpip_adapter_dhcps_start(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
-    uint8_t dhcp_result;
-    dhcp_result = LwIP_DHCP(tcpip_if, DHCP_START);
-
-    if (dhcp_result != DHCP_ADDRESS_ASSIGNED)
-    {
-        ret = ESP_FAIL;
-    }
-
+    uint8_t idx = tcpip_if<=1?0:1;
+    struct netif *pnetif = &xnetif[idx];
+    dhcps_init(pnetif);
+    vTaskDelay(10);
     return ret;
 }
 
 esp_err_t tcpip_adapter_dhcps_stop(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
-    uint8_t dhcp_result;
-    dhcp_result = LwIP_DHCP(tcpip_if, DHCP_STOP);
-
-    if (dhcp_result != DHCP_STOP)
-    {
-        ret = ESP_FAIL;
-    }
-
+    dhcps_deinit();
+    vTaskDelay(10);
     return ret;
 }
 
@@ -204,7 +205,9 @@ esp_err_t tcpip_adapter_dhcpc_start(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
     uint8_t dhcp_result;
-    dhcp_result = LwIP_DHCP(tcpip_if, DHCP_START);
+    uint8_t idx = tcpip_if<=1?0:1;
+   
+    dhcp_result = LwIP_DHCP(idx, DHCP_START);
 
     if (dhcp_result != DHCP_ADDRESS_ASSIGNED)
     {
@@ -218,7 +221,8 @@ esp_err_t tcpip_adapter_dhcpc_stop(tcpip_adapter_if_t tcpip_if)
 {
     esp_err_t ret = ESP_OK;
     uint8_t dhcp_result;
-    dhcp_result = LwIP_DHCP(tcpip_if, DHCP_STOP);
+    uint8_t idx = tcpip_if<=1?0:1;
+    dhcp_result = LwIP_DHCP(idx, DHCP_STOP);
 
     if (dhcp_result != DHCP_STOP)
     {
@@ -230,14 +234,14 @@ esp_err_t tcpip_adapter_dhcpc_stop(tcpip_adapter_if_t tcpip_if)
 
 esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char *hostname)
 {
-    //netif_set_hostname(&xnetif[tcpip_if], hostname);
+    //netif_set_hostname(&xnetif[idx], hostname);
     return ESP_OK;
 }
 
 esp_err_t tcpip_adapter_get_hostname(tcpip_adapter_if_t tcpip_if, const char **hostname)
 {
-    
-    //*hostname = netif_get_hostname(&xnetif[tcpip_if]);
+
+    //*hostname = netif_get_hostname(&xnetif[idx]);
     return ESP_OK;
 }
 

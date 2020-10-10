@@ -329,8 +329,34 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
 {
     log_d("called");
     int32_t ret = 0;
+    int timeout = 20;
+    dhcps_deinit();
     ret = wifi_start_ap(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
-    if (ret != RTW_ERROR)
+    while (1)
+    {
+        char essid[33];
+
+        if (wext_get_ssid(WLAN0_NAME, ((unsigned char *)essid)) > 0)
+        {
+            if (strcmp(((const char *)essid), ((const char *)ssid->data)) == 0)
+            {
+                log_d("\n\r%s started\n", ssid->data);
+                ret = RTW_SUCCESS;
+                break;
+            }
+        }
+
+        if (timeout == 0)
+        {
+            log_d("\n\rERROR: Start AP timeout!");
+            ret = RTW_TIMEOUT;
+            break;
+        }
+
+        vTaskDelay(1 * configTICK_RATE_HZ);
+        timeout--;
+    }
+    if (ret == RTW_SUCCESS)
     {
         wifi_callback_ind(SYSTEM_EVENT_AP_START);
     }
@@ -584,6 +610,7 @@ int32_t rpc_tcpip_adapter_get_ip_info(uint32_t tcpip_if, binary_t *ip_info)
     ret = tcpip_adapter_get_ip_info(tcpip_if, _ip_info);
     ip_info->data = _ip_info;
     ip_info->dataLength = sizeof(tcpip_adapter_ip_info_t);
+    log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, _ip_info->ip, _ip_info->netmask, _ip_info->gw);
     return ret;
 }
 
@@ -649,7 +676,7 @@ int32_t rpc_tcpip_adapter_get_hostname(uint32_t tcpip_if, char *hostname)
     uint8_t *_hostname;
     ret = tcpip_adapter_get_hostname(tcpip_if, &_hostname);
     memset(hostname, 0, 32);
-    memcpy(hostname, _hostname, strlen((char *)_hostname));
+    memcpy(hostname, _hostname, strlen((char *)_hostname) + 1);
     return ret;
 }
 
@@ -659,8 +686,8 @@ int32_t rpc_tcpip_adapter_get_mac(uint32_t tcpip_if, binary_t *mac)
     esp_err_t ret = ESP_OK;
     uint8_t *_mac = erpc_malloc(32 * sizeof(uint8_t));
     ret = tcpip_adapter_get_mac(tcpip_if, _mac);
-    mac->data =_mac;
-    mac->dataLength = strlen((char *)_mac);
+    mac->data = _mac;
+    mac->dataLength = strlen((char *)_mac) + 1;
     return ret;
 }
 
