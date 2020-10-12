@@ -31,9 +31,6 @@
 #ifndef _TCPIP_ADAPTER_H_
 #define _TCPIP_ADAPTER_H_
 
-#include <stdint.h>
-#include "lwip/api.h"
-
 typedef int32_t esp_err_t;
 
 /* Definitions for error constants. */
@@ -58,6 +55,9 @@ typedef int32_t esp_err_t;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdint.h>
+#include "lwip/api.h"
 
 #define IP2STR(ipaddr) ip4_addr1_16(ipaddr), \
     ip4_addr2_16(ipaddr), \
