@@ -188,8 +188,8 @@ esp_err_t tcpip_adapter_dhcps_start(tcpip_adapter_if_t tcpip_if)
     esp_err_t ret = ESP_OK;
     uint8_t idx = tcpip_if<=1?0:1;
     struct netif *pnetif = &xnetif[idx];
+    log_v("tcpip_adapter_dhcps_start tcpip_if:%d idx:%d", tcpip_if, idx);
     dhcps_init(pnetif);
-    vTaskDelay(10);
     return ret;
 }
 
@@ -198,6 +198,7 @@ esp_err_t tcpip_adapter_dhcps_stop(tcpip_adapter_if_t tcpip_if)
     esp_err_t ret = ESP_OK;
     dhcps_deinit();
     vTaskDelay(10);
+    log_v("tcpip_adapter_dhcps_stop tcpip_if:%d", tcpip_if);
     return ret;
 }
 

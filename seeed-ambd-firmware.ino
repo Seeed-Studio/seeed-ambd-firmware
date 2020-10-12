@@ -12,6 +12,7 @@
 #include "rpc_wifi_api.h"
 #include "wifi_main.h"
 #include "wifi_callback.h"
+#include "wifi_tcpip_adapter.h"
 
 /*init the easylogger moudle*/
 void app_elog_init(void)
@@ -65,33 +66,73 @@ static rtw_result_t app_scan_result_handler(rtw_scan_handler_result_t *malloced_
 		ApNum = 0;
 	}
 }
+// Set these to your desired credentials.
+const char *ssid = "Wio Terminal";
+const char *password = "123456789";
 
-binary_t b_ssid;
-binary_t b_password;
-uint8_t ssid[] = "TE_TEST";
-uint8_t password[] = "123456789";
 extern void erpc_system_init();
 void setup()
 {
 	app_elog_init();
 	// delay(1000);
-	// wifi_init();
+	wifi_init();
 	// delay(1000);
 
-	// wifi_scan_networks(app_scan_result_handler, NULL);
-	// delay(5000);
-	// rpc_wifi_on(RTW_MODE_STA);
-	// b_ssid.data = ssid;
-	// b_ssid.dataLength = 7;
-	// b_password.data = password;
-	// b_password.dataLength = 9;
+	// // wifi_scan_networks(app_scan_result_handler, NULL);
+	// // delay(5000);
+	// // rpc_wifi_on(RTW_MODE_STA);
+	// tcpip_adapter_init();
+	// binary_t b_ssid;
+	// binary_t b_password;
+	// b_ssid.data =  (uint8_t *)ssid;
+	// b_ssid.dataLength = strlen(ssid);
+	// b_password.data = (uint8_t *)password;
+	// b_password.dataLength = strlen(password);
+	// wifi_off();
+    // vTaskDelay(20);
+    // if (wifi_on(RTW_MODE_AP) < 0){
+	// 	printf("\n\rERROR: Wifi on failed!");
+	// }
+	// tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+	// tcpip_adapter_ip_info_t info;
+	// info.ip.addr = 16885952;
+	// info.gw.addr = 16885952;
+	// info.netmask.addr = 16777215;
+	// tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &info);
+	// rpc_wifi_start_ap(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 11);
+	
+	//tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
 	erpc_system_init();
 }
 
+int client_number;
+struct
+{
+	int count;
+	rtw_mac_t mac_list[3];
+} client_info;
 void loop()
 {
 	delay(2000);
 	printf(".");
+	// client_info.count = 3;
+	// wifi_get_associated_client_list(&client_info, sizeof(client_info));
+	// printf("\n\rAssociated Client List:");
+	// printf("\n\r==============================");
+
+	// if (client_info.count == 0)
+	// 	printf("\n\rClient Num: 0\n\r");
+	// else
+	// {
+	// 	printf("\n\rClient Num: %d", client_info.count);
+	// 	for (client_number = 0; client_number < client_info.count; client_number++)
+	// 	{
+	// 		printf("\n\rClient [%d]:", client_number);
+	// 		printf("\n\r\tMAC => " MAC_FMT "",
+	// 			   MAC_ARG(client_info.mac_list[client_number].octet));
+	// 	}
+	// 	printf("\n\r");
+	// }
 	// rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 0, NULL);
 	// vTaskDelay(30000);
 	// printf("I am here\n\r");

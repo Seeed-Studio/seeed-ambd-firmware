@@ -30,7 +30,7 @@ int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    ret = wifi_connect(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, key_id, NULL);
+    ret = wifi_connect(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), key_id, NULL);
     return ret;
 }
 
@@ -38,7 +38,7 @@ int32_t rpc_wifi_connect_bssid(const binary_t *bssid, const binary_t *ssid, cons
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, bssid->dataLength, ssid->dataLength, password->dataLength, key_id, NULL);
+    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, strlen(bssid->data), strlen(ssid->data), strlen(password->data), key_id, NULL);
     return ret;
 }
 
@@ -330,8 +330,7 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
     log_d("called");
     int32_t ret = 0;
     int timeout = 20;
-    dhcps_deinit();
-    ret = wifi_start_ap(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
+    ret = wifi_start_ap(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), channel);
     while (1)
     {
         char essid[33];
@@ -340,7 +339,7 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
         {
             if (strcmp(((const char *)essid), ((const char *)ssid->data)) == 0)
             {
-                log_d("\n\r%s started\n", ssid->data);
+                log_d("%s started\n", ssid->data);
                 ret = RTW_SUCCESS;
                 break;
             }
@@ -348,7 +347,7 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
 
         if (timeout == 0)
         {
-            log_d("\n\rERROR: Start AP timeout!");
+            log_e("Start AP timeout!");
             ret = RTW_TIMEOUT;
             break;
         }
@@ -367,8 +366,33 @@ int32_t rpc_wifi_start_ap_with_hidden_ssid(const binary_t *ssid, const binary_t 
 {
     log_d("called");
     int32_t ret = 0;
-    ret = wifi_start_ap_with_hidden_ssid(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
-    if (ret != RTW_ERROR)
+    int timeout = 20;
+    ret = wifi_start_ap_with_hidden_ssid(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), channel);
+    while (1)
+    {
+        char essid[33];
+
+        if (wext_get_ssid(WLAN0_NAME, ((unsigned char *)essid)) > 0)
+        {
+            if (strcmp(((const char *)essid), ((const char *)ssid->data)) == 0)
+            {
+                log_d("%s started\n", ssid->data);
+                ret = RTW_SUCCESS;
+                break;
+            }
+        }
+
+        if (timeout == 0)
+        {
+            log_e("Start AP timeout!");
+            ret = RTW_TIMEOUT;
+            break;
+        }
+
+        vTaskDelay(1 * configTICK_RATE_HZ);
+        timeout--;
+    }
+    if (ret == RTW_SUCCESS)
     {
         wifi_callback_ind(SYSTEM_EVENT_AP_START);
     }

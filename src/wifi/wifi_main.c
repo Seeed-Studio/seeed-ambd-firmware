@@ -27,11 +27,13 @@
 
 bool wifi_init()
 {
-  LwIP_Init();
+  
+  wifi_callback_init();
+
+  //LwIP_Init();
   
   wifi_manager_init();
 
   wifi_on(RTW_MODE_NONE);
 
-  wifi_callback_init();
 }

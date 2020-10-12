@@ -44,8 +44,8 @@ static void callback_wifi_sta_disassoc(char *buf, int buf_len, int flags, void *
 
 typedef int (*wlan_init_done_ptr)(void);
 typedef int (*write_reconnect_ptr)(uint8_t *data, uint32_t len);
-extern wlan_init_done_ptr p_wlan_init_done_callback;
-extern write_reconnect_ptr p_write_reconnect_ptr;
+wlan_init_done_ptr p_wlan_init_done_callback;
+write_reconnect_ptr p_write_reconnect_ptr;
 int wifi_init_done_callback()
 {
     wifi_callback_ind(SYSTEM_EVENT_WIFI_READY);
