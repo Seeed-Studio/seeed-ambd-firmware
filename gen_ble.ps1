@@ -12,3 +12,4 @@ Remove-Item src/erpc_shim/rpc_ble_api_client.cpp
 Remove-Item src/erpc_shim/rpc_ble_callback_server.cpp
 Remove-Item src/erpc_shim/rpc_ble_callback_server.h
 Remove-Item src/erpc_shim/rpc_wifi_api_client.cpp
+

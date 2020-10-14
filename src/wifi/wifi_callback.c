@@ -20,26 +20,54 @@
 #include "wifi_ind.h"
 #include "wifi_callback.h"
 #include "elog.h"
+#include "rpc_wifi_callback.h"
+extern rtw_mode_t wifi_mode;
+static void print_callback_data(uint8_t *data, uint32_t len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        printf("%02X, ", data[i]);
+    }
+    printf("\n\r");
+}
 
 static void callback_wifi_event_connect(char *buf, int buf_len, int flags, void *userdata)
 {
-    wifi_callback_ind(SYSTEM_EVENT_STA_CONNECTED);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    if (wifi_mode == RTW_MODE_STA)
+    {
+        wifi_callback_ind(SYSTEM_EVENT_STA_CONNECTED, buf, buf_len);
+    }
 }
 static void callback_wifi_event_disconnect(char *buf, int buf_len, int flags, void *userdata)
 {
-    wifi_callback_ind(SYSTEM_EVENT_STA_DISCONNECTED);
+
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    if (wifi_mode == RTW_MODE_STA)
+    {
+        wifi_callback_ind(SYSTEM_EVENT_STA_DISCONNECTED, buf, buf_len);
+    }
 }
 static void callback_wifi_event_scan_done(char *buf, int buf_len, int flags, void *userdata)
 {
-    wifi_callback_ind(SYSTEM_EVENT_SCAN_DONE);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_SCAN_DONE, buf, buf_len);
 }
 static void callback_wifi_sta_assoc(char *buf, int buf_len, int flags, void *userdata)
 {
-    wifi_callback_ind(SYSTEM_EVENT_AP_STACONNECTED);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_AP_STACONNECTED, buf, buf_len);
 }
 static void callback_wifi_sta_disassoc(char *buf, int buf_len, int flags, void *userdata)
 {
-    wifi_callback_ind(SYSTEM_EVENT_AP_STADISCONNECTED);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_AP_STADISCONNECTED, buf, buf_len);
+}
+
+static void callback_wifi_ip_changed(char *buf, int buf_len, int flags, void *userdata)
+{
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_STA_LOST_IP, buf, buf_len);
 }
 
 typedef int (*wlan_init_done_ptr)(void);
@@ -48,108 +76,175 @@ wlan_init_done_ptr p_wlan_init_done_callback;
 write_reconnect_ptr p_write_reconnect_ptr;
 int wifi_init_done_callback()
 {
-    wifi_callback_ind(SYSTEM_EVENT_WIFI_READY);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_WIFI_READY, NULL, 0);
     return 1;
 }
 
 int wifi_write_reconnect_data_to_flash(uint8_t *data, uint32_t len)
 {
-    wifi_callback_ind(SYSTEM_EVENT_STA_GOT_IP);
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    wifi_callback_ind(SYSTEM_EVENT_STA_GOT_IP, data, len);
     return 1;
 }
-void wifi_callback_ind(system_event_id_t event)
+void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
 {
-    printf("[WiFi-event] event: %d\n\r", event);
-
+    log_v("[WiFi-event] event: %d\n\r", event);
+    system_event_t event_data;
+    memset(&(event_data.event_info), 0, sizeof(system_event_info_t));
+    event_data.event_id = event;
     switch (event)
     {
     case SYSTEM_EVENT_WIFI_READY:
-        printf("WiFi interface ready\n\r");
+        log_v("WiFi interface ready\n\r");
         break;
     case SYSTEM_EVENT_SCAN_DONE:
-        printf("Completed scan for access points\n\r");
+        log_v("Completed scan for access points\n\r");
         break;
     case SYSTEM_EVENT_STA_START:
-        printf("WiFi client started\n\r");
+        log_v("WiFi client started\n\r");
         break;
     case SYSTEM_EVENT_STA_STOP:
-        printf("WiFi clients stopped\n\r");
+        log_v("WiFi clients stopped\n\r");
         break;
     case SYSTEM_EVENT_STA_CONNECTED:
-        printf("Connected to access point\n\r");
+    {
+        log_v("Connected to access point\n\r");
+        rtw_bss_info_t ap_info;
+        rtw_security_t sec;
+        if (wifi_get_ap_info(&ap_info, &sec) == RTW_SUCCESS)
+        {
+            system_event_sta_connected_t *sta_connected = &(event_data.event_info.connected);
+            strcpy(sta_connected->ssid, ap_info.SSID);
+            sta_connected->ssid_len = ap_info.SSID_len;
+            memcpy(sta_connected->bssid, ap_info.BSSID.octet, 6);
+            sta_connected->channel = ap_info.channel;
+            sta_connected->authmode = sec;
+        }
         break;
+    }
     case SYSTEM_EVENT_STA_DISCONNECTED:
-        printf("Disconnected from WiFi access point\n\r");
+        log_v("Disconnected from WiFi access point\n\r");
+        rtw_bss_info_t ap_info;
+        rtw_security_t sec;
+        if (wifi_get_ap_info(&ap_info, &sec) == RTW_SUCCESS)
+        {
+            system_event_sta_disconnected_t *sta_disconnected = &(event_data.event_info.disconnected);
+            strcpy(sta_disconnected->ssid, ap_info.SSID);
+            sta_disconnected->ssid_len = ap_info.SSID_len;
+            memcpy(sta_disconnected->bssid, ap_info.BSSID.octet, 6);
+
+            int error = wifi_get_last_error();
+            switch (error)
+            {
+            case RTW_NO_ERROR:
+                log_v("\n\r\tNo Error");
+                break;
+            case RTW_NONE_NETWORK:
+                log_v("\n\r\tTarget AP Not Found");
+                sta_disconnected->reason = WIFI_REASON_NO_AP_FOUND;
+                break;
+            case RTW_CONNECT_FAIL:
+                log_v("\n\r\tAssociation Failed");
+                sta_disconnected->reason = WIFI_REASON_CONNECTION_FAIL;
+                break;
+            case RTW_WRONG_PASSWORD:
+                log_v("\n\r\tWrong Password");
+                sta_disconnected->reason = WIFI_REASON_AUTH_FAIL;
+                break;
+            case RTW_DHCP_FAIL:
+                log_v("\n\r\tDHCP Failed");
+                sta_disconnected->reason = WIFI_REASON_CONNECTION_FAIL;
+                break;
+            case RTW_4WAY_HANDSHAKE_TIMEOUT:
+                log_v("\n\r\Time out");
+                sta_disconnected->reason = WIFI_REASON_HANDSHAKE_TIMEOUT;
+                break;
+            default:
+                log_v("\n\r\tUnknown Error(%d)", error);
+            }
+        }
         break;
     case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-        printf("Authentication mode of access point has changed\n\r");
+        log_v("Authentication mode of access point has changed\n\r");
         break;
     case SYSTEM_EVENT_STA_GOT_IP:
-        printf("Obtained IP address: \n\r");
+        log_v("Obtained IP address: \n\r");
+        system_event_sta_got_ip_t *sta_got_ip = &(event_data.event_info.got_ip);
+        tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &(sta_got_ip->ip_info));
         break;
     case SYSTEM_EVENT_STA_LOST_IP:
-        printf("Lost IP address and IP address is reset to 0\n\r");
+        log_v("Lost IP address and IP address is reset to 0\n\r");
         break;
     case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-        printf("WiFi Protected Setup (WPS): succeeded in enrollee mode\n\r");
+        log_v("WiFi Protected Setup (WPS): succeeded in enrollee mode\n\r");
         break;
     case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-        printf("WiFi Protected Setup (WPS): failed in enrollee mode\n\r");
+        log_v("WiFi Protected Setup (WPS): failed in enrollee mode\n\r");
         break;
     case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-        printf("WiFi Protected Setup (WPS): timeout in enrollee mode\n\r");
+        log_v("WiFi Protected Setup (WPS): timeout in enrollee mode\n\r");
         break;
     case SYSTEM_EVENT_STA_WPS_ER_PIN:
-        printf("WiFi Protected Setup (WPS): pin code in enrollee mode\n\r");
+        log_v("WiFi Protected Setup (WPS): pin code in enrollee mode\n\r");
         break;
     case SYSTEM_EVENT_AP_START:
-        printf("WiFi access point started\n\r");
+        log_v("WiFi access point started\n\r");
         break;
     case SYSTEM_EVENT_AP_STOP:
-        printf("WiFi access point  stopped\n\r");
+        log_v("WiFi access point  stopped\n\r");
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-        printf("Client connected\n\r");
+        log_v("Client connected\n\r");
+        system_event_ap_staconnected_t *ap_staconnected_t = &(event_data.event_info.sta_connected);
         break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-        printf("Client disconnected\n\r");
+        log_v("Client disconnected\n\r");
         break;
     case SYSTEM_EVENT_AP_STAIPASSIGNED:
-        printf("Assigned IP address to client\n\r");
+        log_v("Assigned IP address to client\n\r");
         break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED:
-        printf("Received probe request\n\r");
+        log_v("Received probe request\n\r");
         break;
     case SYSTEM_EVENT_GOT_IP6:
-        printf("IPv6 is preferred\n\r");
+        log_v("IPv6 is preferred\n\r");
         break;
     case SYSTEM_EVENT_ETH_START:
-        printf("Ethernet started\n\r");
+        log_v("Ethernet started\n\r");
         break;
     case SYSTEM_EVENT_ETH_STOP:
-        printf("Ethernet stopped\n\r");
+        log_v("Ethernet stopped\n\r");
         break;
     case SYSTEM_EVENT_ETH_CONNECTED:
-        printf("Ethernet connected\n\r");
+        log_v("Ethernet connected\n\r");
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
-        printf("Ethernet disconnected\n\r");
+        log_v("Ethernet disconnected\n\r");
         break;
     case SYSTEM_EVENT_ETH_GOT_IP:
-        printf("Obtained IP address\n\r");
+        log_v("Obtained IP address\n\r");
         break;
     default:
         break;
     }
+    //print_callback_data(data, len);
+    binary_t cb_data;
+    cb_data.dataLength = sizeof(system_event_t);
+    cb_data.data = &event_data;
+    rpc_wifi_event_callback(&cb_data);
 }
-void wifi_callback_init()
+void wifi_event_reg_init()
 {
     wifi_reg_event_handler(WIFI_EVENT_CONNECT, callback_wifi_event_connect, NULL);
     wifi_reg_event_handler(WIFI_EVENT_DISCONNECT, callback_wifi_event_disconnect, NULL);
     wifi_reg_event_handler(WIFI_EVENT_SCAN_DONE, callback_wifi_event_scan_done, NULL);
     wifi_reg_event_handler(WIFI_EVENT_STA_ASSOC, callback_wifi_sta_assoc, NULL);
     wifi_reg_event_handler(WIFI_EVENT_STA_DISASSOC, callback_wifi_sta_disassoc, NULL);
+}
 
+void wifi_callback_init()
+{
     p_wlan_init_done_callback = wifi_init_done_callback;
     p_write_reconnect_ptr = wifi_write_reconnect_data_to_flash;
 }

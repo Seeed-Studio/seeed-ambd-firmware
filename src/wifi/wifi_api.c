@@ -30,6 +30,7 @@ int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
+    printf("ssid:%s  password:%s\n\r", ssid->data, password->data);
     ret = wifi_connect(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), key_id, NULL);
     return ret;
 }
@@ -222,7 +223,7 @@ int32_t rpc_wifi_rf_off(void)
         if (wifi_work_mode == RTW_MODE_STA || wifi_work_mode == RTW_MODE_STA_AP)
         {
 
-            wifi_callback_ind(SYSTEM_EVENT_STA_STOP);
+            wifi_callback_ind(SYSTEM_EVENT_STA_STOP, NULL, 0);
         }
     }
     return ret;
@@ -239,7 +240,7 @@ int32_t rpc_wifi_on(uint32_t mode)
         if (mode == RTW_MODE_STA || mode == RTW_MODE_STA_AP)
         {
 
-            wifi_callback_ind(SYSTEM_EVENT_STA_START);
+            wifi_callback_ind(SYSTEM_EVENT_STA_START, NULL, 0);
         }
     }
     return ret;
@@ -357,7 +358,7 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
     }
     if (ret == RTW_SUCCESS)
     {
-        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+        wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
     return ret;
 }
@@ -394,7 +395,7 @@ int32_t rpc_wifi_start_ap_with_hidden_ssid(const binary_t *ssid, const binary_t 
     }
     if (ret == RTW_SUCCESS)
     {
-        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+        wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
     return ret;
 }
@@ -449,7 +450,7 @@ int32_t rpc_wifi_restart_ap(const binary_t *ssid, const binary_t *password, uint
     ret = wifi_restart_ap(ssid->data, security_type, password->data, ssid->dataLength, password->dataLength, channel);
     if (ret != RTW_ERROR)
     {
-        wifi_callback_ind(SYSTEM_EVENT_AP_START);
+        wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
     return ret;
 }
@@ -678,7 +679,7 @@ int32_t rpc_tcpip_adapter_dhcps_stop(uint32_t tcpip_if)
 int32_t rpc_tcpip_adapter_dhcpc_start(uint32_t tcpip_if)
 {
     log_d("called");
-    return tcpip_adapter_dhcpc_stop(tcpip_if);
+    return tcpip_adapter_dhcpc_start(tcpip_if);
 }
 
 int32_t rpc_tcpip_adapter_dhcpc_stop(uint32_t tcpip_if)
