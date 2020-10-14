@@ -49,7 +49,6 @@ extern "C"
 #include "profile_client.h"
 #include "ble_callback.h"
 #include "ble_utils.h"
-#include "ble_callback.h"
 #include "ble_utils.h"
 #include "erpc_port.h"
 #ifdef __cplusplus
