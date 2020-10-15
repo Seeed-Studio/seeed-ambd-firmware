@@ -600,6 +600,43 @@ int32_t rpc_wifi_get_reconnect_data(binary_t *wifi_info)
 
     return ret;
 }
+
+int32_t rpc_wifi_scan_start(void)
+{
+    log_d("called");
+    return wifi_scan_start();
+}
+
+bool rpc_wifi_is_scaning(void)
+{
+    log_d("called");
+    return wifi_is_scaning();
+}
+
+int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
+{
+    log_d("called");
+    rtw_scan_result_t *networks = NULL;
+    int ret;
+    if (number < 50)
+    {
+        networks = (rtw_scan_result_t *)erpc_malloc(sizeof(rtw_scan_result_t) * number);
+    }
+    
+    ret = wifi_scan_get_ap_records(number, networks);
+    if(ret == RTW_SUCCESS)
+    {
+        _scanResult->dataLength = sizeof(rtw_scan_result_t) * number;
+        _scanResult->data = (uint8_t *)networks;
+    }
+    return ret;
+}
+
+uint16_t rpc_wifi_scan_get_ap_num(void)
+{
+    log_d("called");
+    return wifi_scan_get_ap_num();
+}
 //@}
 
 //! @name rpc_wifi_tcpip
