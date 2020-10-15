@@ -403,7 +403,7 @@ int32_t rpc_wifi_set_pscan_chan(const binary_t *channel_list, uint8_t pscan_conf
 {
     log_d("called");
     int32_t ret = 0;
-    ret = wifi_set_pscan_chan(channel_list->data, pscan_config, channel_list->dataLength);
+    ret = wifi_set_pscan_chan(&(channel_list->data), &pscan_config, channel_list->dataLength);
     return ret;
 }
 
