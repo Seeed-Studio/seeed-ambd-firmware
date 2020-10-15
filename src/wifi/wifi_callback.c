@@ -281,7 +281,7 @@ void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
     binary_t cb_data;
     cb_data.dataLength = sizeof(system_event_t);
     cb_data.data = &event_data;
-    // rpc_wifi_event_callback(&cb_data);
+    rpc_wifi_event_callback(&cb_data);
 }
 void wifi_event_reg_init()
 {
