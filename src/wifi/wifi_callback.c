@@ -17,11 +17,15 @@
 /*============================================================================*
  *                              Header Files
  *============================================================================*/
+#include "flash_api.h"
+#include "device_lock.h"
 #include "wifi_ind.h"
 #include "wifi_callback.h"
 #include "elog.h"
 #include "rpc_wifi_callback.h"
+
 extern rtw_mode_t wifi_mode;
+
 static void print_callback_data(uint8_t *data, uint32_t len)
 {
     for (int i = 0; i < len; i++)
@@ -84,9 +88,27 @@ int wifi_init_done_callback()
 int wifi_write_reconnect_data_to_flash(uint8_t *data, uint32_t len)
 {
     log_v("FUN:%s \n\r", __FUNCTION__);
+    flash_t flash;
+    struct wlan_fast_reconnect read_data = {0};
+    if (!data)
+        return -1;
+
+    device_mutex_lock(RT_DEV_LOCK_FLASH);
+    flash_stream_read(&flash, FAST_RECONNECT_DATA, sizeof(struct wlan_fast_reconnect), (u8 *)&read_data);
+
+    //wirte it to flash if different content: SSID, Passphrase, Channel, Security type
+    if (memcmp(data, (u8 *)&read_data, sizeof(struct wlan_fast_reconnect)) != 0)
+    {
+        flash_erase_sector(&flash, FAST_RECONNECT_DATA);
+        flash_stream_write(&flash, FAST_RECONNECT_DATA, len, (uint8_t *)data);
+    }
+    device_mutex_unlock(RT_DEV_LOCK_FLASH);
+
     wifi_callback_ind(SYSTEM_EVENT_STA_GOT_IP, data, len);
-    return 1;
+
+    return 0;
 }
+
 void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
 {
     log_v("[WiFi-event] event: %d\n\r", event);
@@ -232,7 +254,7 @@ void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
     binary_t cb_data;
     cb_data.dataLength = sizeof(system_event_t);
     cb_data.data = &event_data;
-    rpc_wifi_event_callback(&cb_data);
+   // rpc_wifi_event_callback(&cb_data);
 }
 void wifi_event_reg_init()
 {
