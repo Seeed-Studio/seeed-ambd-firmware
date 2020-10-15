@@ -30,7 +30,6 @@ int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    printf("ssid:%s  password:%s\n\r", ssid->data, password->data);
     ret = wifi_connect(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), key_id, NULL);
     return ret;
 }
@@ -580,6 +579,25 @@ int32_t rpc_wifi_set_tx_pause_data(int32_t NewState)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_tx_pause_data(NewState);
+    return ret;
+}
+
+int32_t rpc_wifi_get_reconnect_data(binary_t *wifi_info)
+{
+    log_d("called");
+    int32_t ret = 0;
+    wlan_fast_reconnect_profile_t *_wifi_info = (wlan_fast_reconnect_profile_t *)erpc_malloc(sizeof(wlan_fast_reconnect_profile_t));
+    if (!wifi_info)
+    {
+        wifi_info->dataLength = 1;
+        wifi_info->data = &ret;
+        return ret;
+    }
+    ret = wifi_get_reconnect_data(_wifi_info);
+
+    wifi_info->data = _wifi_info;
+    wifi_info->dataLength = sizeof(wlan_fast_reconnect_profile_t);
+
     return ret;
 }
 //@}

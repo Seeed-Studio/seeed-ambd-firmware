@@ -67,7 +67,7 @@ static rtw_result_t app_scan_result_handler(rtw_scan_handler_result_t *malloced_
 	}
 }
 // Set these to your desired credentials.
-const char *ssid = "TE_TEST";
+const char *ssid = "wio terminal";
 const char *password = "123456789";
 
 extern void erpc_system_init();
@@ -77,32 +77,32 @@ void setup()
 	
 	app_elog_init();
 	wifi_init();
-	// delay(1000);
+    // delay(1000);
 
-	// // wifi_scan_networks(app_scan_result_handler, NULL);
-	// // delay(5000);
-	// // rpc_wifi_on(RTW_MODE_STA);
-	tcpip_adapter_init();
-	binary_t b_ssid;
-	binary_t b_password;
-	b_ssid.data =  (uint8_t *)ssid;
-	b_ssid.dataLength = strlen(ssid)+1;
-	b_password.data = (uint8_t *)password;
-	b_password.dataLength = strlen(password)+1;
-	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
-	wifi_off();
-    vTaskDelay(20);
-	if (wifi_on(RTW_MODE_STA) < 0){
-		printf("\n\rERROR: Wifi on STA failed!");
-	}
-	int ret = rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, -1, NULL);
-	if(ret == RTW_ERROR)
-	{
-		printf("Error!!\n\r");
-	}else
-	{
-		tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
-	}
+	// // // wifi_scan_networks(app_scan_result_handler, NULL);
+	// // // delay(5000);
+	// // // // rpc_wifi_on(RTW_MODE_STA);
+	// tcpip_adapter_init();
+	// binary_t b_ssid;
+	// binary_t b_password;
+	// b_ssid.data =  (uint8_t *)ssid;
+	// b_ssid.dataLength = strlen(ssid)+1;
+	// b_password.data = (uint8_t *)password;
+	// b_password.dataLength = strlen(password)+1;
+	// tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
+	// wifi_off();
+    // vTaskDelay(20);
+	// if (wifi_on(RTW_MODE_STA) < 0){
+	// 	printf("\n\rERROR: Wifi on STA failed!");
+	// }
+	// int ret = rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, -1, NULL);
+	// if(ret == RTW_ERROR)
+	// {
+	// 	printf("Error!!\n\r");
+	// }else
+	// {
+	// 	tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+	// }
 	
     // if (wifi_on(RTW_MODE_AP) < 0){
 	// 	printf("\n\rERROR: Wifi on AP failed!");
@@ -116,7 +116,7 @@ void setup()
 	// rpc_wifi_start_ap(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 11);
 	
 	// tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
-	//erpc_system_init();
+	erpc_system_init();
 }
 
 int client_number;
@@ -129,12 +129,12 @@ void loop()
 {
 	delay(2000);
 	printf(".");
-	static wlan_fast_reconnect_profile_t wifi_info = {0};
-	if(wifi_get_reconnect_data(&wifi_info)!=0)
-	{
-		printf("SSID: %s\n\r", wifi_info.psk_essid);
-		printf("PASSWORD: %s\n\r", wifi_info.psk_passphrase);
-	}
+	// static wlan_fast_reconnect_profile_t wifi_info = {0};
+	// if(wifi_get_reconnect_data(&wifi_info)!=0)
+	// {
+	// 	printf("SSID: %s\n\r", wifi_info.psk_essid);
+	// 	printf("PASSWORD: %s\n\r", wifi_info.psk_passphrase);
+	// }
 	// client_info.count = 3;
 	// wifi_get_associated_client_list(&client_info, sizeof(client_info));
 	// printf("\n\rAssociated Client List:");
