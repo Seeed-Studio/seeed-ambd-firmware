@@ -29,7 +29,7 @@
 #define WL_NETWORKS_LIST_MAXNUM 50
 
 static uint16_t _networkCount = 0;
-bool isScaning = false;
+static bool isScaning = false;
 static rtw_scan_result_t _scan_networks[WL_NETWORKS_LIST_MAXNUM] = {0};
 
 bool wifi_init()
@@ -48,16 +48,21 @@ bool wifi_init()
 
 rtw_result_t wifi_scan_result_handler(rtw_scan_handler_result_t *malloced_scan_result)
 {
-  rtw_scan_result_t *record =  &malloced_scan_result->ap_details;
+  rtw_scan_result_t *record = &malloced_scan_result->ap_details;
+  record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
 
   if (malloced_scan_result->scan_complete != RTW_TRUE)
   {
     if (_networkCount < WL_NETWORKS_LIST_MAXNUM)
     {
-      printf("_scan_networks: %d\n\r", _networkCount);
       memcpy(&(_scan_networks[_networkCount]), record, sizeof(rtw_scan_result_t));
       _networkCount++;
     }
+  }
+  else
+  {
+    isScaning = false;
+    wifi_callback_ind(SYSTEM_EVENT_SCAN_DONE, NULL, 0);
   }
   return RTW_SUCCESS;
 }
@@ -71,13 +76,12 @@ uint16_t wifi_scan_get_ap_num()
 int32_t wifi_scan_get_ap_records(uint16_t number, rtw_scan_result_t *_scanResult)
 {
   log_d("called");
-  if (number > WL_NETWORKS_LIST_MAXNUM)
+  if (number > WL_NETWORKS_LIST_MAXNUM || _scanResult == NULL)
   {
     return RTW_ERROR;
   }
 
   memcpy(_scanResult, _scan_networks, sizeof(rtw_scan_result_t) * number);
-
   return RTW_SUCCESS;
 }
 
@@ -91,7 +95,7 @@ int32_t wifi_scan_start()
   log_d("called");
   _networkCount = 0;
   int32_t ret = wifi_scan_networks(wifi_scan_result_handler, NULL);
-  if(ret == RTW_SUCCESS)
+  if (ret == RTW_SUCCESS)
   {
     isScaning = true;
   }

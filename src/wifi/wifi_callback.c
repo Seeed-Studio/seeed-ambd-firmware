@@ -25,7 +25,6 @@
 #include "rpc_wifi_callback.h"
 
 extern rtw_mode_t wifi_mode;
-extern bool isScaning;
 
 static void print_callback_data(uint8_t *data, uint32_t len)
 {
@@ -56,11 +55,6 @@ static void callback_wifi_event_disconnect(char *buf, int buf_len, int flags, vo
 static void callback_wifi_event_scan_done(char *buf, int buf_len, int flags, void *userdata)
 {
     log_v("FUN:%s \n\r", __FUNCTION__);
-    if (isScaning)
-    {
-        wifi_callback_ind(SYSTEM_EVENT_SCAN_DONE, buf, buf_len);
-        isScaning = false;
-    }
 }
 static void callback_wifi_sta_assoc(char *buf, int buf_len, int flags, void *userdata)
 {
@@ -286,7 +280,7 @@ void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
     binary_t cb_data;
     cb_data.dataLength = sizeof(system_event_t);
     cb_data.data = &event_data;
-    //rpc_wifi_event_callback(&cb_data);
+    rpc_wifi_event_callback(&cb_data);
 }
 void wifi_event_reg_init()
 {
