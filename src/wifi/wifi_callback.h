@@ -22,14 +22,14 @@
 #define NDIS_802_11_LENGTH_SSID         32
 #define A_SHA_DIGEST_LEN		20
 
-struct wlan_fast_reconnect {
+typedef struct wlan_fast_reconnect {
 	unsigned char psk_essid[NDIS_802_11_LENGTH_SSID + 4];
 	unsigned char psk_passphrase[IW_PASSPHRASE_MAX_SIZE + 1];
 	unsigned char wpa_global_PSK[A_SHA_DIGEST_LEN * 2];
 	uint32_t	channel;
 	uint32_t    security_type;
 	uint32_t offer_ip;
-};
+}wlan_fast_reconnect_profile_t;
 
 typedef enum {
     WIFI_REASON_UNSPECIFIED              = 1,
@@ -104,6 +104,7 @@ typedef enum {
     WPS_FAIL_REASON_RECV_M2D,                       /**< ESP32 WPS receive M2D frame */
     WPS_FAIL_REASON_MAX
 }system_event_sta_wps_fail_reason_t;
+
 typedef struct {
     uint32_t status;          /**< status of scanning APs */
     uint8_t  number;
@@ -178,5 +179,6 @@ typedef esp_err_t (*system_event_handler_t)(system_event_t *event);
 void wifi_callback_init();
 void wifi_event_reg_init();
 void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len);
+int wifi_get_reconnect_data(wlan_fast_reconnect_profile_t *wifi_info);
 
 #endif /* _PRC_WIFI_CALLBACK_H_ */

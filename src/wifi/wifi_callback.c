@@ -85,6 +85,33 @@ int wifi_init_done_callback()
     return 1;
 }
 
+int wifi_get_reconnect_data(wlan_fast_reconnect_profile_t *wifi_info)
+{
+    log_v("FUN:%s \n\r", __FUNCTION__);
+    flash_t flash;
+
+    device_mutex_lock(RT_DEV_LOCK_FLASH);
+    flash_stream_read(&flash, FAST_RECONNECT_DATA, sizeof(struct wlan_fast_reconnect), (uint8_t *)wifi_info);
+    device_mutex_unlock(RT_DEV_LOCK_FLASH);
+
+    /* Check whether stored flash profile is empty */
+    struct wlan_fast_reconnect *empty_data;
+    empty_data = (struct wlan_fast_reconnect *)malloc(sizeof(struct wlan_fast_reconnect));
+    if (empty_data)
+    {
+        memset(empty_data, 0xff, sizeof(struct wlan_fast_reconnect));
+        if (memcmp(empty_data, wifi_info, sizeof(struct wlan_fast_reconnect)) == 0)
+        {
+            printf("[FAST_CONNECT] Fast connect profile is empty, abort fast connection\n");
+            free(empty_data);
+            return 0;
+        }
+        free(empty_data);
+    }
+
+    return 1;
+}
+
 int wifi_write_reconnect_data_to_flash(uint8_t *data, uint32_t len)
 {
     log_v("FUN:%s \n\r", __FUNCTION__);
@@ -254,7 +281,7 @@ void wifi_callback_ind(system_event_id_t event, uint8_t *data, uint32_t len)
     binary_t cb_data;
     cb_data.dataLength = sizeof(system_event_t);
     cb_data.data = &event_data;
-   // rpc_wifi_event_callback(&cb_data);
+    // rpc_wifi_event_callback(&cb_data);
 }
 void wifi_event_reg_init()
 {
