@@ -71,6 +71,7 @@ const char *ssid = "TE_TEST";
 const char *password = "123456789";
 
 extern void erpc_system_init();
+
 void setup()
 {
 	
@@ -128,6 +129,12 @@ void loop()
 {
 	delay(2000);
 	printf(".");
+	static wlan_fast_reconnect_profile_t wifi_info = {0};
+	if(wifi_get_reconnect_data(&wifi_info)!=0)
+	{
+		printf("SSID: %s\n\r", wifi_info.psk_essid);
+		printf("PASSWORD: %s\n\r", wifi_info.psk_passphrase);
+	}
 	// client_info.count = 3;
 	// wifi_get_associated_client_list(&client_info, sizeof(client_info));
 	// printf("\n\rAssociated Client List:");
