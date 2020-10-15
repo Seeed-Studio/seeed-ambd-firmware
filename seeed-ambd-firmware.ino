@@ -50,22 +50,6 @@ static void print_scan_result(rtw_scan_result_t *record)
 	printf("\r\n");
 }
 
-static rtw_result_t app_scan_result_handler(rtw_scan_handler_result_t *malloced_scan_result)
-{
-	static int ApNum = 0;
-
-	if (malloced_scan_result->scan_complete != RTW_TRUE)
-	{
-		rtw_scan_result_t *record = &malloced_scan_result->ap_details;
-		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
-		printf("%d\t ", ++ApNum);
-		print_scan_result(record);
-	}
-	else
-	{
-		ApNum = 0;
-	}
-}
 // Set these to your desired credentials.
 const char *ssid = "wio terminal";
 const char *password = "123456789";
@@ -77,7 +61,9 @@ void setup()
 	
 	app_elog_init();
 	wifi_init();
-    // delay(1000);
+    delay(1000);
+
+
 
 	// // // wifi_scan_networks(app_scan_result_handler, NULL);
 	// // // delay(5000);
@@ -90,11 +76,31 @@ void setup()
 	// b_password.data = (uint8_t *)password;
 	// b_password.dataLength = strlen(password)+1;
 	// tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
-	// wifi_off();
-    // vTaskDelay(20);
-	// if (wifi_on(RTW_MODE_STA) < 0){
-	// 	printf("\n\rERROR: Wifi on STA failed!");
-	// }
+	wifi_off();
+    vTaskDelay(20);
+	if (wifi_on(RTW_MODE_STA) < 0){
+		printf("\n\rERROR: Wifi on STA failed!");
+	}
+
+	wifi_scan_start();
+	while (wifi_is_scaning())
+	{
+		printf("*");
+		delay(200);
+	}
+	uint16_t networkNum = wifi_scan_get_ap_num();
+	static rtw_scan_result_t networks[50];
+	printf("networkNum:%d", networkNum);
+	if(networkNum != 0)
+	{
+		wifi_scan_get_ap_records(networkNum, networks);
+	}
+
+	for(int i = 0; i < networkNum; i++)
+	{
+		print_scan_result(&networks[i]);
+	}
+
 	// int ret = rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, -1, NULL);
 	// if(ret == RTW_ERROR)
 	// {
@@ -116,7 +122,7 @@ void setup()
 	// rpc_wifi_start_ap(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, 11);
 	
 	// tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
-	erpc_system_init();
+	//erpc_system_init();
 }
 
 int client_number;

@@ -18,7 +18,6 @@
  *                              Header Files
  *============================================================================*/
 
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -32,6 +31,12 @@ extern "C"
 #include "wifi_callback.h"
 
 bool wifi_init(void);
+
+
+bool wifi_is_scaning();
+uint16_t wifi_scan_get_ap_num();
+int32_t wifi_scan_get_ap_records(uint16_t number, rtw_scan_result_t *_scanResult);
+int32_t wifi_scan_start();
 
 #ifdef __cplusplus
 }
