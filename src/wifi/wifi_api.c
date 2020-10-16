@@ -38,7 +38,7 @@ int32_t rpc_wifi_connect_bssid(const binary_t *bssid, const binary_t *ssid, cons
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, strlen(bssid->data), strlen(ssid->data), strlen(password->data), key_id, NULL);
+    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, 6, strlen(ssid->data), strlen(password->data), key_id, NULL);
     return ret;
 }
 
@@ -403,7 +403,7 @@ int32_t rpc_wifi_set_pscan_chan(const binary_t *channel_list, uint8_t pscan_conf
 {
     log_d("called");
     int32_t ret = 0;
-    ret = wifi_set_pscan_chan(&(channel_list->data), &pscan_config, channel_list->dataLength);
+    ret = wifi_set_pscan_chan(&(channel_list->data), &pscan_config, channel_list->dataLength / 4);
     return ret;
 }
 
@@ -622,9 +622,9 @@ int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
     {
         networks = (rtw_scan_result_t *)erpc_malloc(sizeof(rtw_scan_result_t) * number);
     }
-    
+
     ret = wifi_scan_get_ap_records(number, networks);
-    if(ret == RTW_SUCCESS)
+    if (ret == RTW_SUCCESS)
     {
         _scanResult->dataLength = sizeof(rtw_scan_result_t) * number;
         _scanResult->data = (uint8_t *)networks;

@@ -53,24 +53,26 @@ static void print_scan_result(rtw_scan_result_t *record)
 // Set these to your desired credentials.
 const char *ssid = "wio terminal";
 const char *password = "123456789";
-
+const uint8_t bssid[6] = {0xd2, 0xfb, 0xe2, 0x64, 0x6f, 0xc5};
 extern void erpc_system_init();
 
 void setup()
 {
-	
-	app_elog_init();
 	wifi_init();
-    //delay(1000);
+	app_elog_init();
+    // //delay(1000);
 
 
 
-	// // // wifi_scan_networks(app_scan_result_handler, NULL);
-	// // // delay(5000);
-	// // // // rpc_wifi_on(RTW_MODE_STA);
+	// // // // wifi_scan_networks(app_scan_result_handler, NULL);
+	// // // // delay(5000);
+	// // // // // rpc_wifi_on(RTW_MODE_STA);
 	// tcpip_adapter_init();
+	// binary_t b_bssid;
 	// binary_t b_ssid;
 	// binary_t b_password;
+	// b_bssid.data = (uint8_t *)bssid;
+	// b_bssid.dataLength = 6;
 	// b_ssid.data =  (uint8_t *)ssid;
 	// b_ssid.dataLength = strlen(ssid)+1;
 	// b_password.data = (uint8_t *)password;
@@ -100,6 +102,17 @@ void setup()
 	// {
 	// 	print_scan_result(&networks[i]);
 	// }
+	// uint32_t channel = 6;
+	// uint8_t pscan_config = PSCAN_ENABLE | PSCAN_FAST_SURVEY;
+    // int ret = wifi_set_pscan_chan((uint8_t *)&channel, &pscan_config, 1);
+    //     if (ret < 0)
+    //     {
+	// 		while (1)
+	// 		{
+	// 			printf(")");
+	// 		}
+			
+	// 	}
 
 	// int ret = rpc_wifi_connect(&b_ssid, &b_password, RTW_SECURITY_WPA2_AES_PSK, -1, NULL);
 	// if(ret == RTW_ERROR)
