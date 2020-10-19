@@ -21,6 +21,7 @@
 #include "rpc_system_header.h"
 #include "wifi_callback.h"
 #include "wifi_tcpip_adapter.h"
+#include "lwip/sockets.h"
 
 static uint32_t wifi_work_mode = RTW_MODE_NONE;
 
@@ -71,7 +72,7 @@ int32_t rpc_wifi_is_ready_to_transceive(uint32_t itf)
 int32_t rpc_wifi_set_mac_address(const binary_t *mac)
 {
     log_d("called");
-    return rpc_wifi_set_mac_address(mac->data);
+    return wifi_set_mac_address(mac->data);
 }
 
 int32_t rpc_wifi_get_mac_address(uint8_t mac[18])
@@ -775,5 +776,184 @@ int32_t rpc_tcpip_adapter_set_mac(uint32_t tcpip_if, const binary_t *mac)
 {
     log_d("called");
     return tcpip_adapter_set_mac(tcpip_if, mac->data);
+}
+//@}
+
+//! @name rpc_wifi_lwip
+//@{
+int32_t rpc_lwip_accept(int32_t s, const binary_t *addr, uint32_t *addrlen)
+{
+    log_d("called");
+    struct sockaddr *_addr = (struct sockaddr *)addr->data;
+    return lwip_accept(s, _addr, addrlen);
+}
+
+int32_t rpc_lwip_bind(int32_t s, const binary_t *name, uint32_t namelen)
+{
+    log_d("called");
+    struct sockaddr *_name = (struct sockaddr *)name->data;
+    return lwip_bind(s, _name, namelen);
+}
+
+int32_t rpc_lwip_shutdown(int32_t s, int32_t how)
+{
+    log_d("called");
+    return _lwip_shutdown(s, how);
+}
+
+int32_t rpc_lwip_getpeername(int32_t s, binary_t *name, uint32_t *namelen)
+{
+    log_d("called");
+    struct sockaddr *_name = (struct sockaddr *)erpc_malloc(sizeof(struct sockaddr));
+    memset(_name, 0, sizeof(struct sockaddr));
+    int32_t ret = lwip_getpeername(s, _name, namelen);
+    name->data = (uint8_t *)_name;
+    name->dataLength = sizeof(struct sockaddr);
+    return ret;
+}
+
+int32_t rpc_lwip_getsockname(int32_t s, binary_t *name, uint32_t *namelen)
+{
+    log_d("called");
+    struct sockaddr *_name = (struct sockaddr *)erpc_malloc(sizeof(struct sockaddr));
+    memset(_name, 0, sizeof(struct sockaddr));
+    int32_t ret = lwip_getsockname(s, _name, namelen);
+    name->data = (uint8_t *)_name;
+    name->dataLength = sizeof(struct sockaddr);
+    return ret;
+}
+
+int32_t rpc_lwip_getsockopt(int32_t s, int32_t level, int32_t optname, const binary_t *in_optval, binary_t *out_optval, uint32_t *optlen)
+{
+    log_d("called");
+    uint8_t *optval = (uint8_t *)erpc_malloc(in_optval->dataLength * sizeof(uint8_t));
+    int32_t ret = lwip_getsockopt(s, level, optname, optval, optlen);
+    out_optval->data = optval;
+    out_optval->dataLength = in_optval->dataLength;
+    return ret;
+}
+
+int32_t rpc_lwip_setsockopt(int32_t s, int32_t level, int32_t optname, const binary_t *optval, uint32_t optlen)
+{
+    log_d("called");
+    return lwip_setsockopt(s, level, optname, optval->data, optlen);
+}
+
+int32_t rpc_lwip_close(int32_t s)
+{
+    log_d("called");
+    return lwip_close(s);
+}
+
+int32_t rpc_lwip_connect(int32_t s, const binary_t *name, uint32_t namelen)
+{
+    log_d("called");
+    struct sockaddr *_name = (struct sockaddr *)name->data;
+    return lwip_connect(s, _name, namelen);
+}
+
+int32_t rpc_lwip_listen(int32_t s, int32_t backlog)
+{
+    log_d("called");
+    return lwip_listen(s, backlog);
+}
+
+int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags)
+{
+    log_d("called");
+    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
+    int32_t ret = lwip_recv(s, _mem, len, flags);
+    mem->data = _mem;
+    mem->dataLength = len;
+    return ret;
+}
+
+int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len)
+{
+    log_d("called");
+    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
+    int32_t ret = lwip_read(s, _mem, len);
+    mem->data = _mem;
+    mem->dataLength = len;
+    return ret;
+}
+
+int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen)
+{
+    log_d("called");
+    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
+    struct sockaddr *_from = (struct sockaddr *)from->data;
+    int32_t ret = lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t)fromlen);
+    mem->data = _mem;
+    mem->dataLength = len;
+    return ret;
+}
+
+int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
+{
+    log_d("called");
+    return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
+}
+
+int32_t rpc_lwip_sendmsg(int32_t s, const binary_t *msg_name, const binary_t *msg_iov, const binary_t *msg_control, int32_t msg_flags, int32_t flags)
+{
+    log_d("called");
+    struct msghdr msg;
+    msg.msg_name = (void *)msg_name->data;
+    msg.msg_namelen = (socklen_t)msg_name->dataLength;
+    msg.msg_iov = (struct iovec *)msg_name->data;
+    msg.msg_iovlen = (int)msg_iov->dataLength;
+    msg.msg_control = (void *)msg_control->data;
+    msg.msg_controllen = (socklen_t)msg_control->dataLength;
+    msg.msg_flags = (int)msg_flags;
+    return lwip_sendmsg(s, &msg, flags);
+}
+
+int32_t rpc_lwip_sendto(int32_t s, const binary_t *dataptr, int32_t flags, const binary_t *to, uint32_t tolen)
+{
+    log_d("called");
+    struct sockaddr *_to = (struct sockaddr *)to->data;
+    return lwip_sendto(s, dataptr->data, dataptr->dataLength, flags, _to, (socklen_t)tolen);
+}
+
+int32_t rpc_lwip_socket(int32_t domain, int32_t l_type, int32_t protocol)
+{
+    log_d("called");
+    return lwip_socket(domain, l_type, protocol);
+}
+
+int32_t rpc_lwip_write(int32_t s, const binary_t *dataptr, uint32_t size)
+{
+    log_d("called");
+    return lwip_write(s, dataptr->data, dataptr->dataLength);
+}
+
+int32_t rpc_lwip_writev(int32_t s, const binary_t *iov, int32_t iovcnt)
+{
+    log_d("called");
+    struct iovec *_iov = (struct iovec *)iov->data;
+    return lwip_writev(s, _iov, iovcnt);
+}
+
+int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t *writeset, const binary_t *exceptset, const binary_t *timeout)
+{
+    log_d("called");
+    fd_set *_readset = (fd_set *)readset->data;
+    fd_set *_writeset = (fd_set *)writeset->data;
+    fd_set *_exceptset = (fd_set *)exceptset->data;
+    struct timeval *_timeval = (struct timeval *)timeout->data;
+    return lwip_select(maxfdp1, _readset, _writeset, _exceptset, _timeval);
+}
+
+int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t *argp)
+{
+    log_d("called");
+    return lwip_ioctl(s, cmd, argp->data);
+}
+
+int32_t rpc_lwip_fcntl(int32_t s, int32_t cmd, int32_t val)
+{
+    log_d("called");
+    return lwip_fcntl(s, cmd, val);
 }
 //@}
