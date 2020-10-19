@@ -798,7 +798,7 @@ int32_t rpc_lwip_bind(int32_t s, const binary_t *name, uint32_t namelen)
 int32_t rpc_lwip_shutdown(int32_t s, int32_t how)
 {
     log_d("called");
-    return _lwip_shutdown(s, how);
+    return lwip_shutdown(s, how);
 }
 
 int32_t rpc_lwip_getpeername(int32_t s, binary_t *name, uint32_t *namelen)
