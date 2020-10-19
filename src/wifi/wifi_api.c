@@ -901,7 +901,8 @@ int32_t rpc_lwip_sendmsg(int32_t s, const binary_t *msg_name, const binary_t *ms
     struct msghdr msg;
     msg.msg_name = (void *)msg_name->data;
     msg.msg_namelen = (socklen_t)msg_name->dataLength;
-    msg.msg_iov = (struct iovec *)msg_name->data;
+    msg.msg_iov->iov_base = (void *)msg_iov->data;
+    msg.msg_iov->iov_len =   (void *)msg_iov->dataLength;
     msg.msg_iovlen = (int)msg_iov->dataLength;
     msg.msg_control = (void *)msg_control->data;
     msg.msg_controllen = (socklen_t)msg_control->dataLength;
@@ -931,8 +932,10 @@ int32_t rpc_lwip_write(int32_t s, const binary_t *dataptr, uint32_t size)
 int32_t rpc_lwip_writev(int32_t s, const binary_t *iov, int32_t iovcnt)
 {
     log_d("called");
-    struct iovec *_iov = (struct iovec *)iov->data;
-    return lwip_writev(s, _iov, iovcnt);
+    struct iovec _iov;
+    _iov.iov_base = iov->data;
+    _iov.iov_len = iov->dataLength;
+    return lwip_writev(s, &_iov, iovcnt);
 }
 
 int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t *writeset, const binary_t *exceptset, const binary_t *timeout)
