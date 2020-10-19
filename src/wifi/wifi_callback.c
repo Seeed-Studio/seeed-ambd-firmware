@@ -75,8 +75,8 @@ static void callback_wifi_ip_changed(char *buf, int buf_len, int flags, void *us
 
 typedef int (*wlan_init_done_ptr)(void);
 typedef int (*write_reconnect_ptr)(uint8_t *data, uint32_t len);
-wlan_init_done_ptr p_wlan_init_done_callback;
-write_reconnect_ptr p_write_reconnect_ptr;
+extern wlan_init_done_ptr p_wlan_init_done_callback;
+extern write_reconnect_ptr p_write_reconnect_ptr;
 int wifi_init_done_callback()
 {
     log_v("FUN:%s \n\r", __FUNCTION__);
