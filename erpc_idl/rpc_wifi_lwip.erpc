@@ -1,0 +1,26 @@
+
+@group("wifi_api")
+interface rpc_wifi_lwip{
+    rpc_lwip_accept(int32 s, in binary addr, inout uint32 addrlen) -> int32
+    rpc_lwip_bind(int32 s, in binary name, uint32 namelen) -> int32
+    rpc_lwip_shutdown(int32 s, int32 how) -> int32
+    rpc_lwip_getpeername (int32 s, out binary name, inout uint32 namelen) -> int32
+    rpc_lwip_getsockname (int32 s, out binary name, inout uint32 namelen) -> int32
+    rpc_lwip_getsockopt (int32 s, int32 level, int32 optname, in binary in_optval, out binary out_optval, inout uint32 optlen) -> int32
+    rpc_lwip_setsockopt (int32 s, int32 level, int32 optname, in binary optval, uint32 optlen) -> int32
+    rpc_lwip_close(int32 s) -> int32
+    rpc_lwip_connect(int32 s,  in binary name, uint32 namelen) -> int32
+    rpc_lwip_listen(int32 s, int32 backlog) -> int32
+    rpc_lwip_recv(int32 s, out binary mem, uint32 len, int32 flags) -> int32
+    rpc_lwip_read(int32 s, out binary mem, uint32 len) -> int32
+    rpc_lwip_recvfrom(int32 s, out binary mem, uint32 len, int32 flags, in binary from, inout uint32 fromlen) -> int32
+    rpc_lwip_send(int32 s, in binary dataptr, int32 flags) -> int32
+    rpc_lwip_sendmsg(int32 s, in binary msg_name, in binary msg_iov, in binary msg_control, int32 msg_flags, int32 flags) -> int32
+    rpc_lwip_sendto(int32 s, in binary dataptr, int32 flags, in binary to, uint32 tolen) -> int32
+    rpc_lwip_socket(int32 domain, int32 l_type, int32 protocol) -> int32
+    rpc_lwip_write(int32 s, in binary dataptr, uint32 size) -> int32
+    rpc_lwip_writev(int32 s, in binary iov, int32 iovcnt) -> int32
+    rpc_lwip_select(int32 maxfdp1, in binary readset, in binary writeset, in binary exceptset, in binary timeout) -> int32
+    rpc_lwip_ioctl(int32 s, uint32 cmd, in binary argp) -> int32
+    rpc_lwip_fcntl(int32 s, int32 cmd, int32 val) -> int32
+}
