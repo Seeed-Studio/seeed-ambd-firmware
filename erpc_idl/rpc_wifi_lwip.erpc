@@ -21,7 +21,7 @@ interface rpc_wifi_lwip{
     rpc_lwip_write(int32 s, in binary dataptr, uint32 size) -> int32
     rpc_lwip_writev(int32 s, in binary iov, int32 iovcnt) -> int32
     rpc_lwip_select(int32 maxfdp1, in binary readset @nullable, in binary writeset @nullable, in binary exceptset @nullable, in binary timeout @nullable) -> int32
-    rpc_lwip_ioctl(int32 s, uint32 cmd, in binary argp) -> int32
+    rpc_lwip_ioctl(int32 s, uint32 cmd, in binary in_argp, out binary out_argp) -> int32
     rpc_lwip_fcntl(int32 s, int32 cmd, int32 val) -> int32
     rpc_lwip_errno() -> int32
     rpc_netconn_gethostbyname(string name, out binary addr) -> int8
