@@ -861,6 +861,12 @@ int32_t rpc_lwip_connect(int32_t s, const binary_t *name, uint32_t namelen)
 {
     log_d("called");
     struct sockaddr *_name = (struct sockaddr *)name->data;
+    uint8_t * data = (struct sockaddr *)name->data;
+    for(uint32_t i = 0; i < namelen; i++)
+    {
+        printf("%02x ", data[i]);
+    }
+    printf("\n\r");
     return lwip_connect(s, _name, namelen);
 }
 
@@ -903,14 +909,13 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
-    printf("rpc_lwip_send called");
+    log_d("rpc_lwip_send called");
     for(int i = 0; i < dataptr->dataLength; i++)
     {
         printf("%c ", dataptr->data[i]);
     }
     printf("\n\r");
-    return 0;
-    //return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
+    return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
 }
 
 int32_t rpc_lwip_sendmsg(int32_t s, const binary_t *msg_name, const binary_t *msg_iov, const binary_t *msg_control, int32_t msg_flags, int32_t flags)
@@ -974,10 +979,15 @@ int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t
     return lwip_select(maxfdp1, _readset, _writeset, _exceptset, _timeval);
 }
 
-int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t *argp)
+int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t * in_argp, binary_t * out_argp)
 {
     log_d("called");
-    return lwip_ioctl(s, cmd, argp->data);
+    uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength);
+    memcpy(data, in_argp->data, in_argp->dataLength);
+    int32_t ret = lwip_ioctl(s, cmd, data);
+    out_argp->data = data;
+    out_argp->dataLength = in_argp->dataLength;
+    return ret;
 }
 
 int32_t rpc_lwip_fcntl(int32_t s, int32_t cmd, int32_t val)
