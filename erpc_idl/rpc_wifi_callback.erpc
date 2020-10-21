@@ -1,4 +1,5 @@
 @group("wifi_callback")
 interface rpc_wifi_callback {
     oneway rpc_wifi_event_callback(binary event)
+    rpc_wifi_dns_found(string hostname, in binary ipaddr, in binary arg @nullable) -> void
 }
