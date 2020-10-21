@@ -21,9 +21,21 @@
 #include "rpc_system_header.h"
 #include "wifi_callback.h"
 #include "wifi_tcpip_adapter.h"
+#include "lwip/netdb.h"
 #include "lwip/sockets.h"
+#include "lwip/dns.h"
+#include <errno.h>
 
 static uint32_t wifi_work_mode = RTW_MODE_NONE;
+
+// Free space allocated inside struct binary_t function implementation
+static void free_binary_t_struct(binary_t *data)
+{
+    if (data->data)
+    {
+        erpc_free(data->data);
+    }
+}
 
 //! @name rpc_wifi_drv
 //@{
@@ -891,8 +903,14 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
-    log_d("called");
-    return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
+    printf("rpc_lwip_send called");
+    for(int i = 0; i < dataptr->dataLength; i++)
+    {
+        printf("%c ", dataptr->data[i]);
+    }
+    printf("\n\r");
+    return 0;
+    //return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
 }
 
 int32_t rpc_lwip_sendmsg(int32_t s, const binary_t *msg_name, const binary_t *msg_iov, const binary_t *msg_control, int32_t msg_flags, int32_t flags)
@@ -902,7 +920,7 @@ int32_t rpc_lwip_sendmsg(int32_t s, const binary_t *msg_name, const binary_t *ms
     msg.msg_name = (void *)msg_name->data;
     msg.msg_namelen = (socklen_t)msg_name->dataLength;
     msg.msg_iov->iov_base = (void *)msg_iov->data;
-    msg.msg_iov->iov_len =   (void *)msg_iov->dataLength;
+    msg.msg_iov->iov_len = (void *)msg_iov->dataLength;
     msg.msg_iovlen = (int)msg_iov->dataLength;
     msg.msg_control = (void *)msg_control->data;
     msg.msg_controllen = (socklen_t)msg_control->dataLength;
@@ -941,10 +959,18 @@ int32_t rpc_lwip_writev(int32_t s, const binary_t *iov, int32_t iovcnt)
 int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t *writeset, const binary_t *exceptset, const binary_t *timeout)
 {
     log_d("called");
-    fd_set *_readset = (fd_set *)readset->data;
-    fd_set *_writeset = (fd_set *)writeset->data;
-    fd_set *_exceptset = (fd_set *)exceptset->data;
-    struct timeval *_timeval = (struct timeval *)timeout->data;
+    fd_set *_readset = NULL;
+    fd_set *_writeset = NULL;
+    fd_set *_exceptset = NULL;
+    struct timeval *_timeval = NULL;
+    if (readset != NULL)
+        _readset = (fd_set *)readset->data;
+    if (writeset != NULL)
+        _writeset = (fd_set *)writeset->data;
+    if (exceptset != NULL)
+        _exceptset = (fd_set *)exceptset->data;
+    if (timeout != NULL)
+        _timeval = (struct timeval *)timeout->data;
     return lwip_select(maxfdp1, _readset, _writeset, _exceptset, _timeval);
 }
 
@@ -959,4 +985,113 @@ int32_t rpc_lwip_fcntl(int32_t s, int32_t cmd, int32_t val)
     log_d("called");
     return lwip_fcntl(s, cmd, val);
 }
+
+int32_t rpc_lwip_errno(void)
+{
+    log_d("called");
+    return errno;
+}
+
+int8_t rpc_netconn_gethostbyname(const char *name, binary_t *addr)
+{
+    log_d("called");
+    ip_addr_t *ip_addr = (ip_addr_t *)erpc_malloc();
+    err_t ret = netconn_gethostbyname(name, ip_addr);
+    addr->data = (uint8_t *)ip_addr;
+    addr->dataLength = sizeof(ip_addr_t);
+    return (int8_t)ret;
+}
+
+// binary_t *rpc_lwip_gethostbyname(const char *name)
+// {
+//     struct hostent *server_host;
+//     server_host = gethostbyname(name);
+//     if (!server_host)
+//     {
+//         return NULL;
+//     }
+
+//     uint8_t *data = (uint8_t *)erpc_malloc(sizeof(ip_addr_t));
+//     memcpy(data, (void *) server_host->h_addr, sizeof(ip_addr_t));
+//     binary_t *res = (binary_t *)erpc_malloc(sizeof(binary_t));
+
+//     res->data = data;
+//     res->dataLength = sizeof(binary_t);
+
+//     return res;
+// }
+
+// int32_t rpc_lwip_gethostbyname_r(const char *name, binary_t *ret, binary_t *buf, binary_t *result, uint32_t *h_errnop)
+// {
+//     return -1;
+// }
+
+// int32_t rpc_lwip_getaddrinfo(const char *name, const char *servname, const binary_t *hints, binary_t *res)
+// {
+//     return -1;
+// }
+
+extern void wifi_dns_found(const char *name, ip_addr_t *ipaddr, void *callback_arg);
+
+// int8_t rpc_dns_gethostbyname(const char *hostname, binary_t *addr, uint32_t found, const binary_t *callback_arg)
+// {
+//     log_d("called");
+//     ip_addr_t *addr_info = (ip_addr_t *)erpc_malloc(sizeof(ip_addr_t));
+//     int ret = 0;
+//     if (found != NULL)
+//     {
+//         ret = dns_gethostbyname(hostname, &addr, wifi_dns_found, callback_arg)
+//     }
+//     else
+//     {
+//         ret = dns_gethostbyname(hostname, &addr, NULL, callback_arg);
+//     }
+
+//     return ret;
+// }
+
+int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint32_t found, const binary_t *callback_arg, uint8_t dns_addrtype)
+{
+    log_d(" called\n\r");
+    ip_addr_t *addr_info = (ip_addr_t *)erpc_malloc(sizeof(ip_addr_t));
+    addr->data = (uint8_t *)addr_info;
+    addr->dataLength = sizeof(ip_addr_t);
+
+    int ret = 0;
+    if (found != 0)
+    {
+        ret = dns_gethostbyname_addrtype(hostname, addr_info, wifi_dns_found, callback_arg, dns_addrtype);
+        if (addr)
+        {
+            erpc_free(addr);
+        }
+    }
+    else
+    {
+        ret = dns_gethostbyname_addrtype(hostname, addr_info, NULL, callback_arg, dns_addrtype);
+        if (hostname)
+        {
+            erpc_free(hostname);
+        }
+        if (addr)
+        {
+            free_binary_t_struct(addr);
+        }
+        if (addr)
+        {
+            erpc_free(addr);
+        }
+        if (callback_arg)
+        {
+            free_binary_t_struct(callback_arg);
+        }
+        if (callback_arg)
+        {
+            erpc_free(callback_arg);
+        }
+    }
+
+    return ret;
+}
+
 //@}

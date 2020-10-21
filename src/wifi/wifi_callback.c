@@ -26,6 +26,15 @@
 
 extern rtw_mode_t wifi_mode;
 
+// Free space allocated inside struct binary_t function implementation
+static void free_binary_t_struct(binary_t *data)
+{
+    if (data->data)
+    {
+        erpc_free(data->data);
+    }
+}
+
 static void print_callback_data(uint8_t *data, uint32_t len)
 {
     for (int i = 0; i < len; i++)
@@ -295,4 +304,41 @@ void wifi_callback_init()
 {
     p_wlan_init_done_callback = wifi_init_done_callback;
     p_write_reconnect_ptr = wifi_write_reconnect_data_to_flash;
+}
+
+void wifi_dns_found(const char *name, ip_addr_t *ipaddr, void *callback_arg)
+{
+    log_d("called");
+    binary_t b_ipaddr;
+    b_ipaddr.data = (uint8_t *)ipaddr;
+    b_ipaddr.dataLength = sizeof(ipaddr);
+    binary_t *b_callback_arg = (binary_t *)callback_arg;
+
+    rpc_wifi_dns_found(name, &b_ipaddr, b_callback_arg);
+
+    if (name)
+    {
+        erpc_free(name);
+    }
+    if (ipaddr)
+    {
+        erpc_free(ipaddr);
+    }
+    if (callback_arg)
+    {
+        free_binary_t_struct(callback_arg);
+    }
+    if (callback_arg)
+    {
+        erpc_free(callback_arg);
+    }
+
+    if (callback_arg)
+    {
+        free_binary_t_struct(callback_arg);
+    }
+    if (callback_arg)
+    {
+        erpc_free(callback_arg);
+    }
 }
