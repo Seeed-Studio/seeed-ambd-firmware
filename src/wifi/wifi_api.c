@@ -956,6 +956,7 @@ int32_t rpc_lwip_available(int32_t s)
     log_d("called %d", s);
     uint8_t c;
     int ret = 0;
+    int try = 10;
 
     struct sockaddr from;
     socklen_t fromlen;
@@ -968,7 +969,7 @@ int32_t rpc_lwip_available(int32_t s)
     ret = lwip_getsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
     if (ret >= 0)
     {
-        recv_timeout = 100;
+        recv_timeout = 10;
         ret = lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
         if (ret >= 0)
         {
@@ -976,7 +977,9 @@ int32_t rpc_lwip_available(int32_t s)
         }
     }
 
-    ret = lwip_recv(s, &c, 1, MSG_PEEK);
+    while(try-- && ret <= 0){
+        ret = lwip_recv(s, &c, 1, MSG_PEEK);
+    }
 
     if (backup_recvtimeout == 1)
     {
