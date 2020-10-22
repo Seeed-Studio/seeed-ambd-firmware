@@ -133,7 +133,7 @@ int32_t rpc_wifi_get_associated_client_list(binary_t *client_list_buffer, uint16
 {
     log_d("called");
     int32_t ret = 0;
-    uint8_t *data = (uint8_t *)erpc_malloc(buffer_length * sizeof(uint8_t));
+    uint8_t *data = (uint8_t *)erpc_malloc((buffer_length+1) * sizeof(uint8_t));
     ret = wifi_get_associated_client_list(data, buffer_length);
     client_list_buffer->dataLength = buffer_length;
     client_list_buffer->data = data;
@@ -995,7 +995,8 @@ int32_t rpc_lwip_available(int32_t s)
 int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uint32_t timeout)
 {
     log_d("called");
-    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
+    log_d("called: %d", len);
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
     int32_t ret = -1;
     ret = lwip_recv(s, _mem , len, flags);
     if (ret > 0)
@@ -1014,70 +1015,41 @@ int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uin
 int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
 {
     log_d("called");
-    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
     int32_t ret = -1;
-    uint32_t left = len;
-    uint32_t offset = 0;
-    uint32_t start = millis();
-    while ((millis() - start) < timeout)
-    {
-        ret = lwip_read(s, _mem + offset, left);
-        if (ret > 0)
-        {
-            left -= ret;
-            offset += ret;
-            if (left == 0)
-                break;
-        }
-    }
-    if (offset > 0)
+    ret = lwip_read(s, _mem , len);
+    if (ret > 0)
     {
         mem->data = _mem;
-        mem->dataLength = offset;
+        mem->dataLength = ret;
     }
     else
     {
         mem->data = _mem;
         mem->dataLength = 1;
     }
-    log_d("exit");
     return ret;
 }
 
 int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen, uint32_t timeout)
 {
+
     log_d("called");
-    uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
-    struct sockaddr *_from = (struct sockaddr *)from->data;
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
     int32_t ret = -1;
-    uint32_t left = len;
-    uint32_t offset = 0;
-    uint32_t start = millis();
-    while ((millis() - start) < timeout)
-    {
-        ret = lwip_recvfrom(s, _mem + offset, left, flags, _from, (socklen_t *)fromlen);
-        if (ret > 0)
-        {
-            left -= ret;
-            offset += ret;
-            if (left == 0)
-                break;
-            if (flags == MSG_PEEK)
-                break;
-        }
-    }
-    if (offset > 0)
+    struct sockaddr *_from = (struct sockaddr *)from->data;
+    ret =  lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t *)fromlen);
+    if (ret > 0)
     {
         mem->data = _mem;
-        mem->dataLength = offset;
+        mem->dataLength = ret;
     }
     else
     {
         mem->data = _mem;
         mem->dataLength = 1;
     }
-    log_d("exit");
-    return offset == 0 ? -1 : offset;
+    return ret;
 }
 
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
@@ -1155,7 +1127,7 @@ int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t
 int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t *in_argp, binary_t *out_argp)
 {
     log_d("called");
-    uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength);
+    uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength+1);
     memcpy(data, in_argp->data, in_argp->dataLength);
     int32_t ret = lwip_ioctl(s, cmd, data);
     out_argp->data = data;
@@ -1179,7 +1151,7 @@ int32_t rpc_lwip_errno(void)
 int8_t rpc_netconn_gethostbyname(const char *name, binary_t *addr)
 {
     log_d("called");
-    ip_addr_t *ip_addr = (ip_addr_t *)erpc_malloc();
+    ip_addr_t *ip_addr = (ip_addr_t *)erpc_malloc(sizeof(ip_addr_t));
     err_t ret = netconn_gethostbyname(name, ip_addr);
     addr->data = (uint8_t *)ip_addr;
     addr->dataLength = sizeof(ip_addr_t);
