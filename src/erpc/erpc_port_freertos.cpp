@@ -54,7 +54,6 @@ extern "C" {
 
 void *erpc_malloc(size_t size)
 {
-    printf("size:%d\n\r", size);
     void *p = pvPortMalloc(size);
     return p;
 }
