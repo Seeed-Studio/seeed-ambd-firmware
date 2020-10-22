@@ -24,6 +24,7 @@
 #include "lwip/netdb.h"
 #include "lwip/sockets.h"
 #include "lwip/dns.h"
+#include "wifi_main.h"
 #include <errno.h>
 
 static uint32_t wifi_work_mode = RTW_MODE_NONE;
@@ -44,6 +45,7 @@ int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_
     log_d("called");
     int32_t ret = RTW_ERROR;
     ret = wifi_connect(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), key_id, NULL);
+    log_d("exit");
     return ret;
 }
 
@@ -52,6 +54,7 @@ int32_t rpc_wifi_connect_bssid(const binary_t *bssid, const binary_t *ssid, cons
     log_d("called");
     int32_t ret = RTW_ERROR;
     ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, 6, strlen(ssid->data), strlen(password->data), key_id, NULL);
+    log_d("exit");
     return ret;
 }
 
@@ -60,6 +63,7 @@ int32_t rpc_wifi_disconnect(void)
     log_d("called");
     int32_t ret = RTW_ERROR;
     ret = wifi_disconnect();
+    log_d("exit");
     return ret;
 }
 
@@ -133,6 +137,7 @@ int32_t rpc_wifi_get_associated_client_list(binary_t *client_list_buffer, uint16
     ret = wifi_get_associated_client_list(data, buffer_length);
     client_list_buffer->dataLength = buffer_length;
     client_list_buffer->data = data;
+    log_d("exit");
     return ret;
 }
 
@@ -141,6 +146,7 @@ int32_t rpc_wifi_get_ap_bssid(uint8_t bssid[6])
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_ap_bssid(bssid);
+    log_d("exit");
     return ret;
 }
 
@@ -152,6 +158,7 @@ int32_t rpc_wifi_get_ap_info(binary_t *ap_info, uint32_t *security)
     ret = wifi_get_ap_info(p_ap_info, security);
     ap_info->data = (uint8_t *)p_ap_info;
     ap_info->dataLength = sizeof(rtw_bss_info_t);
+    log_d("exit");
     return ret;
 }
 
@@ -160,6 +167,7 @@ int32_t rpc_wifi_set_country(uint32_t country_code)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_country(country_code);
+    log_d("exit");
     return ret;
 }
 int32_t rpc_wifi_get_sta_max_data_rate(uint8_t *inidata_rate)
@@ -167,6 +175,7 @@ int32_t rpc_wifi_get_sta_max_data_rate(uint8_t *inidata_rate)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_sta_max_data_rate(inidata_rate);
+    log_d("exit");
     return ret;
 }
 int32_t rpc_wifi_get_rssi(int32_t *pRSSI)
@@ -174,6 +183,7 @@ int32_t rpc_wifi_get_rssi(int32_t *pRSSI)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_rssi(pRSSI);
+    log_d("exit");
     return ret;
 }
 
@@ -182,6 +192,7 @@ int32_t rpc_wifi_set_channel(int32_t channel)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_channel(channel);
+    log_d("exit");
     return ret;
 }
 
@@ -190,6 +201,7 @@ int32_t rpc_wifi_get_channel(int32_t *channel)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_channel(channel);
+    log_d("exit");
     return ret;
 }
 
@@ -198,6 +210,7 @@ int32_t rpc_wifi_change_channel_plan(uint8_t channel_plan)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_change_channel_plan(channel_plan);
+    log_d("exit");
     return ret;
 }
 
@@ -206,6 +219,7 @@ int32_t rpc_wifi_register_multicast_address(const uint8_t mac[6])
     log_d("called");
     int32_t ret = 0;
     ret = wifi_register_multicast_address(mac);
+    log_d("exit");
     return ret;
 }
 
@@ -214,6 +228,7 @@ int32_t rpc_wifi_unregister_multicast_address(const uint8_t mac[6])
     log_d("called");
     int32_t ret = 0;
     ret = wifi_unregister_multicast_address(mac);
+    log_d("exit");
     return ret;
 }
 
@@ -222,6 +237,7 @@ int32_t rpc_wifi_rf_on(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_rf_on();
+    log_d("exit");
     return ret;
 }
 
@@ -238,6 +254,7 @@ int32_t rpc_wifi_rf_off(void)
             wifi_callback_ind(SYSTEM_EVENT_STA_STOP, NULL, 0);
         }
     }
+    log_d("exit");
     return ret;
 }
 
@@ -255,6 +272,7 @@ int32_t rpc_wifi_on(uint32_t mode)
             wifi_callback_ind(SYSTEM_EVENT_STA_START, NULL, 0);
         }
     }
+    log_d("exit");
     return ret;
 }
 
@@ -263,6 +281,7 @@ int32_t rpc_wifi_off(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_off();
+    log_d("exit");
     return ret;
 }
 
@@ -271,6 +290,7 @@ int32_t rpc_wifi_set_mode(uint32_t mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_mode(mode);
+    log_d("exit");
     return ret;
 }
 
@@ -279,6 +299,7 @@ int32_t rpc_wifi_off_fastly(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_off_fastly();
+    log_d("exit");
     return ret;
 }
 
@@ -287,6 +308,7 @@ int32_t rpc_wifi_set_power_mode(uint8_t ips_mode, uint8_t lps_mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_power_mode(ips_mode, lps_mode);
+    log_d("exit");
     return ret;
 }
 
@@ -295,6 +317,7 @@ int32_t rpc_wifi_set_tdma_param(uint8_t slot_period, uint8_t rfon_period_len_1, 
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_tdma_param(slot_period, rfon_period_len_1, rfon_period_len_2, rfon_period_len_3);
+    log_d("exit");
     return ret;
 }
 
@@ -303,6 +326,7 @@ int32_t rpc_wifi_set_lps_dtim(uint8_t dtim)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_lps_dtim(dtim);
+    log_d("exit");
     return ret;
 }
 
@@ -311,6 +335,7 @@ int32_t rpc_wifi_get_lps_dtim(uint8_t *dtim)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_lps_dtim(dtim);
+    log_d("exit");
     return ret;
 }
 
@@ -319,6 +344,7 @@ int32_t rpc_wifi_set_lps_thresh(uint8_t mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_lps_thresh(mode);
+    log_d("exit");
     return ret;
 }
 
@@ -327,6 +353,7 @@ int32_t rpc_wifi_set_lps_level(uint8_t lps_level)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_lps_level(lps_level);
+    log_d("exit");
     return ret;
 }
 
@@ -335,6 +362,7 @@ int32_t rpc_wifi_set_mfp_support(uint8_t value)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_mfp_support(value);
+    log_d("exit");
     return ret;
 }
 
@@ -372,6 +400,7 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
     {
         wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
+    log_d("exit");
     return ret;
 }
 
@@ -409,6 +438,7 @@ int32_t rpc_wifi_start_ap_with_hidden_ssid(const binary_t *ssid, const binary_t 
     {
         wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
+    log_d("exit");
     return ret;
 }
 
@@ -417,6 +447,7 @@ int32_t rpc_wifi_set_pscan_chan(const binary_t *channel_list, uint8_t pscan_conf
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_pscan_chan(&(channel_list->data), &pscan_config, channel_list->dataLength / 4);
+    log_d("exit");
     return ret;
 }
 
@@ -428,6 +459,7 @@ int32_t rpc_wifi_get_setting(const char *ifname, binary_t *pSetting)
     ret = wifi_get_setting(ifname, p_pSetting);
     pSetting->data = (uint8_t *)p_pSetting;
     pSetting->dataLength = sizeof(rtw_wifi_setting_t);
+    log_d("exit");
     return ret;
 }
 
@@ -436,6 +468,7 @@ int32_t rpc_wifi_set_network_mode(uint32_t mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_network_mode(mode);
+    log_d("exit");
     return ret;
 }
 
@@ -444,6 +477,7 @@ int32_t rpc_wifi_get_network_mode(uint32_t *pmode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_network_mode(pmode);
+    log_d("exit");
     return ret;
 }
 
@@ -452,6 +486,7 @@ int32_t rpc_wifi_set_wps_phase(uint8_t is_trigger_wps)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_wps_phase(is_trigger_wps);
+    log_d("exit");
     return ret;
 }
 
@@ -464,6 +499,7 @@ int32_t rpc_wifi_restart_ap(const binary_t *ssid, const binary_t *password, uint
     {
         wifi_callback_ind(SYSTEM_EVENT_AP_START, NULL, 0);
     }
+    log_d("exit");
     return ret;
 }
 
@@ -472,6 +508,7 @@ int32_t rpc_wifi_config_autoreconnect(uint8_t mode, uint8_t retry_times, uint16_
     log_d("called");
     int32_t ret = 0;
     ret = wifi_config_autoreconnect(mode, retry_times, timeout);
+    log_d("exit");
     return ret;
 }
 
@@ -480,6 +517,7 @@ int32_t rpc_wifi_set_autoreconnect(uint8_t mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_autoreconnect(mode);
+    log_d("exit");
     return ret;
 }
 
@@ -488,6 +526,7 @@ int32_t rpc_wifi_get_autoreconnect(uint8_t *mode)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_autoreconnect(mode);
+    log_d("exit");
     return ret;
 }
 
@@ -496,6 +535,7 @@ int32_t rpc_wifi_get_last_error(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_last_error();
+    log_d("exit");
     return ret;
 }
 
@@ -504,6 +544,7 @@ int32_t rpc_wifi_add_custom_ie(const binary_t *cus_ie)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_add_custom_ie(cus_ie->data, cus_ie->dataLength / sizeof(rtw_custom_ie_t));
+    log_d("exit");
     return ret;
 }
 
@@ -512,6 +553,7 @@ int32_t rpc_wifi_update_custom_ie(const binary_t *cus_ie, int32_t ie_index)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_update_custom_ie(cus_ie->data, ie_index);
+    log_d("exit");
     return ret;
 }
 
@@ -520,6 +562,7 @@ int32_t rpc_wifi_del_custom_ie(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_del_custom_ie();
+    log_d("exit");
     return ret;
 }
 
@@ -535,6 +578,7 @@ int32_t rpc_wifi_get_drv_ability(uint32_t *ability)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_drv_ability(ability);
+    log_d("exit");
     return ret;
 }
 
@@ -543,6 +587,7 @@ int32_t rpc_wifi_set_channel_plan(uint8_t channel_plan)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_channel_plan(channel_plan);
+    log_d("exit");
     return ret;
 }
 
@@ -551,6 +596,7 @@ int32_t rpc_wifi_get_channel_plan(uint8_t *channel_plan)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_get_channel_plan(channel_plan);
+    log_d("exit");
     return ret;
 }
 
@@ -559,6 +605,7 @@ int32_t rpc_wifi_enable_forwarding(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_enable_forwarding();
+    log_d("exit");
     return ret;
 }
 
@@ -567,6 +614,7 @@ int32_t rpc_wifi_disable_forwarding(void)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_disable_forwarding();
+    log_d("exit");
     return ret;
 }
 
@@ -575,6 +623,7 @@ int32_t rpc_wifi_set_ch_deauth(uint8_t enable)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_ch_deauth(enable);
+    log_d("exit");
     return ret;
 }
 
@@ -583,6 +632,7 @@ uint8_t rpc_wifi_get_band_type(void)
     log_d("called");
     uint8_t ret = 0;
     ret = wifi_get_band_type();
+    log_d("exit");
     return ret;
 }
 
@@ -592,6 +642,7 @@ int32_t rpc_wifi_set_tx_pause_data(int32_t NewState)
     log_d("called");
     int32_t ret = 0;
     ret = wifi_set_tx_pause_data(NewState);
+    log_d("exit");
     return ret;
 }
 
@@ -604,6 +655,7 @@ int32_t rpc_wifi_get_reconnect_data(binary_t *wifi_info)
     {
         wifi_info->dataLength = 1;
         wifi_info->data = &ret;
+        log_d("exit");
         return ret;
     }
     ret = wifi_get_reconnect_data(_wifi_info);
@@ -611,6 +663,7 @@ int32_t rpc_wifi_get_reconnect_data(binary_t *wifi_info)
     wifi_info->data = _wifi_info;
     wifi_info->dataLength = sizeof(wlan_fast_reconnect_profile_t);
 
+    log_d("exit");
     return ret;
 }
 
@@ -631,9 +684,16 @@ int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
     log_d("called");
     rtw_scan_result_t *networks = NULL;
     int ret;
-    if (number < 50)
+    if (number <= WL_NETWORKS_LIST_MAXNUM)
     {
         networks = (rtw_scan_result_t *)erpc_malloc(sizeof(rtw_scan_result_t) * number);
+    }
+    else
+    {
+        uint8_t *temp = (uint8_t *)erpc_malloc(1);
+        _scanResult->dataLength = 1;
+        _scanResult->data = (uint8_t *)temp;
+        return -1;
     }
 
     ret = wifi_scan_get_ap_records(number, networks);
@@ -642,6 +702,13 @@ int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
         _scanResult->dataLength = sizeof(rtw_scan_result_t) * number;
         _scanResult->data = (uint8_t *)networks;
     }
+    else
+    {
+        uint8_t *temp = (uint8_t *)erpc_malloc(1);
+        _scanResult->dataLength = 1;
+        _scanResult->data = (uint8_t *)temp;
+    }
+    log_d("exit");
     return ret;
 }
 
@@ -704,6 +771,7 @@ int32_t rpc_tcpip_adapter_get_ip_info(uint32_t tcpip_if, binary_t *ip_info)
     ip_info->data = _ip_info;
     ip_info->dataLength = sizeof(tcpip_adapter_ip_info_t);
     log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, _ip_info->ip, _ip_info->netmask, _ip_info->gw);
+    log_d("exit");
     return ret;
 }
 
@@ -729,6 +797,7 @@ int32_t rpc_tcpip_adapter_get_dns_info(uint32_t tcpip_if, uint32_t dns_type, bin
     ret = tcpip_adapter_get_dns_info(tcpip_if, dns_type, _dns);
     dns->data = _dns;
     dns->dataLength = sizeof(tcpip_adapter_dns_info_t);
+    log_d("exit");
     return ret;
 }
 
@@ -770,6 +839,7 @@ int32_t rpc_tcpip_adapter_get_hostname(uint32_t tcpip_if, char *hostname)
     ret = tcpip_adapter_get_hostname(tcpip_if, &_hostname);
     memset(hostname, 0, 32);
     memcpy(hostname, _hostname, strlen((char *)_hostname) + 1);
+    log_d("exit");
     return ret;
 }
 
@@ -781,6 +851,7 @@ int32_t rpc_tcpip_adapter_get_mac(uint32_t tcpip_if, binary_t *mac)
     ret = tcpip_adapter_get_mac(tcpip_if, _mac);
     mac->data = _mac;
     mac->dataLength = strlen((char *)_mac) + 1;
+    log_d("exit");
     return ret;
 }
 
@@ -821,6 +892,7 @@ int32_t rpc_lwip_getpeername(int32_t s, binary_t *name, uint32_t *namelen)
     int32_t ret = lwip_getpeername(s, _name, namelen);
     name->data = (uint8_t *)_name;
     name->dataLength = sizeof(struct sockaddr);
+    log_d("exit");
     return ret;
 }
 
@@ -832,6 +904,7 @@ int32_t rpc_lwip_getsockname(int32_t s, binary_t *name, uint32_t *namelen)
     int32_t ret = lwip_getsockname(s, _name, namelen);
     name->data = (uint8_t *)_name;
     name->dataLength = sizeof(struct sockaddr);
+    log_d("exit");
     return ret;
 }
 
@@ -842,6 +915,7 @@ int32_t rpc_lwip_getsockopt(int32_t s, int32_t level, int32_t optname, const bin
     int32_t ret = lwip_getsockopt(s, level, optname, optval, optlen);
     out_optval->data = optval;
     out_optval->dataLength = in_optval->dataLength;
+    log_d("exit");
     return ret;
 }
 
@@ -861,12 +935,12 @@ int32_t rpc_lwip_connect(int32_t s, const binary_t *name, uint32_t namelen)
 {
     log_d("called");
     struct sockaddr *_name = (struct sockaddr *)name->data;
-    uint8_t * data = (struct sockaddr *)name->data;
-    for(uint32_t i = 0; i < namelen; i++)
-    {
-        printf("%02x ", data[i]);
-    }
-    printf("\n\r");
+    uint8_t *data = (struct sockaddr *)name->data;
+    // for(uint32_t i = 0; i < namelen; i++)
+    // {
+    //     printf("%02x ", data[i]);
+    // }
+    // printf("\n\r");
     return lwip_connect(s, _name, namelen);
 }
 
@@ -876,45 +950,124 @@ int32_t rpc_lwip_listen(int32_t s, int32_t backlog)
     return lwip_listen(s, backlog);
 }
 
-int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags)
+int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uint32_t timeout)
 {
     log_d("called");
     uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
-    int32_t ret = lwip_recv(s, _mem, len, flags);
-    mem->data = _mem;
-    mem->dataLength = len;
-    return ret;
+    int32_t ret = -1;
+    uint32_t left = len;
+    uint32_t offset = 0;
+    uint32_t start = millis();
+    log_d("len:%d ", len);
+    while ((millis() - start) < timeout)
+    {
+        ret = lwip_recv(s, _mem + offset, left, flags);
+        if (ret > 0)
+        {
+            for (int i = 0; i < ret; i++)
+            {
+                printf("%c", _mem[i]);
+            }
+            left -= ret;
+            offset += ret;
+            if (left == 0)
+                break;
+            if (flags == MSG_PEEK)
+                break;
+        }
+    }
+    if (offset > 0)
+    {
+        mem->data = _mem;
+        mem->dataLength = offset;
+    }
+    else
+    {
+        mem->data = _mem;
+        mem->dataLength = 1;
+    }
+    log_d("exit");
+    log_d("left:%d ", left);
+    return offset == 0 ? -1 : offset;
 }
 
-int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len)
+int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
 {
     log_d("called");
     uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
-    int32_t ret = lwip_read(s, _mem, len);
-    mem->data = _mem;
-    mem->dataLength = len;
-    return ret;
+    int32_t ret = -1;
+    uint32_t left = len;
+    uint32_t offset = 0;
+    uint32_t start = millis();
+    while ((millis() - start) < timeout)
+    {
+        ret = lwip_read(s, _mem + offset, left);
+        if (ret > 0)
+        {
+            left -= ret;
+            offset += ret;
+            if (left == 0)
+                break;
+        }
+    }
+    if (offset > 0)
+    {
+        mem->data = _mem;
+        mem->dataLength = offset;
+    }
+    else
+    {
+        mem->data = _mem;
+        mem->dataLength = 1;
+    }
+    log_d("exit");
+    return offset == 0 ? -1 : offset;
 }
 
-int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen)
+int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen, uint32_t timeout)
 {
     log_d("called");
     uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
     struct sockaddr *_from = (struct sockaddr *)from->data;
-    int32_t ret = lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t)fromlen);
-    mem->data = _mem;
-    mem->dataLength = len;
-    return ret;
+    int32_t ret = -1;
+    uint32_t left = len;
+    uint32_t offset = 0;
+    uint32_t start = millis();
+    while ((millis() - start) < timeout)
+    {
+        ret = lwip_recvfrom(s, _mem + offset, left, flags, _from, (socklen_t *)fromlen);
+        if (ret > 0)
+        {
+            left -= ret;
+            offset += ret;
+            if (left == 0)
+                break;
+            if (flags == MSG_PEEK)
+                break;
+        }
+    }
+    if (offset > 0)
+    {
+        mem->data = _mem;
+        mem->dataLength = offset;
+    }
+    else
+    {
+        mem->data = _mem;
+        mem->dataLength = 1;
+    }
+    log_d("exit");
+    return offset == 0 ? -1 : offset;
 }
 
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
     log_d("rpc_lwip_send called");
-    for(int i = 0; i < dataptr->dataLength; i++)
-    {
-        printf("%c ", dataptr->data[i]);
-    }
-    printf("\n\r");
+    // for(int i = 0; i < dataptr->dataLength; i++)
+    // {
+    //     printf("%c ", dataptr->data[i]);
+    // }
+    // printf("\n\r");
     return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
 }
 
@@ -979,7 +1132,7 @@ int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t
     return lwip_select(maxfdp1, _readset, _writeset, _exceptset, _timeval);
 }
 
-int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t * in_argp, binary_t * out_argp)
+int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t *in_argp, binary_t *out_argp)
 {
     log_d("called");
     uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength);
@@ -987,6 +1140,7 @@ int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t * in_argp, binary
     int32_t ret = lwip_ioctl(s, cmd, data);
     out_argp->data = data;
     out_argp->dataLength = in_argp->dataLength;
+    log_d("exit");
     return ret;
 }
 
@@ -1057,7 +1211,7 @@ extern void wifi_dns_found(const char *name, ip_addr_t *ipaddr, void *callback_a
 //         ret = dns_gethostbyname(hostname, &addr, NULL, callback_arg);
 //     }
 
-//     return ret;
+//     log_d("exit"); return ret;
 // }
 
 int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint32_t found, const binary_t *callback_arg, uint8_t dns_addrtype)
@@ -1101,6 +1255,7 @@ int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint
         }
     }
 
+    log_d("exit");
     return ret;
 }
 

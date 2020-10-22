@@ -24,9 +24,7 @@
 #include "wifi_structures.h"
 #include "rpc_system_header.h"
 #include "wifi_callback.h"
-
-#define WL_SSID_MAX_LENGTH 32
-#define WL_NETWORKS_LIST_MAXNUM 50
+#include "wifi_main.h"
 
 static uint16_t _networkCount = 0;
 static bool isScaning = false;
