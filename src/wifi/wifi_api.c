@@ -950,45 +950,62 @@ int32_t rpc_lwip_listen(int32_t s, int32_t backlog)
     return lwip_listen(s, backlog);
 }
 
+
+int32_t rpc_lwip_available(int32_t s)
+{
+    log_d("called %d", s);
+    uint8_t c;
+    int ret = 0;
+
+    struct sockaddr from;
+    socklen_t fromlen;
+
+    uint8_t backup_recvtimeout = 0;
+    int backup_recv_timeout, recv_timeout;
+    socklen_t len;
+
+    // for MSG_PEEK, we try to peek packets by changing receiving timeout to 10ms
+    ret = lwip_getsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
+    if (ret >= 0)
+    {
+        recv_timeout = 100;
+        ret = lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
+        if (ret >= 0)
+        {
+            backup_recvtimeout = 1;
+        }
+    }
+
+    ret = lwip_recv(s, &c, 1, MSG_PEEK);
+
+    if (backup_recvtimeout == 1)
+    {
+        // restore receiving timeout
+        lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, sizeof(recv_timeout));
+    }
+
+    log_d("ret %d", ret);
+
+    return ret;
+}
+
 int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uint32_t timeout)
 {
     log_d("called");
     uint8_t *_mem = (uint8_t *)erpc_malloc(len * sizeof(uint8_t));
     int32_t ret = -1;
-    uint32_t left = len;
-    uint32_t offset = 0;
-    uint32_t start = millis();
-    log_d("len:%d ", len);
-    while ((millis() - start) < timeout)
-    {
-        ret = lwip_recv(s, _mem + offset, left, flags);
-        if (ret > 0)
-        {
-            for (int i = 0; i < ret; i++)
-            {
-                printf("%c", _mem[i]);
-            }
-            left -= ret;
-            offset += ret;
-            if (left == 0)
-                break;
-            if (flags == MSG_PEEK)
-                break;
-        }
-    }
-    if (offset > 0)
+    ret = lwip_recv(s, _mem , len, flags);
+    if (ret > 0)
     {
         mem->data = _mem;
-        mem->dataLength = offset;
+        mem->dataLength = ret;
     }
     else
     {
         mem->data = _mem;
         mem->dataLength = 1;
     }
-    log_d("exit");
-    log_d("left:%d ", left);
-    return offset == 0 ? -1 : offset;
+    return ret;
 }
 
 int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
@@ -1021,7 +1038,7 @@ int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
         mem->dataLength = 1;
     }
     log_d("exit");
-    return offset == 0 ? -1 : offset;
+    return ret;
 }
 
 int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen, uint32_t timeout)
