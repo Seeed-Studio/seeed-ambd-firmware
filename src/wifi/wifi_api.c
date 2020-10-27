@@ -969,7 +969,7 @@ int32_t rpc_lwip_available(int32_t s)
     ret = lwip_getsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
     if (ret >= 0)
     {
-        recv_timeout = 10;
+        recv_timeout = 20;
         ret = lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
         if (ret >= 0)
         {
@@ -994,7 +994,6 @@ int32_t rpc_lwip_available(int32_t s)
 
 int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uint32_t timeout)
 {
-    log_d("called");
     log_d("called: %d", len);
     uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
     int32_t ret = -1;
@@ -1009,6 +1008,7 @@ int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uin
         mem->data = _mem;
         mem->dataLength = 1;
     }
+    log_d("called %d", ret);
     return ret;
 }
 
@@ -1055,11 +1055,11 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
     log_d("rpc_lwip_send called");
-    // for(int i = 0; i < dataptr->dataLength; i++)
-    // {
-    //     printf("%c ", dataptr->data[i]);
-    // }
-    // printf("\n\r");
+    for(int i = 0; i < dataptr->dataLength; i++)
+    {
+        printf("%02x ", dataptr->data[i]);
+    }
+    printf("\n\r");
     return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
 }
 
