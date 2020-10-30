@@ -49,8 +49,6 @@ erpc_status_t UartTransport::init(void)
 erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
 {
     size_t bytesRead = 0;
-    uint8_t *temp = data;
-    uint32_t times = 0;
     while (bytesRead < size)
     {
         while (m_uartDrv->available())
