@@ -10,6 +10,18 @@
 
 using namespace erpc;
 
+bool EUart_hasMessage()
+{
+    if (Serial2.available() > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +66,7 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
         // times++;
         // if(times % 100 == 0)
         //     printf("*");
-        delay(10);
+         delay(5);
     }
     // taskENTER_CRITICAL();
     // printf("underlyingReceive: size %d\n\rdata:\n\r", size);
