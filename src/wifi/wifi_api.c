@@ -25,6 +25,7 @@
 #include "lwip/sockets.h"
 #include "lwip/dns.h"
 #include "wifi_main.h"
+#include "wifi_ssl_client.h"
 #include <errno.h>
 
 static uint32_t wifi_work_mode = RTW_MODE_NONE;
@@ -133,7 +134,7 @@ int32_t rpc_wifi_get_associated_client_list(binary_t *client_list_buffer, uint16
 {
     log_d("called");
     int32_t ret = 0;
-    uint8_t *data = (uint8_t *)erpc_malloc((buffer_length+1) * sizeof(uint8_t));
+    uint8_t *data = (uint8_t *)erpc_malloc((buffer_length + 1) * sizeof(uint8_t));
     ret = wifi_get_associated_client_list(data, buffer_length);
     client_list_buffer->dataLength = buffer_length;
     client_list_buffer->data = data;
@@ -950,13 +951,14 @@ int32_t rpc_lwip_listen(int32_t s, int32_t backlog)
     return lwip_listen(s, backlog);
 }
 
-
 int32_t rpc_lwip_available(int32_t s)
 {
     log_d("called %d", s);
     uint8_t c;
     int ret = 0;
-    int try = 10;
+    int
+    try
+        = 20;
 
     struct sockaddr from;
     socklen_t fromlen;
@@ -976,9 +978,12 @@ int32_t rpc_lwip_available(int32_t s)
             backup_recvtimeout = 1;
         }
     }
-
-    while(try-- && ret <= 0){
+    ret = -1;
+    while (try --&&ret < 0)
+    {
         ret = lwip_recv(s, &c, 1, MSG_PEEK);
+        log_d("rpc_lwip_available retry %d ret:%d", try, ret);
+        delay(20);
     }
 
     if (backup_recvtimeout == 1)
@@ -995,9 +1000,9 @@ int32_t rpc_lwip_available(int32_t s)
 int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uint32_t timeout)
 {
     log_d("called: %d", len);
-    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len + 1) * sizeof(uint8_t));
     int32_t ret = -1;
-    ret = lwip_recv(s, _mem , len, flags);
+    ret = lwip_recv(s, _mem, len, flags);
     if (ret > 0)
     {
         mem->data = _mem;
@@ -1015,9 +1020,9 @@ int32_t rpc_lwip_recv(int32_t s, binary_t *mem, uint32_t len, int32_t flags, uin
 int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
 {
     log_d("called");
-    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len + 1) * sizeof(uint8_t));
     int32_t ret = -1;
-    ret = lwip_read(s, _mem , len);
+    ret = lwip_read(s, _mem, len);
     if (ret > 0)
     {
         mem->data = _mem;
@@ -1035,10 +1040,10 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 {
 
     log_d("called");
-    uint8_t *_mem = (uint8_t *)erpc_malloc((len+1) * sizeof(uint8_t));
+    uint8_t *_mem = (uint8_t *)erpc_malloc((len + 1) * sizeof(uint8_t));
     int32_t ret = -1;
     struct sockaddr *_from = (struct sockaddr *)from->data;
-    ret =  lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t *)fromlen);
+    ret = lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t *)fromlen);
     if (ret > 0)
     {
         mem->data = _mem;
@@ -1055,7 +1060,7 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
     log_d("rpc_lwip_send called");
-    for(int i = 0; i < dataptr->dataLength; i++)
+    for (int i = 0; i < dataptr->dataLength; i++)
     {
         printf("%02x ", dataptr->data[i]);
     }
@@ -1127,7 +1132,7 @@ int32_t rpc_lwip_select(int32_t maxfdp1, const binary_t *readset, const binary_t
 int32_t rpc_lwip_ioctl(int32_t s, uint32_t cmd, const binary_t *in_argp, binary_t *out_argp)
 {
     log_d("called");
-    uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength+1);
+    uint8_t *data = (uint8_t *)erpc_malloc(in_argp->dataLength + 1);
     memcpy(data, in_argp->data, in_argp->dataLength);
     int32_t ret = lwip_ioctl(s, cmd, data);
     out_argp->data = data;
@@ -1249,6 +1254,132 @@ int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint
 
     log_d("exit");
     return ret;
+}
+
+//@}
+
+//! @name rpc_wifi_mbedtls
+//@{
+uint32_t rpc_wifi_ssl_client_create(void)
+{
+    log_d("called");
+    return wifi_ssl_client_create();
+    log_d("exit");
+}
+void rpc_wifi_ssl_client_destroy(uint32_t ssl_client)
+{
+    log_d("called");
+    return wifi_ssl_client_destroy(ssl_client);
+    log_d("exit");
+}
+
+void rpc_wifi_ssl_init(uint32_t ssl_client)
+{
+    log_d("called");
+    wifi_ssl_init(ssl_client);
+    log_d("exit");
+}
+
+void rpc_wifi_ssl_set_socket(uint32_t *ssl_client, int socket)
+{
+    log_d("called");
+    wifi_ssl_set_socket(ssl_client, socket);
+    log_d("exit");
+}
+void rpc_wifi_ssl_set_timeout(uint32_t *ssl_client, unsigned long handshake_timeout)
+{
+    log_d("called");
+    wifi_ssl_set_timeout(ssl_client, handshake_timeout);
+    log_d("exit");
+}
+
+int32_t rpc_wifi_ssl_get_socket(uint32_t ssl_client)
+{
+    log_d("called");
+    return wifi_ssl_get_socket(ssl_client);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_timeout(uint32_t ssl_client)
+{
+    log_d("called");
+    return wifi_ssl_get_timeout(ssl_client);
+    log_d("exit");
+}
+
+int32_t rpc_wifi_start_ssl_client(uint32_t ssl_client, const char *host, uint32_t port, int32_t timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey)
+{
+    printf("rpc_wifi_start_ssl_client");
+    int32_t ret = wifi_start_ssl_client(ssl_client, host, port, timeout, rootCABuff, cli_cert, cli_key, pskIdent, psKey);
+    printf("exit");
+    return ret;
+}
+
+void rpc_wifi_stop_ssl_socket(uint32_t ssl_client)
+{
+    log_d("called");
+    wifi_stop_ssl_socket(ssl_client, NULL, NULL, NULL);
+    log_d("exit");
+}
+
+int32_t rpc_wifi_data_to_read(uint32_t ssl_client)
+{
+    log_d("called");
+    int32_t ret = wifi_data_to_read(ssl_client);
+    log_d("exit");
+    return ret;
+}
+
+int32_t rpc_wifi_send_ssl_data(uint32_t ssl_client, const binary_t *data, uint16_t len)
+{
+    log_d("called");
+    int32_t ret = wifi_send_ssl_data(ssl_client, data->data, len);
+    log_d("exit");
+    return ret;
+}
+
+int32_t rpc_wifi_get_ssl_receive(uint32_t ssl_client, binary_t *data, int32_t length)
+{
+    log_d("called");
+    uint8_t *buf = erpc_malloc(length + 1);
+    int32_t ret = wifi_get_ssl_receive(ssl_client, buf, length);
+    data->data = buf;
+    if (ret > 0)
+    {
+        data->dataLength = ret;
+    }
+    else
+    {
+        data->dataLength = 1;
+    }
+    log_d("exit");
+    return ret;
+}
+
+bool rpc_wifi_verify_ssl_fingerprint(uint32_t ssl_client, const char *fp, const char *domain_name)
+{
+    log_d("called");
+    int32_t ret = wifi_verify_ssl_fingerprint(ssl_client, fp, domain_name);
+    log_d("exit");
+    return ret;
+}
+
+bool rpc_wifi_verify_ssl_dn(uint32_t ssl_client, const char *domain_name)
+{
+    log_d("called");
+    int32_t ret = wifi_verify_ssl_dn(ssl_client, domain_name);
+    log_d("exit");
+    return ret;
+}
+
+void rpc_wifi_ssl_strerror(int32_t errnum, binary_t *buffer, uint32_t buflen)
+{
+    log_d("called");
+    uint8_t *_buffer = erpc_malloc(buflen + 1);
+    wifi_ssl_strerror(errnum, _buffer, buflen);
+    buffer->data = _buffer;
+    buffer->dataLength = buflen;
+    log_d("exit");
 }
 
 //@}

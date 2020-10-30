@@ -95,6 +95,7 @@ void add_services(erpc::SimpleServer *server)
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_drv_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_tcpip_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_lwip_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_wifi_mbedtls_service()));
 }
 
 /**
@@ -109,7 +110,7 @@ void run_erpc_server(void *arg)
     for (;;)
     {
         g_server.poll();
-        delay(1);
+        delay(10);
     }
 }
 
@@ -134,7 +135,7 @@ void erpc_system_init()
     g_server.setTransport(&g_arbitrator);
     g_server.setCodecFactory(&g_basicCodecFactory);
     g_server.setMessageBufferFactory(&g_msgFactory);
-    Thread serverThread(&run_erpc_server, 8, 4096, "erpc server");
+    Thread serverThread(&run_erpc_server, 8, 1024*24, "erpc server");
     serverThread.start();
 
     add_services(&g_server);

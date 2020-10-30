@@ -14,9 +14,10 @@
 #include <mbedtls/sha256.h>
 #include <mbedtls/oid.h>
 #include "wifi_ssl_client.h"
+#include "ard_ssl.h"
 #include "elog.h"
 
-const char *pers = "esp32-tls";
+const char *pers = "tls";
 
 static int _handle_error(int err, const char *file, int line)
 {
@@ -27,14 +28,24 @@ static int _handle_error(int err, const char *file, int line)
 #ifdef MBEDTLS_ERROR_C
     char error_buf[100];
     mbedtls_strerror(err, error_buf, 100);
-    log_e("[%s():%d]: (%d) %s", file, line, err, error_buf);
+    printf("\n\r[%s():%d]: (%d) %s\n\r", file, line, err, error_buf);
 #else
-    log_e("[%s():%d]: code %d", file, line, err);
+    printf("\n\r[%s():%d]: code %d\n\r", file, line, err);
 #endif
     return err;
 }
 
 #define handle_error(e) _handle_error(e, __FUNCTION__, __LINE__)
+
+wifi_sslclient_context *wifi_ssl_client_create()
+{
+    return malloc(sizeof(wifi_sslclient_context));
+}
+
+void wifi_ssl_client_destroy(wifi_sslclient_context *ssl_client)
+{
+    free(ssl_client);
+}
 
 void wifi_ssl_init(wifi_sslclient_context *ssl_client)
 {
@@ -43,19 +54,113 @@ void wifi_ssl_init(wifi_sslclient_context *ssl_client)
     mbedtls_ctr_drbg_init(&ssl_client->drbg_ctx);
 }
 
+void wifi_ssl_set_socket(wifi_sslclient_context *ssl_client, int socket)
+{
+    ssl_client->socket = socket;
+}
+void wifi_ssl_set_timeout(wifi_sslclient_context *ssl_client, unsigned long handshake_timeout)
+{
+    ssl_client->handshake_timeout = handshake_timeout;
+}
+
+int wifi_ssl_get_socket(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->socket;
+}
+unsigned long wifi_ssl_get_timeout(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->handshake_timeout;
+}
+
+static void *my_calloc(size_t nelements, size_t elementSize)
+{
+    size_t size;
+    void *ptr = NULL;
+
+    size = nelements * elementSize;
+    ptr = pvPortMalloc(size);
+
+    if (ptr)
+        memset(ptr, 0, size);
+
+    return ptr;
+}
+
+static unsigned int ard_ssl_arc4random(void)
+{
+    unsigned int res = xTaskGetTickCount();
+    static unsigned int seed = 0xDEADB00B;
+
+    seed = ((seed & 0x007F00FF) << 7) ^
+           ((seed & 0x0F80FF00) >> 8) ^ // be sure to stir those low bits
+           (res << 13) ^ (res >> 9);    // using the clock too!
+
+    return seed;
+}
+
+static void get_random_bytes(void *buf, size_t len)
+{
+    unsigned int ranbuf;
+    unsigned int *lp;
+    int i, count;
+    count = len / sizeof(unsigned int);
+    lp = (unsigned int *)buf;
+
+    for (i = 0; i < count; i++)
+    {
+        lp[i] = ard_ssl_arc4random();
+        len -= sizeof(unsigned int);
+    }
+
+    if (len > 0)
+    {
+        ranbuf = ard_ssl_arc4random();
+        memcpy(&lp[i], &ranbuf, len);
+    }
+}
+
+static int my_random(void *p_rng, unsigned char *output, size_t output_len)
+{
+    p_rng = p_rng;
+    get_random_bytes(output, output_len);
+    return 0;
+}
+
+static int my_verify(void *data, mbedtls_x509_crt *crt, int depth, uint32_t *flags)
+{
+    char buf[1024];
+    ((void)data);
+
+    mbedtls_x509_crt_info(buf, (sizeof(buf) - 1), "", crt);
+
+    printf("\nVerify requested for (Depth %d):\n", depth);
+    printf("%s", buf);
+
+    if ((*flags) == 0)
+        printf(" This certificate has no flags\n");
+    else
+    {
+        mbedtls_x509_crt_verify_info(buf, sizeof(buf), " ! ", *flags);
+        printf("%s\n", buf);
+    }
+
+    return (0);
+}
+
 int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, uint32_t port, int timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey)
 {
     char buf[512];
     int ret, flags;
     int enable = 1;
+    int keep_idle = 30;
 
-    log_v("Starting socket");
+    printf("\n\rStarting socket");
     ssl_client->socket = -1;
 
     ssl_client->socket = lwip_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (ssl_client->socket < 0)
     {
-        log_e("ERROR opening socket");
+        printf("\n\rERROR opening socket");
         return ssl_client->socket;
     }
 
@@ -64,7 +169,6 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
     {
         return -1;
     }
-
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -81,26 +185,26 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
         lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
         lwip_setsockopt(ssl_client->socket, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
         lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
+        lwip_setsockopt(ssl_client->socket, IPPROTO_TCP, TCP_KEEPIDLE, &keep_idle, sizeof(keep_idle));
     }
     else
     {
-        log_e("Connect to Server failed!");
+        printf("\n\rConnect to Server failed!");
         return -1;
     }
 
     fcntl(ssl_client->socket, F_SETFL, fcntl(ssl_client->socket, F_GETFL, 0) | O_NONBLOCK);
+    mbedtls_platform_set_calloc_free(my_calloc, vPortFree);
+    // printf("\n\rSeeding the random number generator");
+    // mbedtls_entropy_init(&ssl_client->entropy_ctx);
 
-    log_v("Seeding the random number generator");
-    mbedtls_entropy_init(&ssl_client->entropy_ctx);
+    // ret = mbedtls_ctr_drbg_seed(&ssl_client->drbg_ctx, mbedtls_entropy_func,
+    //                             &ssl_client->entropy_ctx, NULL, 0);
 
-    ret = mbedtls_ctr_drbg_seed(&ssl_client->drbg_ctx, mbedtls_entropy_func,
-                                &ssl_client->entropy_ctx, (const unsigned char *)pers, strlen(pers));
-    if (ret < 0)
-    {
-        return handle_error(ret);
-    }
+    mbedtls_ssl_init(&ssl_client->ssl_ctx);
+    mbedtls_ssl_config_init(&ssl_client->ssl_conf);
 
-    log_v("Setting up the SSL/TLS structure...");
+    printf("\n\rSetting up the SSL/TLS structure...");
 
     if ((ret = mbedtls_ssl_config_defaults(&ssl_client->ssl_conf,
                                            MBEDTLS_SSL_IS_CLIENT,
@@ -110,64 +214,72 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
         return handle_error(ret);
     }
 
+    mbedtls_ssl_conf_rng(&ssl_client->ssl_conf, my_random, NULL);
+
     // MBEDTLS_SSL_VERIFY_REQUIRED if a CA certificate is defined on Arduino IDE and
     // MBEDTLS_SSL_VERIFY_NONE if not.
 
     if (rootCABuff != NULL)
     {
-        log_v("Loading CA cert");
+        printf("\n\rLoading CA cert\n\r");
+        for (int i = 0; i < strlen(rootCABuff); i++)
+        {
+            printf("%c", rootCABuff[i]);
+        }
+        printf("\n\r");
         mbedtls_x509_crt_init(&ssl_client->ca_cert);
-        mbedtls_ssl_conf_authmode(&ssl_client->ssl_conf, MBEDTLS_SSL_VERIFY_REQUIRED);
         ret = mbedtls_x509_crt_parse(&ssl_client->ca_cert, (const unsigned char *)rootCABuff, strlen(rootCABuff) + 1);
-        mbedtls_ssl_conf_ca_chain(&ssl_client->ssl_conf, &ssl_client->ca_cert, NULL);
-        //mbedtls_ssl_conf_verify(&ssl_client->ssl_ctx, my_verify, NULL );
         if (ret < 0)
         {
             return handle_error(ret);
         }
+        mbedtls_ssl_conf_ca_chain(&ssl_client->ssl_conf, &ssl_client->ca_cert, NULL);
+        mbedtls_ssl_conf_authmode(&ssl_client->ssl_conf, MBEDTLS_SSL_VERIFY_REQUIRED);
+        //mbedtls_ssl_conf_verify(&ssl_client->ssl_ctx, my_verify, NULL );
     }
     else if (pskIdent != NULL && psKey != NULL)
     {
-        log_v("Setting up PSK");
-        // convert PSK from hex to binary
-        if ((strlen(psKey) & 1) != 0 || strlen(psKey) > 2 * MBEDTLS_PSK_MAX_LEN)
-        {
-            log_e("pre-shared key not valid hex or too long");
-            return -1;
-        }
-        unsigned char psk[MBEDTLS_PSK_MAX_LEN];
-        size_t psk_len = strlen(psKey) / 2;
-        for (int j = 0; j < strlen(psKey); j += 2)
-        {
-            char c = psKey[j];
-            if (c >= '0' && c <= '9')
-                c -= '0';
-            else if (c >= 'A' && c <= 'F')
-                c -= 'A' - 10;
-            else if (c >= 'a' && c <= 'f')
-                c -= 'a' - 10;
-            else
-                return -1;
-            psk[j / 2] = c << 4;
-            c = psKey[j + 1];
-            if (c >= '0' && c <= '9')
-                c -= '0';
-            else if (c >= 'A' && c <= 'F')
-                c -= 'A' - 10;
-            else if (c >= 'a' && c <= 'f')
-                c -= 'a' - 10;
-            else
-                return -1;
-            psk[j / 2] |= c;
-        }
-        // set mbedtls config
-        ret = mbedtls_ssl_conf_psk(&ssl_client->ssl_conf, psk, psk_len,
-                                   (const unsigned char *)pskIdent, strlen(pskIdent));
-        if (ret != 0)
-        {
-            log_e("mbedtls_ssl_conf_psk returned %d", ret);
-            return handle_error(ret);
-        }
+        // printf("\n\rSetting up PSK");
+        // // convert PSK from hex to binary
+        // if ((strlen(psKey) & 1) != 0 || strlen(psKey) > 2 * MBEDTLS_PSK_MAX_LEN)
+        // {
+        //     printf("\n\rpre-shared key not valid hex or too long");
+        //     return -1;
+        // }
+        // unsigned char psk[MBEDTLS_PSK_MAX_LEN];
+        // size_t psk_len = strlen(psKey) / 2;
+        // for (int j = 0; j < strlen(psKey); j += 2)
+        // {
+        //     char c = psKey[j];
+        //     if (c >= '0' && c <= '9')
+        //         c -= '0';
+        //     else if (c >= 'A' && c <= 'F')
+        //         c -= 'A' - 10;
+        //     else if (c >= 'a' && c <= 'f')
+        //         c -= 'a' - 10;
+        //     else
+        //         return -1;
+        //     psk[j / 2] = c << 4;
+        //     c = psKey[j + 1];
+        //     if (c >= '0' && c <= '9')
+        //         c -= '0';
+        //     else if (c >= 'A' && c <= 'F')
+        //         c -= 'A' - 10;
+        //     else if (c >= 'a' && c <= 'f')
+        //         c -= 'a' - 10;
+        //     else
+        //         return -1;
+        //     psk[j / 2] |= c;
+        // }
+        // // set mbedtls config
+        // ret = mbedtls_ssl_conf_psk(&ssl_client->ssl_conf, psk, psk_len,
+        //                            (const unsigned char *)pskIdent, strlen(pskIdent));
+        // if (ret != 0)
+        // {
+        //     printf("\n\rmbedtls_ssl_conf_psk returned %d\n\r", ret);
+        //     return handle_error(ret);
+        // }
+        return -1;
     }
     else
     {
@@ -180,7 +292,7 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
         mbedtls_x509_crt_init(&ssl_client->client_cert);
         mbedtls_pk_init(&ssl_client->client_key);
 
-        log_v("Loading CRT cert");
+        printf("\n\rLoading CRT cert");
 
         ret = mbedtls_x509_crt_parse(&ssl_client->client_cert, (const unsigned char *)cli_cert, strlen(cli_cert) + 1);
         if (ret < 0)
@@ -188,7 +300,7 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
             return handle_error(ret);
         }
 
-        log_v("Loading private key");
+        printf("\n\rLoading private key");
         ret = mbedtls_pk_parse_key(&ssl_client->client_key, (const unsigned char *)cli_key, strlen(cli_key) + 1, NULL, 0);
 
         if (ret != 0)
@@ -199,15 +311,13 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
         mbedtls_ssl_conf_own_cert(&ssl_client->ssl_conf, &ssl_client->client_cert, &ssl_client->client_key);
     }
 
-    log_v("Setting hostname for TLS session...");
+    //printf("\n\rSetting hostname :%s for TLS session...", host);
 
-    // Hostname set here should match CN in server certificate
-    if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
-    {
-        return handle_error(ret);
-    }
-
-    mbedtls_ssl_conf_rng(&ssl_client->ssl_conf, mbedtls_ctr_drbg_random, &ssl_client->drbg_ctx);
+    // // Hostname set here should match CN in server certificate
+    // if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
+    // {
+    //     return handle_error(ret);
+    // }
 
     if ((ret = mbedtls_ssl_setup(&ssl_client->ssl_ctx, &ssl_client->ssl_conf)) != 0)
     {
@@ -216,14 +326,15 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
 
     mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, &ssl_client->socket, mbedtls_net_send, mbedtls_net_recv, NULL);
 
-    log_v("Performing the SSL/TLS handshake...");
+    printf("\n\rPerforming the SSL/TLS handshake...");
     unsigned long handshake_start_time = millis();
     while ((ret = mbedtls_ssl_handshake(&ssl_client->ssl_ctx)) != 0)
     {
-        if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
-        {
-            return handle_error(ret);
-        }
+        // if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
+        // {
+        //     return handle_error(ret);
+        // }
+        printf("ssl_client->handshake_timeout:%d\n\r", ssl_client->handshake_timeout);
         if ((millis() - handshake_start_time) > ssl_client->handshake_timeout)
             return -1;
         vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -231,10 +342,10 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
 
     if (cli_cert != NULL && cli_key != NULL)
     {
-        log_d("Protocol is %s Ciphersuite is %s", mbedtls_ssl_get_version(&ssl_client->ssl_ctx), mbedtls_ssl_get_ciphersuite(&ssl_client->ssl_ctx));
+        printf("\n\rProtocol is %s Ciphersuite is %s\n\r", mbedtls_ssl_get_version(&ssl_client->ssl_ctx), mbedtls_ssl_get_ciphersuite(&ssl_client->ssl_ctx));
         if ((ret = mbedtls_ssl_get_record_expansion(&ssl_client->ssl_ctx)) >= 0)
         {
-            log_d("Record expansion is %d", ret);
+            printf("\n\rRecord expansion is %d\n\r", ret);
         }
         else
         {
@@ -242,19 +353,19 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
         }
     }
 
-    log_v("Verifying peer X.509 certificate...");
+    printf("\n\rVerifying peer X.509 certificate...");
 
     if ((flags = mbedtls_ssl_get_verify_result(&ssl_client->ssl_ctx)) != 0)
     {
         bzero(buf, sizeof(buf));
-        mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
-        log_e("Failed to verify peer certificate! verification info: %s", buf);
-        stop_ssl_socket(ssl_client, rootCABuff, cli_cert, cli_key); //It's not safe continue.
+        mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! \n\r", flags);
+        printf("\n\rFailed to verify peer certificate! verification info: %s\n\r", buf);
+        wifi_stop_ssl_socket(ssl_client, rootCABuff, cli_cert, cli_key); //It's not safe continue.
         return handle_error(ret);
     }
     else
     {
-        log_v("Certificate verified.");
+        printf("\n\rCertificate verified.");
     }
 
     if (rootCABuff != NULL)
@@ -273,11 +384,39 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
     }
 
     return ssl_client->socket;
+    // sslclient_context xssl_client;
+    // ip_addr_t srv;
+    // printf("\n\rport: %d\n\r", port);
+    // xssl_client.recvTimeout = timeout;
+    // xssl_client.ssl = &ssl_client->ssl_ctx;
+    // xssl_client.conf = &ssl_client->ssl_conf;
+    // if (netconn_gethostbyname(host, &srv) != ERR_OK)
+    // {
+    //     return -1;
+    // }
+    // printf("\n\addr: %d\n\r",  srv.addr);
+    // int ret = start_ssl_client(&xssl_client, srv.addr, port, rootCABuff, cli_cert, cli_key);
+    // printf("\n\rret: %d\n\r", ret);
+    // // if (xssl_client.ssl != NULL)
+    // // {
+    // //     printf("\n\rssl_ctx: %d\n\r", &ssl_client->ssl_ctx);
+    // //     memcpy(&ssl_client->ssl_ctx, xssl_client.ssl, sizeof(mbedtls_ssl_context));
+    // //     free(xssl_client.ssl);
+    // // }
+    // // if (xssl_client.conf != NULL)
+    // // {
+    // //     printf("\n\rssl_conf: %d\n\r", &ssl_client->ssl_conf);
+    // //     memcpy(&ssl_client->ssl_conf, xssl_client.conf, sizeof(mbedtls_ssl_config));
+    // //     free(xssl_client.conf);
+    // // }
+    // ssl_client->socket = xssl_client.socket;
+    // ssl_client->handshake_timeout = xssl_client.recvTimeout;
+    return ret;
 }
 
 void wifi_stop_ssl_socket(wifi_sslclient_context *ssl_client, const char *rootCABuff, const char *cli_cert, const char *cli_key)
 {
-    log_v("Cleaning SSL connection.");
+    printf("\n\rCleaning SSL connection.");
 
     if (ssl_client->socket >= 0)
     {
@@ -288,27 +427,63 @@ void wifi_stop_ssl_socket(wifi_sslclient_context *ssl_client, const char *rootCA
     mbedtls_ssl_free(&ssl_client->ssl_ctx);
     mbedtls_ssl_config_free(&ssl_client->ssl_conf);
     mbedtls_ctr_drbg_free(&ssl_client->drbg_ctx);
-    mbedtls_entropy_free(&ssl_client->entropy_ctx);
+    //mbedtls_entropy_free(&ssl_client->entropy_ctx);
 }
 
 int wifi_data_to_read(wifi_sslclient_context *ssl_client)
 {
-    int ret, res;
-    ret = mbedtls_ssl_read(&ssl_client->ssl_ctx, NULL, 0);
-    //log_e("RET: %i",ret);   //for low level debug
-    res = mbedtls_ssl_get_bytes_avail(&ssl_client->ssl_ctx);
-    //log_e("RES: %i",res);    //for low level debug
-    if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret < 0)
+    //printf("\n\rRET: %i\n\r",ret);   //for low level debug
+
+    // res = mbedtls_ssl_get_bytes_avail(&ssl_client->ssl_ctx);
+    // printf("\n\rssl_ctx: %d res: %d\n\r", &ssl_client->ssl_ctx, res);
+    //printf("\n\rRES: %i\n\r",res);    //for low level debug
+    // if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret < 0)
+    // {
+    //     return handle_error(ret);
+    // }
+    int ret = 0;
+    uint8_t has_backup_recvtimeout = 0;
+    int backup_recv_timeout, recv_timeout;
+    socklen_t len;
+    int retry = 20;
+
+    // peek for 10ms
+    ret = lwip_getsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, &len);
+    if (ret >= 0)
     {
-        return handle_error(ret);
+        recv_timeout = 100;
+        ret = lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout));
+        if (ret >= 0)
+        {
+            has_backup_recvtimeout = 1;
+        }
+    }
+    uint8_t dummy;
+    memset(&dummy, 0, 1);
+    ret = -1;
+    while (retry-- && ret < 0)
+    {
+        ret = mbedtls_ssl_read(&ssl_client->ssl_ctx, &dummy, 0);
+        printf("retry :%d ret\n\r", retry, ret);
+        delay(10);
+    }
+    if (ret > 0)
+    {
+        printf("%c", dummy);
     }
 
-    return res;
+    if (has_backup_recvtimeout == 1)
+    {
+        // restore receiving timeout
+        lwip_setsockopt(ssl_client->socket, SOL_SOCKET, SO_RCVTIMEO, &backup_recv_timeout, sizeof(recv_timeout));
+    }
+
+    return ret;
 }
 
 int wifi_send_ssl_data(wifi_sslclient_context *ssl_client, const uint8_t *data, uint16_t len)
 {
-    log_v("Writing HTTP request..."); //for low level debug
+    printf("\n\rWriting HTTP request..."); //for low level debug
     int ret = -1;
 
     while ((ret = mbedtls_ssl_write(&ssl_client->ssl_ctx, data, len)) <= 0)
@@ -320,18 +495,18 @@ int wifi_send_ssl_data(wifi_sslclient_context *ssl_client, const uint8_t *data, 
     }
 
     len = ret;
-    //log_v("%d bytes written", len);  //for low level debug
+    //printf("\n\r%d bytes written\n\r", len);  //for low level debug
     return ret;
 }
 
 int wifi_get_ssl_receive(wifi_sslclient_context *ssl_client, uint8_t *data, int length)
 {
-    //log_d( "Reading HTTP response...");   //for low level debug
+    //printf( "Reading HTTP response...");   //for low level debug
     int ret = -1;
 
     ret = mbedtls_ssl_read(&ssl_client->ssl_ctx, data, length);
 
-    //log_v( "%d bytes read", ret);   //for low level debug
+    //printf( "%d bytes read\n\r", ret);   //for low level debug
     return ret;
 }
 
@@ -415,13 +590,13 @@ int wifi_verify_ssl_fingerprint(wifi_sslclient_context *ssl_client, const char *
         }
         if (pos > len - 2)
         {
-            log_d("pos:%d len:%d fingerprint too short", pos, len);
+            printf("\n\rpos:%d len:%d fingerprint too short\n\r", pos, len);
             return false;
         }
         uint8_t high, low;
         if (!parseHexNibble(fp[pos], &high) || !parseHexNibble(fp[pos + 1], &low))
         {
-            log_d("pos:%d len:%d invalid hex sequence: %c%c", pos, len, fp[pos], fp[pos + 1]);
+            printf("\n\rpos:%d len:%d invalid hex sequence: %c%c\n\r", pos, len, fp[pos], fp[pos + 1]);
             return false;
         }
         pos += 2;
@@ -433,7 +608,7 @@ int wifi_verify_ssl_fingerprint(wifi_sslclient_context *ssl_client, const char *
 
     if (!crt)
     {
-        log_d("could not fetch peer certificate");
+        printf("\n\rcould not fetch peer certificate");
         return false;
     }
 
@@ -448,7 +623,7 @@ int wifi_verify_ssl_fingerprint(wifi_sslclient_context *ssl_client, const char *
     // Check if fingerprints match
     if (memcmp(fingerprint_local, fingerprint_remote, 32))
     {
-        log_d("fingerprint doesn't match");
+        printf("\n\rfingerprint doesn't match");
         return false;
     }
 
@@ -462,7 +637,7 @@ int wifi_verify_ssl_fingerprint(wifi_sslclient_context *ssl_client, const char *
 // Checks if peer certificate has specified domain in CN or SANs
 int wifi_verify_ssl_dn(wifi_sslclient_context *ssl_client, const char *domain_name)
 {
-    log_d("domain name: '%s'", (domain_name) ? domain_name : "(null)");
+    printf("\n\rdomain name: '%s'\n\r", (domain_name) ? domain_name : "(null)");
 
     char *domain_name_str = (char *)malloc(strlen(domain_name + 1));
     memcpy(domain_name_str, domain_name, strlen(domain_name) + 1);
@@ -486,7 +661,7 @@ int wifi_verify_ssl_dn(wifi_sslclient_context *ssl_client, const char *domain_na
             return true;
         }
 
-        log_d("SAN '%s': no match", san_str);
+        printf("\n\rSAN '%s': no match\n\r", san_str);
 
         // Fetch next SAN
         san = san->next;
@@ -510,7 +685,7 @@ int wifi_verify_ssl_dn(wifi_sslclient_context *ssl_client, const char *domain_na
                 free(domain_name_str);
                 return true;
             }
-            log_d("CN '%s': not match", common_name_str);
+            printf("\n\rCN '%s': not match\n\r", common_name_str);
             free(common_name_str);
         }
 
@@ -521,4 +696,8 @@ int wifi_verify_ssl_dn(wifi_sslclient_context *ssl_client, const char *domain_na
     free(domain_name_str);
 
     return false;
+}
+void wifi_ssl_strerror(int errnum, char *buffer, size_t buflen)
+{
+    mbedtls_strerror(errnum, buffer, buflen);
 }

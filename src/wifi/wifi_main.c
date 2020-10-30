@@ -25,10 +25,120 @@
 #include "rpc_system_header.h"
 #include "wifi_callback.h"
 #include "wifi_main.h"
+#include "mbedtls/threading.h"
+#include "mbedtls/config.h"
+#include "mbedtls/platform.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha1.h"
+#include "mbedtls/pk.h"
+#include "mbedtls/x509_crt.h"
 
 static uint16_t _networkCount = 0;
 static bool isScaning = false;
 static rtw_scan_result_t _scan_networks[WL_NETWORKS_LIST_MAXNUM] = {0};
+
+// /**
+//  * @brief Implementation of mbedtls_mutex_init for thread-safety.
+//  *
+//  */
+// void my_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
+// {
+//     if( mutex->is_valid == 0 )
+//     {
+//         mutex->mutex = xSemaphoreCreateMutex();
+
+//         if( mutex->mutex != NULL )
+//         {
+//             mutex->is_valid = 1;
+//         }
+//         else
+//         {
+//             log_e( ( "Failed to initialize mbedTLS mutex.\r\n" ) );
+//         }
+//     }
+// }
+
+// /**
+//  * @brief Implementation of mbedtls_mutex_free for thread-safety.
+//  *
+//  */
+// void my_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
+// {
+//     if( mutex->is_valid == 1 )
+//     {
+//         vSemaphoreDelete( mutex->mutex );
+//         mutex->is_valid = 0;
+//     }
+// }
+
+// /**
+//  * @brief Implementation of mbedtls_mutex_lock for thread-safety.
+//  *
+//  * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+//  * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+//  */
+// int my_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
+// {
+//     int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+//     if( mutex->is_valid == 1 )
+//     {
+//         if( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
+//         {
+//             ret = 0;
+//         }
+//         else
+//         {
+//             ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+//             log_e( ( "Failed to obtain mbedTLS mutex.\r\n" ) );
+//         }
+//     }
+
+//     return ret;
+// }
+
+// /**
+//  * @brief Implementation of mbedtls_mutex_unlock for thread-safety.
+//  *
+//  * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+//  * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+//  */
+// int my_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
+// {
+//     int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+//     if( mutex->is_valid == 1 )
+//     {
+//         if( xSemaphoreGive( mutex->mutex ) )
+//         {
+//             ret = 0;
+//         }
+//         else
+//         {
+//             ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+//             log_e( ( "Failed to unlock mbedTLS mutex.\r\n" ) );
+//         }
+//     }
+
+//     return ret;
+// }
+
+// /**
+//  * @brief Implements libc calloc semantics using the FreeRTOS heap
+//  */
+// static void * myPrvCalloc( size_t xNmemb,
+//                          size_t xSize )
+// {
+//     void * pvNew = pvPortMalloc( xNmemb * xSize );
+
+//     if( NULL != pvNew )
+//     {
+//         memset( pvNew, 0, xNmemb * xSize );
+//     }
+
+//     return pvNew;
+// }
+
 
 bool wifi_init()
 {
@@ -40,6 +150,12 @@ bool wifi_init()
   wifi_manager_init();
 
   wifi_event_reg_init();
+
+  // mbedtls_threading_set_alt( my_mbedtls_mutex_init,
+  //                                  my_mbedtls_mutex_free,
+  //                                  my_mbedtls_mutex_lock,
+  //                                  my_mbedtls_mutex_unlock );
+                                  
 
   return true;
 }

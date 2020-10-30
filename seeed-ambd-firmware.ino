@@ -62,8 +62,6 @@ void setup()
 	app_elog_init();
     // //delay(1000);
 
-
-
 	// // // // wifi_scan_networks(app_scan_result_handler, NULL);
 	// // // // delay(5000);
 	// // // // // rpc_wifi_on(RTW_MODE_STA);
@@ -146,7 +144,7 @@ struct
 } client_info;
 void loop()
 {
-	delay(2000);
+	delay(10000);
 	printf(".");
 	// static wlan_fast_reconnect_profile_t wifi_info = {0};
 	// if(wifi_get_reconnect_data(&wifi_info)!=0)

@@ -31,3 +31,23 @@ interface rpc_wifi_lwip{
     //rpc_lwip_getaddrinfo(string name, string servname, in binary hints, out binary res @retain) -> int32
     rpc_dns_gethostbyname_addrtype(string hostname @retain, out binary addr  @retain, uint32 found, in binary callback_arg @nullable @retain, uint8 dns_addrtype) -> int8
 }
+
+
+@group("wifi_api")
+interface rpc_wifi_mbedtls{
+    rpc_wifi_ssl_client_create() -> uint32
+    rpc_wifi_ssl_client_destroy(uint32 ssl_client) -> void
+    rpc_wifi_ssl_init(uint32 ssl_client) -> void
+    rpc_wifi_ssl_set_socket(uint32 ssl_client, int32 socket) -> void
+    rpc_wifi_ssl_set_timeout(uint32 ssl_client, uint32 timeout) -> void
+    rpc_wifi_ssl_get_socket(uint32 ssl_client) -> int32
+    rpc_wifi_ssl_get_timeout(uint32 ssl_client) -> uint32
+    rpc_wifi_start_ssl_client(uint32 ssl_client, string host @nullable, uint32 port, int32 timeout, string rootCABuff  @nullable, string cli_cert  @nullable, string cli_key  @nullable, string pskIdent  @nullable, string psKey  @nullable) -> int32
+    rpc_wifi_stop_ssl_socket(uint32 ssl_client) -> void
+    rpc_wifi_data_to_read(uint32 ssl_client) -> int32
+    rpc_wifi_send_ssl_data(uint32 ssl_client, in binary data, uint16 len) -> int32
+    rpc_wifi_get_ssl_receive(uint32 ssl_client, out binary data, int32 length) -> int32
+    rpc_wifi_verify_ssl_fingerprint(uint32 ssl_client, string fp, string domain_name) -> bool
+    rpc_wifi_verify_ssl_dn(uint32 ssl_client, string domain_name) -> bool
+    rpc_wifi_ssl_strerror(int32 errnum, out binary buffer, uint32 buflen) -> void
+}
