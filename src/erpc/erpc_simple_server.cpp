@@ -196,7 +196,7 @@ erpc_status_t SimpleServer::run(RequestContext &request)
     return err;
 }
 #endif
-#include "Arduino.h"
+
 erpc_status_t SimpleServer::poll(void)
 {
     if (m_isServerOn)

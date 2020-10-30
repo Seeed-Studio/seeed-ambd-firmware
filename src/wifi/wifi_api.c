@@ -956,9 +956,7 @@ int32_t rpc_lwip_available(int32_t s)
     log_d("called %d", s);
     uint8_t c;
     int ret = 0;
-    int
-    try
-        = 20;
+    int try = 20;
 
     struct sockaddr from;
     socklen_t fromlen;
@@ -1309,9 +1307,9 @@ uint32_t rpc_wifi_ssl_get_timeout(uint32_t ssl_client)
 
 int32_t rpc_wifi_start_ssl_client(uint32_t ssl_client, const char *host, uint32_t port, int32_t timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey)
 {
-    printf("rpc_wifi_start_ssl_client");
+    log_d("rpc_wifi_start_ssl_client");
     int32_t ret = wifi_start_ssl_client(ssl_client, host, port, timeout, rootCABuff, cli_cert, cli_key, pskIdent, psKey);
-    printf("exit");
+    log_d("exit");
     return ret;
 }
 

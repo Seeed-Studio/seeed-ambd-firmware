@@ -13,7 +13,7 @@
 #include "erpc_common.h"
 #include "erpc_crc16.h"
 #include "erpc_message_buffer.h"
-
+extern bool EUart_hasMessage();
 /*!
  * @addtogroup infra_transport
  * @{
@@ -76,7 +76,7 @@ namespace erpc
      *
      * @retval True when a message is available to process, else false.
      */
-       bool hasMessage(void){ return true; }
+       bool hasMessage(void){ return EUart_hasMessage(); }
 
         /*!
      * @brief This functions sets the CRC-16 implementation.

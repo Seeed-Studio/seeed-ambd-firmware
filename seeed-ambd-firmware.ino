@@ -144,8 +144,9 @@ struct
 } client_info;
 void loop()
 {
-	delay(10000);
-	printf(".");
+	// delay(10000);
+	// printf(".");
+	vTaskDelete(NULL);
 	// static wlan_fast_reconnect_profile_t wifi_info = {0};
 	// if(wifi_get_reconnect_data(&wifi_info)!=0)
 	// {
