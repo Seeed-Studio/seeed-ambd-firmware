@@ -1261,7 +1261,8 @@ int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint
 uint32_t rpc_wifi_ssl_client_create(void)
 {
     log_d("called");
-    return wifi_ssl_client_create();
+    uint32_t ssl_client = wifi_ssl_client_create();
+    return ssl_client;
     log_d("exit");
 }
 void rpc_wifi_ssl_client_destroy(uint32_t ssl_client)
