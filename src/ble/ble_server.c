@@ -312,34 +312,34 @@ static uint16_t format_server_attr_tbl(uint8_t app_id, T_ATTRIB_APPL *p_attr_tbl
       p_char_list_tail = p_char_list_tail->next;
    }
 
-   for (int i = 0; i < attr_index; i++)
-   {
-      printf("----------------------\n\r");
-      printf("attr index: %d\n\r", i);
-      printf("flags: %d\n\r", attr_tbl[i].flags);
-      printf("value: \n\r");
-      for (int j = 0; j < 16; j++)
-      {
-         printf("%02x ", attr_tbl[i].type_value[j]);
-      }
-      printf("\n\rvalue length: %d\n\r", attr_tbl[i].value_len);
-      if (attr_tbl[i].p_value_context != NULL)
-      {
-         printf("p_value_context: ");
-         uint8_t *p_value_context = (uint8_t *)attr_tbl[i].p_value_context;
-         for (int j = 0; j < attr_tbl[i].value_len; j++)
-         {
-            printf("%02x ", p_value_context[j]);
-         }
-         printf("\n\r");
-      }
-      else
-      {
-         printf("p_value_context: NULL\n\r");
-      }
-      printf("permissions: %d\n\r", (uint8_t *)attr_tbl[i].permissions);
-      printf("----------------------\n\r");
-   }
+   // for (int i = 0; i < attr_index; i++)
+   // {
+   //    printf("----------------------\n\r");
+   //    printf("attr index: %d\n\r", i);
+   //    printf("flags: %d\n\r", attr_tbl[i].flags);
+   //    printf("value: \n\r");
+   //    for (int j = 0; j < 16; j++)
+   //    {
+   //       printf("%02x ", attr_tbl[i].type_value[j]);
+   //    }
+   //    printf("\n\rvalue length: %d\n\r", attr_tbl[i].value_len);
+   //    if (attr_tbl[i].p_value_context != NULL)
+   //    {
+   //       printf("p_value_context: ");
+   //       uint8_t *p_value_context = (uint8_t *)attr_tbl[i].p_value_context;
+   //       for (int j = 0; j < attr_tbl[i].value_len; j++)
+   //       {
+   //          printf("%02x ", p_value_context[j]);
+   //       }
+   //       printf("\n\r");
+   //    }
+   //    else
+   //    {
+   //       printf("p_value_context: NULL\n\r");
+   //    }
+   //    printf("permissions: %d\n\r", (uint8_t *)attr_tbl[i].permissions);
+   //    printf("----------------------\n\r");
+   // }
 
    p_attr_tbl = (T_ATTRIB_APPL *)attr_tbl;
    return attr_index;
