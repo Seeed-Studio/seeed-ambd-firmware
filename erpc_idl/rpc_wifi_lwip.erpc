@@ -42,7 +42,17 @@ interface rpc_wifi_mbedtls{
     rpc_wifi_ssl_set_timeout(uint32 ssl_client, uint32 timeout) -> void
     rpc_wifi_ssl_get_socket(uint32 ssl_client) -> int32
     rpc_wifi_ssl_get_timeout(uint32 ssl_client) -> uint32
-    rpc_wifi_start_ssl_client(uint32 ssl_client, string host @nullable, uint32 port, int32 timeout, string rootCABuff  @nullable, string cli_cert  @nullable, string cli_key  @nullable, string pskIdent  @nullable, string psKey  @nullable) -> int32
+    rpc_wifi_ssl_set_rootCA(uint32 ssl_client, string rootCABuff @retain) -> uint32
+    rpc_wifi_ssl_get_rootCA(uint32 ssl_client, out string rootCABuff @nullable @max_length(3092)) -> uint32
+    rpc_wifi_ssl_set_cliCert(uint32 ssl_client, string cli_cert @retain) ->uint32
+    rpc_wifi_ssl_get_cliCert(uint32 ssl_client, string cli_cert @nullable @max_length(2048)) -> uint32
+    rpc_wifi_ssl_set_cliKey(uint32 ssl_client, string cli_key @retain) -> uint32
+    rpc_wifi_ssl_get_cliKey(uint32 ssl_client, string cli_key @nullable @max_length(2048)) -> uint32
+    rpc_wifi_ssl_set_pskIdent(uint32 ssl_client, string pskIdent @retain) -> uint32
+    rpc_wifi_ssl_get_pskIdent(uint32 ssl_client, string pskIdent @nullable @max_length(256)) -> uint32
+    rpc_wifi_ssl_set_psKey(uint32 ssl_client, string psKey @retain) -> uint32
+    rpc_wifi_ssl_get_psKey(uint32 ssl_client, string psKey @nullable @max_length(256)) -> uint32
+    rpc_wifi_start_ssl_client(uint32 ssl_client, string host @nullable, uint32 port, int32 timeout) -> int32
     rpc_wifi_stop_ssl_socket(uint32 ssl_client) -> void
     rpc_wifi_data_to_read(uint32 ssl_client) -> int32
     rpc_wifi_send_ssl_data(uint32 ssl_client, in binary data, uint16 len) -> int32

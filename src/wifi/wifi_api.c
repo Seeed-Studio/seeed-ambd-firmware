@@ -1306,10 +1306,101 @@ uint32_t rpc_wifi_ssl_get_timeout(uint32_t ssl_client)
     log_d("exit");
 }
 
-int32_t rpc_wifi_start_ssl_client(uint32_t ssl_client, const char *host, uint32_t port, int32_t timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey)
+uint32_t rpc_wifi_ssl_set_rootCA(uint32_t ssl_client, const char * rootCABuff)
+{
+    log_d("called");
+    wifi_ssl_set_rootCA(ssl_client, rootCABuff);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_rootCA(uint32_t ssl_client, char * rootCABuff)
+{
+    log_d("called");
+    uint32_t ret = wifi_ssl_get_rootCA(ssl_client);
+    if(rootCABuff != NULL)
+    {
+        strcpy(rootCABuff, (char *)ret);
+    }
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_set_cliCert(uint32_t ssl_client, const char * cli_cert)
+{
+    log_d("called");
+    wifi_ssl_set_cliCert(ssl_client, cli_cert);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_cliCert(uint32_t ssl_client, const char * cli_cert)
+{
+    log_d("called");
+    uint32_t ret = wifi_ssl_get_rootCA(ssl_client);
+    if(cli_cert != NULL)
+    {
+        strcpy(cli_cert, (char *)ret);
+    }
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_set_cliKey(uint32_t ssl_client, const char * cli_key)
+{
+    log_d("called");
+    wifi_ssl_set_cliKey(ssl_client, cli_key);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_cliKey(uint32_t ssl_client, const char * cli_key)
+{
+    log_d("called");
+    uint32_t ret = wifi_ssl_get_cliKey(ssl_client);
+    if(cli_key != NULL)
+    {
+        strcpy(cli_key, (char *)ret);
+    }
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_set_pskIdent(uint32_t ssl_client, const char * pskIdent)
+{
+    log_d("called");
+    wifi_ssl_set_pskIdent(ssl_client, pskIdent);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_pskIdent(uint32_t ssl_client, const char * pskIdent)
+{
+    log_d("called");
+    uint32_t ret = wifi_ssl_get_pskIdent(ssl_client);
+    if(pskIdent != NULL)
+    {
+        strcpy(pskIdent, (char *)ret);
+    }
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_set_psKey(uint32_t ssl_client, const char * psKey)
+{
+    log_d("called");
+    wifi_ssl_set_psKey(ssl_client, psKey);
+    log_d("exit");
+}
+
+uint32_t rpc_wifi_ssl_get_psKey(uint32_t ssl_client, const char * psKey)
+{
+    log_d("called");
+    uint32_t ret = wifi_ssl_get_psKey(ssl_client);
+    if(psKey != NULL)
+    {
+        strcpy(psKey, (char *)ret);
+    }
+    log_d("exit");
+}
+
+int32_t rpc_wifi_start_ssl_client(uint32_t ssl_client, const char *host, uint32_t port, int32_t timeout)
 {
     log_d("rpc_wifi_start_ssl_client");
-    int32_t ret = wifi_start_ssl_client(ssl_client, host, port, timeout, rootCABuff, cli_cert, cli_key, pskIdent, psKey);
+    wifi_sslclient_context *_ssl_client = (wifi_sslclient_context *)ssl_client;
+    int32_t ret = wifi_start_ssl_client(ssl_client, host, port, timeout, _ssl_client->rootCA, _ssl_client->cli_cert, _ssl_client->cli_key, _ssl_client->pskIdent, _ssl_client->psKey);
     log_d("exit");
     return ret;
 }
