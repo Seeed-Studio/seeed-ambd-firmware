@@ -375,21 +375,25 @@ int32_t rpc_wifi_set_mfp_support(uint8_t value)
     return ret;
 }
 
-int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t channel)
+int32_t rpc_wifi_start_ap(const char * ssid, const char * password, uint32_t security_type, int32_t channel)
 {
     log_d("called");
     int32_t ret = 0;
     int timeout = 20;
-    ret = wifi_start_ap(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), channel);
+    if(password != NULL ){
+        ret = wifi_start_ap(ssid, security_type, password, strlen(ssid), strlen(password), channel);
+    }else{
+        ret = wifi_start_ap(ssid, security_type, NULL, strlen(ssid), 0, channel);
+    }
     while (1)
     {
         char essid[33];
 
         if (wext_get_ssid(WLAN0_NAME, ((unsigned char *)essid)) > 0)
         {
-            if (strcmp(((const char *)essid), ((const char *)ssid->data)) == 0)
+            if (strcmp(((const char *)essid), ((const char *)ssid)) == 0)
             {
-                log_d("%s started\n", ssid->data);
+                log_d("%s started\n", ssid);
                 ret = RTW_SUCCESS;
                 break;
             }
@@ -413,21 +417,25 @@ int32_t rpc_wifi_start_ap(const binary_t *ssid, const binary_t *password, uint32
     return ret;
 }
 
-int32_t rpc_wifi_start_ap_with_hidden_ssid(const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t channel)
+int32_t rpc_wifi_start_ap_with_hidden_ssid(const char * ssid, const char * password, uint32_t security_type, int32_t channel)
 {
     log_d("called");
     int32_t ret = 0;
     int timeout = 20;
-    ret = wifi_start_ap_with_hidden_ssid(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), channel);
+    if(password!= NULL){
+        ret = wifi_start_ap_with_hidden_ssid(ssid, security_type, password, strlen(ssid), strlen(password), channel);
+    }else{
+        ret = wifi_start_ap_with_hidden_ssid(ssid, security_type, NULL, strlen(ssid), 0, channel);
+    }
     while (1)
     {
         char essid[33];
 
         if (wext_get_ssid(WLAN0_NAME, ((unsigned char *)essid)) > 0)
         {
-            if (strcmp(((const char *)essid), ((const char *)ssid->data)) == 0)
+            if (strcmp(((const char *)essid), ((const char *)ssid)) == 0)
             {
-                log_d("%s started\n", ssid->data);
+                log_d("%s started\n", ssid);
                 ret = RTW_SUCCESS;
                 break;
             }
