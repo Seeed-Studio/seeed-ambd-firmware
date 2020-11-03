@@ -41,20 +41,28 @@ static void free_binary_t_struct(binary_t *data)
 
 //! @name rpc_wifi_drv
 //@{
-int32_t rpc_wifi_connect(const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
+int32_t rpc_wifi_connect(const char * ssid, const char * password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    ret = wifi_connect(ssid->data, security_type, password->data, strlen(ssid->data), strlen(password->data), key_id, NULL);
+    if(password != NULL){
+        ret = wifi_connect(ssid, security_type, password, strlen(ssid), strlen(password), key_id, NULL);
+    }else{
+        ret = wifi_connect(ssid, security_type, NULL, strlen(ssid), 0, key_id, NULL);
+    }
     log_d("exit");
     return ret;
 }
 
-int32_t rpc_wifi_connect_bssid(const binary_t *bssid, const binary_t *ssid, const binary_t *password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
+int32_t rpc_wifi_connect_bssid(const binary_t * bssid, const char * ssid, const char * password, uint32_t security_type, int32_t key_id, uint32_t semaphore)
 {
     log_d("called");
     int32_t ret = RTW_ERROR;
-    ret = wifi_connect_bssid(bssid->data, ssid->data, security_type, password->data, 6, strlen(ssid->data), strlen(password->data), key_id, NULL);
+    if(password != NULL){
+        ret = wifi_connect_bssid(bssid->data, ssid, security_type, password, 6, strlen(ssid), strlen(password), key_id, NULL);
+    }else{
+        ret = wifi_connect_bssid(bssid->data, ssid, security_type, NULL, 6, strlen(ssid), 0, key_id, NULL);
+    }
     log_d("exit");
     return ret;
 }
@@ -1058,11 +1066,11 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
 int32_t rpc_lwip_send(int32_t s, const binary_t *dataptr, int32_t flags)
 {
     log_d("rpc_lwip_send called");
-    for (int i = 0; i < dataptr->dataLength; i++)
-    {
-        printf("%02x ", dataptr->data[i]);
-    }
-    printf("\n\r");
+    // for (int i = 0; i < dataptr->dataLength; i++)
+    // {
+    //     printf("%02x ", dataptr->data[i]);
+    // }
+    // printf("\n\r");
     return lwip_send(s, dataptr->data, dataptr->dataLength, flags);
 }
 
