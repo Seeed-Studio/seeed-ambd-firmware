@@ -39,11 +39,44 @@ static int _handle_error(int err, const char *file, int line)
 
 wifi_sslclient_context *wifi_ssl_client_create()
 {
-    return malloc(sizeof(wifi_sslclient_context));
+    wifi_sslclient_context *sslclient = malloc(sizeof(wifi_sslclient_context));
+    if(sslclient != NULL){
+        char *rootCA = NULL;
+        char *cli_cert = NULL;
+        char *cli_key = NULL;
+        char *pskIdent = NULL;
+        char *psKey = NULL;
+    }
+    return sslclient;
 }
 
 void wifi_ssl_client_destroy(wifi_sslclient_context *ssl_client)
 {
+    if(ssl_client->rootCA != NULL)
+    {
+        erpc_free(ssl_client->rootCA);
+        ssl_client->rootCA = NULL;
+    }
+    if(ssl_client->cli_cert != NULL)
+    {
+        erpc_free(ssl_client->cli_cert);
+        ssl_client->cli_cert = NULL;
+    }
+      if(ssl_client->cli_key != NULL)
+    {
+        erpc_free(ssl_client->cli_key);
+        ssl_client->cli_key = NULL;
+    }
+      if(ssl_client->pskIdent != NULL)
+    {
+        erpc_free(ssl_client->pskIdent);
+        ssl_client->pskIdent = NULL;
+    }
+    if(ssl_client->psKey != NULL)
+    {
+        erpc_free(ssl_client->psKey);
+        ssl_client->psKey = NULL;
+    }
     free(ssl_client);
 }
 
@@ -70,6 +103,86 @@ int wifi_ssl_get_socket(wifi_sslclient_context *ssl_client)
 unsigned long wifi_ssl_get_timeout(wifi_sslclient_context *ssl_client)
 {
     return ssl_client->handshake_timeout;
+}
+
+uint32_t wifi_ssl_set_rootCA(wifi_sslclient_context *ssl_client, char *rootCABuff)
+{
+    if(ssl_client->rootCA != NULL)
+    {
+        erpc_free(ssl_client->rootCA);
+        ssl_client->rootCA = NULL;
+    }
+    ssl_client->rootCA = rootCABuff;
+    return ssl_client->rootCA;
+}
+
+uint32_t wifi_ssl_get_rootCA(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->rootCA;
+}
+
+uint32_t wifi_ssl_set_cliCert(wifi_sslclient_context *ssl_client, char *cli_cert)
+{
+    if(ssl_client->cli_cert != NULL)
+    {
+        erpc_free(ssl_client->cli_cert);
+        ssl_client->cli_cert = NULL;
+    }
+    ssl_client->cli_cert = cli_cert;
+    return ssl_client->cli_cert;
+}
+
+uint32_t wifi_ssl_get_cliCert(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->cli_cert;
+}
+
+uint32_t wifi_ssl_set_cliKey(wifi_sslclient_context *ssl_client, char *cli_key)
+{
+    if(ssl_client->cli_key != NULL)
+    {
+        erpc_free(ssl_client->cli_key);
+        ssl_client->cli_key = NULL;
+    }
+    ssl_client->cli_key = cli_key;
+    return ssl_client->cli_key;
+}
+
+uint32_t wifi_ssl_get_cliKey(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->cli_key;
+}
+
+uint32_t wifi_ssl_set_pskIdent(wifi_sslclient_context *ssl_client, char *pskIdent)
+{
+    if(ssl_client->pskIdent != NULL)
+    {
+        erpc_free(ssl_client->pskIdent);
+        ssl_client->pskIdent = NULL;
+    }
+    ssl_client->pskIdent = pskIdent;
+    return ssl_client->pskIdent;
+}
+
+uint32_t wifi_ssl_get_pskIdent(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client->pskIdent;
+}
+
+uint32_t wifi_ssl_set_psKey(wifi_sslclient_context *ssl_client, char *psKey)
+{
+    if(ssl_client->psKey != NULL)
+    {
+        erpc_free(ssl_client->psKey);
+        ssl_client->psKey = NULL;
+    }
+    ssl_client->psKey = psKey;
+    return ssl_client->psKey;
+}
+
+uint32_t wifi_ssl_get_psKey(wifi_sslclient_context *ssl_client)
+{
+    return ssl_client-> psKey;
 }
 
 static void *my_calloc(size_t nelements, size_t elementSize)

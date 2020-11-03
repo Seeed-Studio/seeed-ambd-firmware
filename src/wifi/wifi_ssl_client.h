@@ -21,6 +21,12 @@ typedef struct wifi_sslclient_context {
     mbedtls_pk_context client_key;
 
     unsigned long handshake_timeout;
+
+    char *rootCA;
+    char *cli_cert;
+    char *cli_key;
+    char *pskIdent;
+    char *psKey;
 } wifi_sslclient_context;
 
 
@@ -31,6 +37,16 @@ void wifi_ssl_set_socket(wifi_sslclient_context *ssl_client, int socket);
 void wifi_ssl_set_timeout(wifi_sslclient_context *ssl_client, unsigned long handshake_timeout);
 int wifi_ssl_get_socket(wifi_sslclient_context *ssl_client);
 unsigned long wifi_ssl_get_timeout(wifi_sslclient_context *ssl_client);
+uint32_t wifi_ssl_set_rootCA(wifi_sslclient_context *ssl_client, char *rootCABuff);
+uint32_t wifi_ssl_get_rootCA(wifi_sslclient_context *ssl_client);
+uint32_t wifi_ssl_set_cliCert(wifi_sslclient_context *ssl_client, char *cli_cert);
+uint32_t wifi_ssl_get_cliCert(wifi_sslclient_context *ssl_client);
+uint32_t wifi_ssl_set_cliKey(wifi_sslclient_context *ssl_client, char *cli_key);
+uint32_t wifi_ssl_get_cliKey(wifi_sslclient_context *ssl_client);
+uint32_t wifi_ssl_set_pskIdent(wifi_sslclient_context *ssl_client, char *pskIdent);
+uint32_t wifi_ssl_get_pskIdent(wifi_sslclient_context *ssl_client);
+uint32_t wifi_ssl_set_psKey(wifi_sslclient_context *ssl_client, char *psKey);
+uint32_t wifi_ssl_get_psKey(wifi_sslclient_context *ssl_client);
 int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, uint32_t port, int timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey);
 void wifi_stop_ssl_socket(wifi_sslclient_context *ssl_client, const char *rootCABuff, const char *cli_cert, const char *cli_key);
 int wifi_data_to_read(wifi_sslclient_context *ssl_client);
