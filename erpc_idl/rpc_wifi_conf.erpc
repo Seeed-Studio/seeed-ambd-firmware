@@ -1,8 +1,8 @@
 
 @group("wifi_api")
 interface rpc_wifi_drv {
-    rpc_wifi_connect(in binary ssid, in binary password, uint32 security_type,int32 key_id, uint32 semaphore) -> int32
-    rpc_wifi_connect_bssid(in binary bssid, in binary ssid, in binary password, uint32 security_type, int32 key_id, uint32 semaphore) -> int32
+    rpc_wifi_connect(in string ssid, in string password @nullable, uint32 security_type,int32 key_id, uint32 semaphore) -> int32
+    rpc_wifi_connect_bssid(in binary bssid, in string ssid @nullable, in string password, uint32 security_type, int32 key_id, uint32 semaphore) -> int32
     rpc_wifi_disconnect() -> int32
     rpc_wifi_is_connected_to_ap() -> int32
     rpc_wifi_is_up(uint32 itf) -> int32
