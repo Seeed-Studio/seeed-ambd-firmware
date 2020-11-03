@@ -38,8 +38,8 @@ interface rpc_wifi_drv {
     rpc_wifi_set_lps_thresh(uint8 mode) -> int32 
     rpc_wifi_set_lps_level(uint8 lps_level) -> int32
     rpc_wifi_set_mfp_support(uint8 value) -> int32
-    rpc_wifi_start_ap(in binary ssid, in binary password, uint32 security_type, int32 channel) -> int32
-    rpc_wifi_start_ap_with_hidden_ssid(in binary ssid, in binary password, uint32 security_type, int32 channel) -> int32
+    rpc_wifi_start_ap(in string ssid, in string password @nullable, uint32 security_type, int32 channel) -> int32
+    rpc_wifi_start_ap_with_hidden_ssid(in string ssid, in string password @nullable, uint32 security_type, int32 channel) -> int32
     rpc_wifi_set_pscan_chan(binary channel_list,uint8 pscan_config) -> int32
     rpc_wifi_get_setting(string ifname,out binary pSetting) -> int32
     rpc_wifi_set_network_mode(uint32 mode) -> int32
