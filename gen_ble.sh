@@ -14,3 +14,4 @@ rm src/erpc_shim/rpc_ble_callback_server.h
 rm src/erpc_shim/rpc_wifi_api_client.cpp
 rm src/erpc_shim/rpc_wifi_callback_server.cpp
 rm src/erpc_shim/rpc_wifi_callback_server.h
+rm src/erpc_shim/rpc_system_client.cpp

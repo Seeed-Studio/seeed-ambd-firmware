@@ -10,12 +10,12 @@
 #include "erpc_codec.h"
 extern "C"
 {
-#include "rpc_wifi_callback.h"
-// import callbacks declaration from other groups
 #include "rpc_system.h"
+// import callbacks declaration from other groups
 #include "rpc_ble_api.h"
 #include "rpc_ble_callback.h"
 #include "rpc_wifi_api.h"
+#include "rpc_wifi_callback.h"
 }
 
 #if 10704 != ERPC_VERSION_NUMBER
@@ -27,59 +27,13 @@ using namespace std;
 
 extern ClientManager *g_client;
 
-//! @brief Function to write struct binary_t
-static void write_binary_t_struct(erpc::Codec * codec, const binary_t * data);
 
-
-// Write struct binary_t function implementation
-static void write_binary_t_struct(erpc::Codec * codec, const binary_t * data)
-{
-    codec->writeBinary(data->dataLength, data->data);
-}
-
-
-
-// rpc_wifi_callback interface rpc_wifi_event_callback function client shim.
-void rpc_wifi_event_callback(const binary_t * event)
+// rpc_system interface rpc_system_version function client shim.
+char * rpc_system_version(void)
 {
     erpc_status_t err = kErpcStatus_Success;
 
-    // Get a new request.
-    RequestContext request = g_client->createRequest(true);
-
-    // Encode the request.
-    Codec * codec = request.getCodec();
-
-    if (codec == NULL)
-    {
-        err = kErpcStatus_MemoryError;
-    }
-    else
-    {
-        codec->startWriteMessage(kOnewayMessage, krpc_wifi_callback_service_id, krpc_wifi_callback_rpc_wifi_event_callback_id, request.getSequence());
-
-        write_binary_t_struct(codec, event);
-
-        // Send message to server
-        // Codec status is checked inside this function.
-        g_client->performRequest(request);
-
-        err = codec->getStatus();
-    }
-
-    // Dispose of the request.
-    g_client->releaseRequest(request);
-
-    // Invoke error handler callback function
-    g_client->callErrorHandler(err, krpc_wifi_callback_rpc_wifi_event_callback_id);
-
-    return;
-}
-
-// rpc_wifi_callback interface rpc_wifi_dns_found function client shim.
-void rpc_wifi_dns_found(const char * hostname, const binary_t * ipaddr, const binary_t * arg)
-{
-    erpc_status_t err = kErpcStatus_Success;
+    char * result = NULL;
 
     // Get a new request.
     RequestContext request = g_client->createRequest(false);
@@ -93,25 +47,25 @@ void rpc_wifi_dns_found(const char * hostname, const binary_t * ipaddr, const bi
     }
     else
     {
-        codec->startWriteMessage(kInvocationMessage, krpc_wifi_callback_service_id, krpc_wifi_callback_rpc_wifi_dns_found_id, request.getSequence());
-
-        codec->writeString(strlen(hostname), hostname);
-
-        write_binary_t_struct(codec, ipaddr);
-
-        if (arg == NULL)
-        {
-            codec->writeNullFlag(true);
-        }
-        else
-        {
-            codec->writeNullFlag(false);
-            write_binary_t_struct(codec, arg);
-        }
+        codec->startWriteMessage(kInvocationMessage, krpc_system_service_id, krpc_system_rpc_system_version_id, request.getSequence());
 
         // Send message to server
         // Codec status is checked inside this function.
         g_client->performRequest(request);
+
+        uint32_t return_len;
+        char * return_local;
+        codec->readString(&return_len, &return_local);
+        result = (char *) erpc_malloc((return_len + 1) * sizeof(char));
+        if (result == NULL)
+        {
+            codec->updateStatus(kErpcStatus_MemoryError);
+        }
+        else
+        {
+            memcpy(result, return_local, return_len);
+            (result)[return_len] = 0;
+        }
 
         err = codec->getStatus();
     }
@@ -120,7 +74,53 @@ void rpc_wifi_dns_found(const char * hostname, const binary_t * ipaddr, const bi
     g_client->releaseRequest(request);
 
     // Invoke error handler callback function
-    g_client->callErrorHandler(err, krpc_wifi_callback_rpc_wifi_dns_found_id);
+    g_client->callErrorHandler(err, krpc_system_rpc_system_version_id);
 
-    return;
+    return result;
+}
+
+// rpc_system interface rpc_system_ack function client shim.
+uint8_t rpc_system_ack(uint8_t c)
+{
+    erpc_status_t err = kErpcStatus_Success;
+
+    uint8_t result;
+
+    // Get a new request.
+    RequestContext request = g_client->createRequest(false);
+
+    // Encode the request.
+    Codec * codec = request.getCodec();
+
+    if (codec == NULL)
+    {
+        err = kErpcStatus_MemoryError;
+    }
+    else
+    {
+        codec->startWriteMessage(kInvocationMessage, krpc_system_service_id, krpc_system_rpc_system_ack_id, request.getSequence());
+
+        codec->write(c);
+
+        // Send message to server
+        // Codec status is checked inside this function.
+        g_client->performRequest(request);
+
+        codec->read(&result);
+
+        err = codec->getStatus();
+    }
+
+    // Dispose of the request.
+    g_client->releaseRequest(request);
+
+    // Invoke error handler callback function
+    g_client->callErrorHandler(err, krpc_system_rpc_system_ack_id);
+
+    if (err)
+    {
+        return 0xFFU;
+    }
+
+    return result;
 }

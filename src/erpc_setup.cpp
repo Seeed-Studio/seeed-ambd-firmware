@@ -18,6 +18,8 @@
  *                              Header Files
  *============================================================================*/
 
+#include "rpc_system.h"
+#include "rpc_system_server.h"
 #include "rpc_ble_api.h"
 #include "rpc_ble_api_server.h"
 #include "rpc_wifi_api.h"
@@ -73,6 +75,17 @@ public:
     }
 };
 
+
+char * rpc_system_version(void)
+{
+    return "0.1.0";
+}
+
+uint8_t rpc_system_ack(uint8_t c)
+{
+    return c;
+}
+
 MyMessageBufferFactory g_msgFactory;
 
 /**
@@ -81,6 +94,7 @@ MyMessageBufferFactory g_msgFactory;
  */
 void add_services(erpc::SimpleServer *server)
 {
+    server->addService(static_cast<erpc::Service *>(create_rpc_system_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_ble_host_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_gap_bone_service()));

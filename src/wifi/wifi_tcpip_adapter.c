@@ -157,9 +157,11 @@ esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_i
     uint8_t idx = tcpip_if<=1?0:1;
     struct netif *pnetif = &xnetif[idx];
 
-    memcpy(&pnetif->ip_addr, &ip_info->ip, sizeof(ip_addr_t));
-    memcpy(&pnetif->netmask, &ip_info->netmask, sizeof(ip_addr_t));
-    memcpy(&pnetif->gw, &ip_info->gw, sizeof(ip_addr_t));
+    // memcpy(&pnetif->ip_addr, &ip_info->ip, sizeof(ip_addr_t));
+    // memcpy(&pnetif->netmask, &ip_info->netmask, sizeof(ip_addr_t));
+    // memcpy(&pnetif->gw, &ip_info->gw, sizeof(ip_addr_t));
+    // log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, pnetif->ip_addr, pnetif->netmask, pnetif->gw);
+    netif_set_addr(pnetif, &ip_info->ip, &ip_info->netmask, &ip_info->gw);
     log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, pnetif->ip_addr, pnetif->netmask, pnetif->gw);
     return ret;
 }
