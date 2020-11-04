@@ -62,7 +62,7 @@ extern "C"
 T_GAP_DEV_STATE ble_gap_dev_state = {0, 0, 0, 0, 0}; /**< GAP device state */
 T_GAP_CONN_STATE ble_gap_conn_state = GAP_CONN_STATE_DISCONNECTED;
 T_APP_LINK ble_clinet_link_table[BLE_LE_MAX_LINKS];
-T_GAP_ROLE ble_dev_role = GAP_LINK_ROLE_SLAVE; // 0:close 1:server 2:client
+T_GAP_ROLE ble_dev_role = GAP_LINK_ROLE_MASTER; // 0:close 1:server 2:client
 
 bool ble_init()
 {
@@ -99,10 +99,19 @@ bool ble_init()
   gap_config_max_le_link_num(BLE_LE_MAX_LINKS);
   le_gap_init(BLE_LE_MAX_LINKS);
 
+  uint8_t phys_prefer = GAP_PHYS_PREFER_ALL;
+  uint8_t tx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
+                           GAP_PHYS_PREFER_CODED_BIT;
+  uint8_t rx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
+                           GAP_PHYS_PREFER_CODED_BIT;
+  le_set_gap_param(GAP_PARAM_DEFAULT_PHYS_PREFER, sizeof(phys_prefer), &phys_prefer);
+  le_set_gap_param(GAP_PARAM_DEFAULT_TX_PHYS_PREFER, sizeof(tx_phys_prefer), &tx_phys_prefer);
+  le_set_gap_param(GAP_PARAM_DEFAULT_RX_PHYS_PREFER, sizeof(rx_phys_prefer), &rx_phys_prefer);
+
   /* Device name and device appearance */
   uint8_t device_name[GAP_DEVICE_NAME_LEN] = "Wio Terminal";
   uint16_t appearance = GAP_GATT_APPEARANCE_UNKNOWN;
-  uint8_t slave_init_mtu_req = false;
+  //uint8_t slave_init_mtu_req = false;
 
   /* Scan parameters */
   uint8_t scan_mode = GAP_SCAN_MODE_ACTIVE;
@@ -133,8 +142,7 @@ bool ble_init()
   /* Set device name and device appearance */
   le_set_gap_param(GAP_PARAM_DEVICE_NAME, GAP_DEVICE_NAME_LEN, device_name);
   le_set_gap_param(GAP_PARAM_APPEARANCE, sizeof(appearance), &appearance);
-  le_set_gap_param(GAP_PARAM_SLAVE_INIT_GATT_MTU_REQ, sizeof(slave_init_mtu_req),
-                   &slave_init_mtu_req);
+  //le_set_gap_param(GAP_PARAM_SLAVE_INIT_GATT_MTU_REQ, sizeof(slave_init_mtu_req),&slave_init_mtu_req);
 
   /* Set scan parameters */
   le_scan_set_param(GAP_PARAM_SCAN_MODE, sizeof(scan_mode), &scan_mode);
@@ -165,15 +173,6 @@ bool ble_init()
   le_bond_set_param(GAP_PARAM_BOND_SEC_REQ_ENABLE, sizeof(auth_sec_req_enable), &auth_sec_req_enable);
   le_bond_set_param(GAP_PARAM_BOND_SEC_REQ_REQUIREMENT, sizeof(auth_sec_req_flags),
                     &auth_sec_req_flags);
-
-  uint8_t phys_prefer = GAP_PHYS_PREFER_ALL;
-  uint8_t tx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
-                           GAP_PHYS_PREFER_CODED_BIT;
-  uint8_t rx_phys_prefer = GAP_PHYS_PREFER_1M_BIT | GAP_PHYS_PREFER_2M_BIT |
-                           GAP_PHYS_PREFER_CODED_BIT;
-  le_set_gap_param(GAP_PARAM_DEFAULT_PHYS_PREFER, sizeof(phys_prefer), &phys_prefer);
-  le_set_gap_param(GAP_PARAM_DEFAULT_TX_PHYS_PREFER, sizeof(tx_phys_prefer), &tx_phys_prefer);
-  le_set_gap_param(GAP_PARAM_DEFAULT_RX_PHYS_PREFER, sizeof(rx_phys_prefer), &rx_phys_prefer);
 
   le_register_app_cb(ble_gap_callback);
   client_register_general_client_cb(ble_gatt_client_callback);
