@@ -58,8 +58,9 @@ static void le_scan_cmpl_callback(TimerHandle_t xTimer)
 {
   log_d("le_scan_cmpl_callback");
   le_scan_timer_flag = false;
-  ble_gap_callback(GAP_MSG_LE_SCAN_CMPL, NULL);
   le_scan_stop();
+  delay(1500);//le_scan_stop will be done after 1.5S
+  ble_gap_callback(GAP_MSG_LE_SCAN_CMPL, NULL);
 }
 
 void le_scan_timer_stop()
@@ -76,7 +77,8 @@ T_GAP_CAUSE le_scan_timer_start(uint32_t tick)
 {
   log_d("le_scan_timer_start");
   T_GAP_CAUSE ret = GAP_CAUSE_SUCCESS;
-  le_scan_timer = xTimerCreate("le_scan", pdMS_TO_TICKS(tick), pdFALSE, 0, le_scan_cmpl_callback);
+  // le_scan_stop will be done after 1.5S
+  le_scan_timer = xTimerCreate("le_scan", pdMS_TO_TICKS(tick-1500), pdFALSE, 0, le_scan_cmpl_callback);
   le_scan_start();
   le_scan_timer_flag = true;
   xTimerStart(le_scan_timer, 0);
