@@ -383,22 +383,25 @@ RPC_T_GAP_CAUSE rpc_le_scan_get_param(RPC_T_LE_SCAN_PARAM_TYPE param, binary_t *
   }
   return ret;
 }
-
+bool _scan_flag = false;
 RPC_T_GAP_CAUSE rpc_le_scan_start(void)
 {
   log_d("rpc_le_scan_start called");
+  _scan_flag = true;
   return le_scan_start();
 }
 
 RPC_T_GAP_CAUSE rpc_le_scan_timer_start(uint32_t tick)
 {
   log_d("rpc_le_scan_timer_start called");
+  _scan_flag = true;
   return le_scan_timer_start(tick);
 }
 RPC_T_GAP_CAUSE rpc_le_scan_stop(void)
 {
   log_d("rpc_le_scan_stop called");
   le_scan_timer_stop();
+  _scan_flag = false;
   return le_scan_stop();
 }
 

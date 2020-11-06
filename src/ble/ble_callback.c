@@ -307,6 +307,7 @@ void ble_mtu_info_evt_handler(uint8_t conn_id, uint16_t mtu_size)
     log_v("app_handle_conn_mtu_info_evt: conn_id %d, mtu_size %d", conn_id, mtu_size);
 }
 
+extern bool _scan_flag;
 /**
   * @brief Callback for gap le to notify app
   * @param[in] cb_type callback msy type @ref GAP_LE_MSG_Types.
@@ -374,6 +375,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     case GAP_MSG_LE_SCAN_CMPL:
     {
         log_v("GAP_MSG_LE_SCAN_CMPL");
+        _scan_flag = false;
         break;
     }
     case GAP_MSG_LE_ADV_UPDATE_PARAM:
@@ -467,6 +469,7 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
     }
     case GAP_MSG_LE_SCAN_CMPL:
     {
+        _scan_flag = false;
         uint8_t value = 0;
         FORMATION_BINARY(cb_data, &value, 1);
         break;
@@ -513,6 +516,10 @@ T_APP_RESULT ble_gap_callback(uint8_t cb_type, void *p_cb_data)
         break;
     }
     }
+
+    if(!_scan_flag && cb_type == GAP_MSG_LE_SCAN_INFO)
+        return result;
+
     result = rpc_ble_gap_callback(cb_type, &cb_data);
 #endif
 
