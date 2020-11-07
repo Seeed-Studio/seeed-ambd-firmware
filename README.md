@@ -2,16 +2,14 @@
 
 ## Introduction
 
-This RTL87XX [RPC](https://github.com/EmbeddedRPC) firmware export a RPC server interface through hardware SPI/UART port to MCU.  
-
-**Currently only works with the RTL872X Bluetooth feature.**
+This RTL87XX [RPC](https://github.com/EmbeddedRPC/eRPC) firmware export a RPC server interface through hardware SPI/UART port to MCU.  
 
 ## How to compile 
 ### Tools 
-The arduino-cli tool is used to build and upload the Edge Impulse firmware to the Seeed Wio terminal board. Use following link for download and installation procedure:
+The arduino-cli tool is used to build and upload the RTL8720DN firmware to the Seeed Wio terminal board. Use following link for download and installation procedure:
 * [Arduino CLI](https://arduino.github.io/arduino-cli/installation/).
 ### ArduinoCore
-Before compiling the firmware, you need to install the Arduino core of rtl872x [ambd_arduino](https://github.com/ambiot/ambd_arduino)
+Before compiling the firmware, you need to install the Arduino core of rtl872x [ArduinoCore-ambd](https://github.com/Seeed-Studio/ArduinoCore-ambd/)
 - board index
 ```
 https://files.seeedstudio.com/arduino/package_realtek.com_amebad_index.json
@@ -39,7 +37,3 @@ forking, committing modifications and then pulling requests (follow the links ab
 for operating guide). Adding change log and your contact into file header is encouraged.
 Thanks for your contribution.
 
-Seeed Studio is an open hardware facilitation company based in Shenzhen, China.
-Benefiting from local manufacture power and convenient global logistic system,
-we integrate resources to serve new era of innovation. Seeed also works with
-global distributors and partners to push open hardware movement.
