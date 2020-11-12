@@ -277,7 +277,6 @@ int32_t rpc_wifi_on(uint32_t mode)
         wifi_work_mode = mode;
         if (mode == RTW_MODE_STA || mode == RTW_MODE_STA_AP)
         {
-
             wifi_callback_ind(SYSTEM_EVENT_STA_START, NULL, 0);
         }
     }
@@ -388,8 +387,13 @@ int32_t rpc_wifi_start_ap(const char * ssid, const char * password, uint32_t sec
     while (1)
     {
         char essid[33];
+        const char * wlan_name = WLAN0_NAME;
 
-        if (wext_get_ssid(WLAN0_NAME, ((unsigned char *)essid)) > 0)
+        if(wifi_work_mode == RTW_MODE_STA_AP){
+            wlan_name = WLAN1_NAME;
+        }
+
+        if (wext_get_ssid(wlan_name, ((unsigned char *)essid)) > 0)
         {
             if (strcmp(((const char *)essid), ((const char *)ssid)) == 0)
             {
