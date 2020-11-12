@@ -688,6 +688,12 @@ int32_t rpc_wifi_get_reconnect_data(binary_t *wifi_info)
     return ret;
 }
 
+int32_t rpc_wifi_clear_reconnect_data(void)
+{
+    log_d("called");
+    return wifi_clear_reconnect_data();
+}
+
 int32_t rpc_wifi_scan_start(void)
 {
     log_d("called");

@@ -63,6 +63,7 @@ interface rpc_wifi_drv {
     rpc_wifi_get_band_type() -> uint8
     rpc_wifi_set_tx_pause_data(uint32 NewState) -> int32
     rpc_wifi_get_reconnect_data(out binary wifi_info) -> int32
+    rpc_wifi_clear_reconnect_data() -> int32
     rpc_wifi_scan_start() -> int32
     rpc_wifi_is_scaning() -> bool
     rpc_wifi_scan_get_ap_records(uint16 number, out binary _scanResult) -> int32

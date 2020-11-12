@@ -86,10 +86,41 @@ typedef int (*wlan_init_done_ptr)(void);
 typedef int (*write_reconnect_ptr)(uint8_t *data, uint32_t len);
 extern wlan_init_done_ptr p_wlan_init_done_callback;
 extern write_reconnect_ptr p_write_reconnect_ptr;
+
 int wifi_init_done_callback()
 {
     log_v("FUN:%s \n\r", __FUNCTION__);
     wifi_callback_ind(SYSTEM_EVENT_WIFI_READY, NULL, 0);
+    return 1;
+}
+
+int wifi_clear_reconnect_data()
+{
+    flash_t flash;
+    struct wlan_fast_reconnect wifi_info = {0};
+    uint8_t * tmp = (uint8_t *)&wifi_info;
+    uint8_t count;
+    bool need_erase = false;
+
+    log_v("FUN:%s \n\r", __FUNCTION__);
+
+    device_mutex_lock(RT_DEV_LOCK_FLASH);
+    flash_stream_read(&flash, FAST_RECONNECT_DATA, sizeof(struct wlan_fast_reconnect), (u8 *)&wifi_info);
+    for(count = 0 ; count < sizeof(wifi_info) ; count++){
+        if(tmp[count] != 0xFF){
+            need_erase = true;
+            break;
+        }
+    }
+    if(need_erase == true){
+        flash_erase_sector(&flash, FAST_RECONNECT_DATA);
+    }    
+    device_mutex_unlock(RT_DEV_LOCK_FLASH);
+
+    if(need_erase == true){
+        log_v("wifi_clear_reconnect_data done");
+    }
+
     return 1;
 }
 
