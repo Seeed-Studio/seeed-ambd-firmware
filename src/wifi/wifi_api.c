@@ -1060,13 +1060,12 @@ int32_t rpc_lwip_read(int32_t s, binary_t *mem, uint32_t len, uint32_t timeout)
     return ret;
 }
 
-int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, const binary_t *from, uint32_t *fromlen, uint32_t timeout)
+int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags, binary_t *from, uint32_t *fromlen, uint32_t timeout)
 {
-
     log_d("called");
     uint8_t *_mem = (uint8_t *)erpc_malloc((len + 1) * sizeof(uint8_t));
     int32_t ret = -1;
-    struct sockaddr *_from = (struct sockaddr *)from->data;
+    struct sockaddr * _from = (struct sockaddr *)erpc_malloc(sizeof(struct sockaddr));
     ret = lwip_recvfrom(s, _mem, len, flags, _from, (socklen_t *)fromlen);
     if (ret > 0)
     {
@@ -1078,6 +1077,10 @@ int32_t rpc_lwip_recvfrom(int32_t s, binary_t *mem, uint32_t len, int32_t flags,
         mem->data = _mem;
         mem->dataLength = 1;
     }
+    
+    from->data = (uint8_t *)_from;
+    from->dataLength = sizeof(struct sockaddr);
+
     return ret;
 }
 

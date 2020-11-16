@@ -379,7 +379,7 @@ int32_t rpc_lwip_recv(int32_t s, binary_t * mem, uint32_t len, int32_t flags, ui
 
 int32_t rpc_lwip_read(int32_t s, binary_t * mem, uint32_t len, uint32_t timeout);
 
-int32_t rpc_lwip_recvfrom(int32_t s, binary_t * mem, uint32_t len, int32_t flags, const binary_t * from, uint32_t * fromlen, uint32_t timeout);
+int32_t rpc_lwip_recvfrom(int32_t s, binary_t * mem, uint32_t len, int32_t flags, binary_t * from, uint32_t * fromlen, uint32_t timeout);
 
 int32_t rpc_lwip_send(int32_t s, const binary_t * dataptr, int32_t flags);
 
