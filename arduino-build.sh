@@ -24,8 +24,8 @@ INCLUDE+=" -I$CRTDIR/src/erpc"
 #erpc_shim
 INCLUDE+=" -I$CRTDIR/src/erpc_shim"
 
-FLAGS+=""
-
+FLAGS+=-DSEEED_WIO_TERMINAL
+#FLAGS+=-DSEEED_XIAO_M0
 
 if [ "$COMMAND" = "--build" ];
 then

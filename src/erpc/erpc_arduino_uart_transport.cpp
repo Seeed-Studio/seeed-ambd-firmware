@@ -7,12 +7,13 @@
  */
 
 #include "erpc_arduino_uart_transport.h"
+#include "../erpc_board_config.h"
 
 using namespace erpc;
 
 bool EUart_hasMessage()
 {
-    if (Serial2.available() > 0)
+    if (ERPC_SERIAL.available() > 0)
     {
         return true;
     }
@@ -49,6 +50,7 @@ erpc_status_t UartTransport::init(void)
 erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
 {
     size_t bytesRead = 0;
+
     while (bytesRead < size)
     {
         while (m_uartDrv->available())
@@ -83,6 +85,7 @@ erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
 
     //taskENTER_CRITICAL();
     const uint8_t *temp = data;
+    uint32_t bytesWritten = 0;
     // printf("underlyingSend: size %d\n\rdata:\n\r", size);
     // for(int i = 0; i < size; i++)
     // {
@@ -93,8 +96,17 @@ erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
     //     }
     // }
     // printf("\n\r");
- 
-    uint32_t bytesWritten = m_uartDrv->write(data, size);
+
+#ifdef ERPC_SERIAL_SENDDELAY
+    for(uint32_t count = 0 ; count < size ; count++){
+        m_uartDrv->write(data[count]);
+        bytesWritten++;
+        delayMicroseconds(ERPC_SERIAL_SENDDELAY);
+    }
+#else
+    bytesWritten = m_uartDrv->write(data, size);
+#endif
+
     //taskEXIT_CRITICAL();
     return size != bytesWritten ? kErpcStatus_SendFailed : kErpcStatus_Success;
 }

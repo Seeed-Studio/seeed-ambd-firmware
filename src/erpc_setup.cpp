@@ -30,6 +30,7 @@
 #include "erpc_arbitrated_client_manager.h"
 #include "erpc_threading.h"
 #include "erpc_transport_arbitrator.h"
+#include "erpc_board_config.h"
 #include "erpc_port.h"
 #include "elog.h"
 
@@ -38,8 +39,7 @@ using namespace erpc;
 /*============================================================================*
  *                              Constants
  *============================================================================*/
-
-UartTransport g_transport(&Serial2, 1843200);
+UartTransport g_transport(&ERPC_SERIAL, ERPC_SERIAL_BADU);
 BasicCodecFactory g_basicCodecFactory;
 ArbitratedClientManager *g_client;
 TransportArbitrator g_arbitrator;
@@ -78,7 +78,7 @@ public:
 
 char * rpc_system_version(void)
 {
-    return "2.0.2";
+    return "2.0.3";
 }
 
 uint8_t rpc_system_ack(uint8_t c)
