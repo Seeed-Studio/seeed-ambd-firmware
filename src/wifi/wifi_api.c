@@ -713,7 +713,7 @@ int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
     int ret;
     if (number <= WL_NETWORKS_LIST_MAXNUM)
     {
-        networks = (rtw_scan_result_t *)erpc_malloc(sizeof(rtw_scan_result_t) * number);
+        networks = (rtw_scan_result_t *)erpc_malloc(sizeof(rtw_scan_result_t));
     }
     else
     {
@@ -726,7 +726,7 @@ int32_t rpc_wifi_scan_get_ap_records(uint16_t number, binary_t *_scanResult)
     ret = wifi_scan_get_ap_records(number, networks);
     if (ret == RTW_SUCCESS)
     {
-        _scanResult->dataLength = sizeof(rtw_scan_result_t) * number;
+        _scanResult->dataLength = sizeof(rtw_scan_result_t);
         _scanResult->data = (uint8_t *)networks;
     }
     else

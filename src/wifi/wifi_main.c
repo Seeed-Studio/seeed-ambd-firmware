@@ -139,7 +139,6 @@ static rtw_scan_result_t _scan_networks[WL_NETWORKS_LIST_MAXNUM] = {0};
 //     return pvNew;
 // }
 
-
 bool wifi_init()
 {
 
@@ -195,7 +194,7 @@ int32_t wifi_scan_get_ap_records(uint16_t number, rtw_scan_result_t *_scanResult
     return RTW_ERROR;
   }
 
-  memcpy(_scanResult, _scan_networks, sizeof(rtw_scan_result_t) * number);
+  memcpy(_scanResult, &_scan_networks[number], sizeof(rtw_scan_result_t));
   return RTW_SUCCESS;
 }
 
