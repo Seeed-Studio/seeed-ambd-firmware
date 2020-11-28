@@ -1,0 +1,20 @@
+
+@group("wifi_api")
+interface rpc_wifi_mdns{
+	rpc_mdns_init() -> int32
+	rpc_mdns_free() -> int32
+	rpc_mdns_service_add(in string instance_name,in string service_type,in string proto,uint16 port) -> int32
+	rpc_mdns_service_remove(in string service_type,in string proto) -> int32
+	rpc_mdns_service_txt_item_set(in string service_type,in string proto,in string key,in string value) -> int32
+	rpc_mdns_service_instance_name_set(in string service,in string proto,in string instance) -> int32
+	rpc_mdns_instance_name_set(in string instance_name) -> int32
+	rpc_mdns_hostname_set(in string hostname) -> int32
+	rpc_mdns_query_a(in string host_name, uint32 timeout,out binary addr) -> int32
+	rpc_mdns_query_ptr(in string service_type,in string proto, uint32 timeout,int32 max_results,out int32 result_total) -> int32
+	rpc_mdns_query_ptr_result_basic(int32 result_target,out binary scan_result) -> int32
+	rpc_mdns_query_ptr_result_txt(int32 result_target,int32 txt_target,out binary txt) -> int32
+	rpc_mdns_query_ptr_result_addr(int32 result_target,int32 addr_target,out binary addr) -> int32
+	rpc_mdns_query_results_free() -> int32
+}
+
+

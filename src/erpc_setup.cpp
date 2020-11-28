@@ -110,6 +110,7 @@ void add_services(erpc::SimpleServer *server)
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_tcpip_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_lwip_service()));
     server->addService(static_cast<erpc::Service *>(create_rpc_wifi_mbedtls_service()));
+    server->addService(static_cast<erpc::Service *>(create_rpc_wifi_mdns_service()));
 }
 
 /**

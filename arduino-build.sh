@@ -24,6 +24,9 @@ INCLUDE+=" -I$CRTDIR/src/erpc"
 #erpc_shim
 INCLUDE+=" -I$CRTDIR/src/erpc_shim"
 
+#mdns
+INCLUDE+=" -I$CRTDIR/src/mDNS"
+
 FLAGS+=""
 
 
