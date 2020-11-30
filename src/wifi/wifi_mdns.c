@@ -151,6 +151,8 @@ int32_t rpc_mdns_query_a(const char * host_name, uint32_t timeout, binary_t * ad
         printf("rpc_mdns_query_ptr_result malloc failed \r\n");
     }
 
+    result_addr->addr = 0;
+
     ret = mdns_query_a(host_name,timeout,result_addr);
 
     addr->data = result_addr;
@@ -167,6 +169,8 @@ int32_t rpc_mdns_query_ptr(const char * service_type, const char * proto, uint32
 
     esp_err_t ret = ESP_FAIL;
     int count = 0;
+
+    *result_total = 0;
 
     mdns_query_results_free(results);
     ret = mdns_query_ptr(service_type,proto,timeout,max_results,&results);
