@@ -61,7 +61,9 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
             if(bytesRead == size)
                 break;
         }
-        delay(10);
+        if(bytesRead != size){
+            delay(5);
+        }
     }
     // taskENTER_CRITICAL();
     // printf("underlyingReceive: size %d\n\rdata:\n\r", size);

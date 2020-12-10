@@ -19,4 +19,21 @@ interface rpc_wifi_tcpip{
     rpc_tcpip_adapter_get_hostname(uint32 tcpip_if, out string hostname @max_length(32)) -> int32
     rpc_tcpip_adapter_get_mac(uint32 tcpip_if, out binary mac) -> int32
     rpc_tcpip_adapter_set_mac(uint32 tcpip_if, in binary mac) -> int32
+	rpc_tcpip_api_call(in binary func,in binary call) -> int32
+	rpc_tcp_connect(in binary pcb_in, out binary pcb_out,in binary ipaddr,uint16 port,in binary connected) -> int32
+	rpc_tcp_recved(in binary pcb_in, out binary pcb_out,uint16 len) -> int32
+	rpc_tcp_abort(in binary pcb_in, out binary pcb_out) -> int32
+	rpc_tcp_write(in binary pcb_in, out binary pcb_out,in binary data,uint8 apiflags) -> int32
+	rpc_tcp_output(in binary pcb_in, out binary pcb_out) -> int32
+	rpc_tcp_close(in binary pcb_in, out binary pcb_out) -> int32
+	rpc_tcp_bind(in binary pcb_in, out binary pcb_out,in binary ipaddr,uint16 port) -> int32
+	rpc_tcp_new_ip_type(uint8 ip_type, out binary pcb_out) -> int32
+	rpc_tcp_arg(in binary pcb_in, out binary pcb_out,in binary func_arg) -> int32
+	rpc_tcp_err(in binary pcb_in, out binary pcb_out,in binary func_err) -> int32
+	rpc_tcp_recv(in binary pcb_in, out binary pcb_out,in binary func_recv) -> int32
+	rpc_tcp_sent(in binary pcb_in, out binary pcb_out,in binary func_sent) -> int32
+	rpc_tcp_accept(in binary pcb_in, out binary pcb_out,in binary func_accept) -> int32
+	rpc_tcp_poll(in binary pcb_in, out binary pcb_out,in binary func_poll,uint8 interval) -> int32
+	rpc_tcp_listen_with_backlog(in binary pcb_in, out binary pcb_out,uint8 backlog) -> int32
+	rpc_pbuf_free(in binary p) -> int32
 }

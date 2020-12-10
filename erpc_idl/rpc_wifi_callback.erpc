@@ -2,4 +2,11 @@
 interface rpc_wifi_callback {
     oneway rpc_wifi_event_callback(binary event)
     rpc_wifi_dns_found(string hostname, in binary ipaddr, in binary arg @nullable) -> void
+	rpc_tcpip_api_call_fn(uint32 func,in binary call) -> int32
+	rpc_tcp_connected_fn(uint32 func,in binary arg,in binary tpcb,int32 err_val) -> int32
+	rpc_tcp_recv_fn(uint32 func,in binary arg,in binary tpcb,in binary p_data @nullable,in binary p_addr,int32 err_val) -> int32
+	rpc_tcp_accept_fn(uint32 func,in binary arg,in binary newpcb,int32 err_val) -> int32
+	rpc_tcp_err_fn(uint32 func,in binary arg,int32 err_val) -> int32
+	rpc_tcp_sent_fn(uint32 func,in binary arg,in binary tpcb,uint16 len) -> int32
+	rpc_tcp_poll_fn(uint32 func,in binary arg,in binary tpcb) -> int32
 }
