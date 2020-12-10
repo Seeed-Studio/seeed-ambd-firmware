@@ -135,6 +135,8 @@ void run_erpc_server(void *arg)
  */
 void erpc_system_init()
 {
+    delay(10);
+
     g_transport.init();
 
     g_arbitrator.setSharedTransport(&g_transport);
