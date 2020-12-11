@@ -1869,6 +1869,8 @@ int32_t rpc_tcp_recv_external(uint32_t addr,void *arg, struct tcp_pcb *tpcb,stru
     uint32_t pbuf_addr = (uint32_t)p;
     uint32_t arg_addr = (uint32_t)arg;
 
+    log_d("called");
+
     copy_tp_to_rtp(tpcb,&rtpcb);
 
     arg_b.data = &arg_addr;
@@ -1884,8 +1886,8 @@ int32_t rpc_tcp_recv_external(uint32_t addr,void *arg, struct tcp_pcb *tpcb,stru
             return ERR_MEM;
         }
     }else{
-        pbuf_b.data = NULL;
-        pbuf_b.dataLength = 0;
+        pbuf_b.data = &pbuf_addr;
+        pbuf_b.dataLength = 4;
     }
 
     pbuf_addr_b.data = &pbuf_addr;
