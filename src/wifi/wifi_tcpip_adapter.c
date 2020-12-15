@@ -165,11 +165,13 @@ esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_i
     log_v("tcpip_if:%d ip_addr:%d netmask:%d, gw:%d", tcpip_if, pnetif->ip_addr, pnetif->netmask, pnetif->gw);
     return ret;
 }
+
 esp_err_t tcpip_adapter_set_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_dns_type_t type, tcpip_adapter_dns_info_t *dns)
 {
     esp_err_t ret = ESP_OK;
     uint8_t idx = tcpip_if<=1?tcpip_if:0;
-    dns_setserver(idx, &dns->ip);
+
+    dns_setserver(type, &dns->ip);
 
     return ret;
 }
@@ -178,7 +180,8 @@ esp_err_t tcpip_adapter_get_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_
 {
     esp_err_t ret = ESP_OK;
     uint8_t idx = tcpip_if<=1?tcpip_if:0;
-    ip_addr_t *ip = dns_getserver(idx);
+    
+    ip_addr_t *ip = dns_getserver(type);
 
     memcpy(&dns->ip, ip, sizeof(ip_addr_t));
 
