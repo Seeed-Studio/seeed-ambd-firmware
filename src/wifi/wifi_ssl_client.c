@@ -426,11 +426,6 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
 
     //log_v("Setting hostname :%s for TLS session...", host);
 
-    // // Hostname set here should match CN in server certificate
-    // if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
-    // {
-    //     return handle_error(ret);
-    // }
 
     if ((ret = mbedtls_ssl_setup(&ssl_client->ssl_ctx, &ssl_client->ssl_conf)) != 0)
     {
@@ -438,6 +433,13 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
     }
 
     mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, &ssl_client->socket, mbedtls_net_send, mbedtls_net_recv, NULL);
+
+    // Hostname set here should match CN in server certificate
+    if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
+    {
+        printf("wifi_start_ssl_client mbedtls_ssl_set_hostname failed \r\n");
+        return handle_error(ret);
+    }
 
     log_v("Performing the SSL/TLS handshake...");
     unsigned long handshake_start_time = millis();
