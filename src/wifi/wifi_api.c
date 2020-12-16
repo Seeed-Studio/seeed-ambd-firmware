@@ -2105,7 +2105,9 @@ int32_t rpc_tcp_close(const binary_t * pcb_in, binary_t * pcb_out)
             ret = tcp_close(tpcb_p);
 
             rtpcb_p = (struct rpc_tcp_pcb *)erpc_malloc(sizeof(struct rpc_tcp_pcb));
-            copy_tp_to_rtp(tpcb_p,rtpcb_p);
+            if(ret != ERR_OK){
+                copy_tp_to_rtp(tpcb_p,rtpcb_p);
+            }
             pcb_out->data = rtpcb_p;
             pcb_out->dataLength = sizeof(struct rpc_tcp_pcb);
         }
