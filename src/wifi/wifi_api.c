@@ -42,17 +42,10 @@ static void free_binary_t_struct(binary_t *data)
 
 void copy_rtp_to_tp(struct rpc_tcp_pcb *rpc_pcb,struct tcp_pcb *pcb)
 {
-    pcb->state = rpc_pcb->state;
-    pcb->remote_port = rpc_pcb->remote_port;
-    pcb->local_port = rpc_pcb->local_port;
     pcb->flags = rpc_pcb->flags;
-    pcb->mss = rpc_pcb->mss;
-    pcb->snd_buf = rpc_pcb->snd_buf;
+
     pcb->master_addr = rpc_pcb->master_addr;
     pcb->client_addr = rpc_pcb->client_addr;
-
-    ip_addr_copy(pcb->local_ip,rpc_pcb->local_ip);
-    ip_addr_copy(pcb->remote_ip,rpc_pcb->remote_ip);
 }
 
 void copy_tp_to_rtp(struct tcp_pcb *pcb,struct rpc_tcp_pcb *rpc_pcb)
