@@ -8,6 +8,16 @@ This RTL87XX [RPC](https://github.com/EmbeddedRPC/eRPC) firmware export a RPC se
 ### Tools 
 The arduino-cli tool is used to build and upload the RTL8720DN firmware to the Seeed Wio terminal board. Use following link for download and installation procedure:
 * [Arduino CLI](https://arduino.github.io/arduino-cli/installation/).
+
+Sample script is below:
+```sh
+wget https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh
+chmod a+x install.sh
+sudo BINDIR=/usr/local/bin ./install.sh
+sudo rm -rf ~/.arduino15
+arduino-cli config init
+```
+
 ### ArduinoCore
 Before compiling the firmware, you need to install the Arduino core of rtl872x [ArduinoCore-ambd](https://github.com/Seeed-Studio/ArduinoCore-ambd/)
 - board index
@@ -15,10 +25,18 @@ Before compiling the firmware, you need to install the Arduino core of rtl872x [
 https://files.seeedstudio.com/arduino/package_realtek.com_amebad_index.json
 ```
 
+Sample script is below:
+```sh
+arduino-cli config add board_manager.additional_urls https://files.seeedstudio.com/arduino/package_realtek.com_amebad_index.json
+arduino-cli core update-index
+arduino-cli core install realtek:AmebaD
+rm -rf ~/.arduino15/packages/realtek/hardware/AmebaD/3.0.5
+git clone https://github.com/Seeed-Studio/ArduinoCore-ambd ~/.arduino15/packages/realtek/hardware/AmebaD/3.0.5
+```
+
 ### build
 ```sh
-chmod +x build.sh
-./build.sh --build
+./arduino-build.sh --build
 ```
 
 ### flash
