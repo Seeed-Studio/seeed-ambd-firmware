@@ -90,6 +90,8 @@ public:
     //! @brief Shared client/server send method.
     virtual erpc_status_t send(MessageBuffer *message);
 
+    virtual bool hasMessage(void);
+
     /*!
      * @brief This functions sets the CRC-16 implementation.
      *

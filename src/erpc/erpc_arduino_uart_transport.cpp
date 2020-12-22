@@ -10,18 +10,6 @@
 
 using namespace erpc;
 
-bool EUart_hasMessage()
-{
-    if (Serial2.available() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +49,7 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
             if(bytesRead == size)
                 break;
         }
-        delay(10);
+        vTaskDelay(1);
     }
     // taskENTER_CRITICAL();
     // printf("underlyingReceive: size %d\n\rdata:\n\r", size);
@@ -101,9 +89,6 @@ erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
 
 bool UartTransport::hasMessage()
 {
-    if (m_uartDrv->available())
-    {
-        return true;
-    }
-    return false;
+    const bool ret = m_uartDrv->available() > 0;
+    return ret;
 }
