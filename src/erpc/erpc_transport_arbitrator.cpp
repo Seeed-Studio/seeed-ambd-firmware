@@ -115,6 +115,12 @@ erpc_status_t TransportArbitrator::send(MessageBuffer *message)
     return m_sharedTransport->send(message);
 }
 
+bool TransportArbitrator::hasMessage(void)
+{
+    assert(m_sharedTransport && "shared transport is not set");
+    return m_sharedTransport->hasMessage();
+}
+
 TransportArbitrator::client_token_t TransportArbitrator::prepareClientReceive(RequestContext &request)
 {
     PendingClientInfo *info = addPendingClient();

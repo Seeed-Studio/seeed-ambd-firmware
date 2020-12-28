@@ -10,18 +10,6 @@
 
 using namespace erpc;
 
-bool EUart_hasMessage()
-{
-    if (Serial2.available() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,61 +39,23 @@ erpc_status_t UartTransport::underlyingReceive(uint8_t *data, uint32_t size)
     size_t bytesRead = 0;
     while (bytesRead < size)
     {
-        while (m_uartDrv->available())
-        {
-            int c =  m_uartDrv->read();
-            if (c < 0)
-                break;
-            *data++ = (char)c;
-            bytesRead++;
-            if(bytesRead == size)
-                break;
-        }
-        if(bytesRead != size){
-            delay(5);
-        }
+        while (!m_uartDrv->available()) vTaskDelay(1);
+
+        const int c =  m_uartDrv->read();
+        if (c < 0) continue;
+        data[bytesRead++] = static_cast<uint8_t>(c);
     }
-    // taskENTER_CRITICAL();
-    // printf("underlyingReceive: size %d\n\rdata:\n\r", size);
-    // for(int i = 0; i < bytesRead; i++)
-    // {
-    //     printf("0x%02x ", temp[i]);
-    //     if(i % 10 == 0 && i != 0)
-    //     {
-    //         printf("\n\r");
-    //     }
-    // }
-    // printf("\n\r");
-    // taskEXIT_CRITICAL();
-    return size != bytesRead ? kErpcStatus_ReceiveFailed : kErpcStatus_Success;
+    return kErpcStatus_Success; // return size != bytesRead ? kErpcStatus_ReceiveFailed : kErpcStatus_Success;
 }
 
 erpc_status_t UartTransport::underlyingSend(const uint8_t *data, uint32_t size)
 {
-
-    //taskENTER_CRITICAL();
-    const uint8_t *temp = data;
-    // printf("underlyingSend: size %d\n\rdata:\n\r", size);
-    // for(int i = 0; i < size; i++)
-    // {
-    //     printf("0x%02x ", temp[i]);
-    //     if(i % 10 == 0 && i != 0)
-    //     {
-    //         printf("\n\r");
-    //     }
-    // }
-    // printf("\n\r");
- 
-    uint32_t bytesWritten = m_uartDrv->write(data, size);
-    //taskEXIT_CRITICAL();
+    const uint32_t bytesWritten = m_uartDrv->write(data, size);
     return size != bytesWritten ? kErpcStatus_SendFailed : kErpcStatus_Success;
 }
 
 bool UartTransport::hasMessage()
 {
-    if (m_uartDrv->available())
-    {
-        return true;
-    }
-    return false;
+    const bool ret = m_uartDrv->available() > 0;
+    return ret;
 }

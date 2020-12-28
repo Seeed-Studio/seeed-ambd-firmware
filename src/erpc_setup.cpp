@@ -117,7 +117,7 @@ void add_services(erpc::SimpleServer *server)
  * @brief  Initialize erpc server task
  * @return void
  */
-void run_erpc_server(void *arg)
+__attribute__((noreturn)) void run_erpc_server(void *arg)
 {
     (void)arg;
     log_i("start erpc server\n\r");
@@ -125,7 +125,7 @@ void run_erpc_server(void *arg)
     for (;;)
     {
         g_server.poll();
-        delay(10);
+        vTaskDelay(1);
     }
 }
 
@@ -152,7 +152,7 @@ void erpc_system_init()
     g_server.setTransport(&g_arbitrator);
     g_server.setCodecFactory(&g_basicCodecFactory);
     g_server.setMessageBufferFactory(&g_msgFactory);
-    Thread serverThread(&run_erpc_server, 8, 1024*24, "erpc server");
+    Thread serverThread(&run_erpc_server, tskIDLE_PRIORITY + 8, 1024*24, "erpc server");
     serverThread.start();
 
     add_services(&g_server);
