@@ -347,23 +347,6 @@ void wifi_dns_found(const char *name, ip_addr_t *ipaddr, void *callback_arg)
 
     rpc_wifi_dns_found(name, &b_ipaddr, b_callback_arg);
 
-    if (name)
-    {
-        erpc_free(name);
-    }
-    if (ipaddr)
-    {
-        erpc_free(ipaddr);
-    }
-    if (callback_arg)
-    {
-        free_binary_t_struct(callback_arg);
-    }
-    if (callback_arg)
-    {
-        erpc_free(callback_arg);
-    }
-
     if (callback_arg)
     {
         free_binary_t_struct(callback_arg);

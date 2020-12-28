@@ -1264,35 +1264,18 @@ extern void wifi_dns_found(const char *name, ip_addr_t *ipaddr, void *callback_a
 
 int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint32_t found, const binary_t *callback_arg, uint8_t dns_addrtype)
 {
-    log_d(" called\n\r");
+   log_d(" called\n\r");
     ip_addr_t *addr_info = (ip_addr_t *)erpc_malloc(sizeof(ip_addr_t));
     addr->data = (uint8_t *)addr_info;
     addr->dataLength = sizeof(ip_addr_t);
 
     int ret = 0;
-    if (found != 0)
+
+    ret = dns_gethostbyname_addrtype(hostname, addr_info, wifi_dns_found, callback_arg, dns_addrtype);
+
+    if (ret == ERR_OK && found != 0)
     {
-        ret = dns_gethostbyname_addrtype(hostname, addr_info, wifi_dns_found, callback_arg, dns_addrtype);
-        if (addr)
-        {
-            erpc_free(addr);
-        }
-    }
-    else
-    {
-        ret = dns_gethostbyname_addrtype(hostname, addr_info, NULL, callback_arg, dns_addrtype);
-        if (hostname)
-        {
-            erpc_free(hostname);
-        }
-        if (addr)
-        {
-            free_binary_t_struct(addr);
-        }
-        if (addr)
-        {
-            erpc_free(addr);
-        }
+        wifi_dns_found(hostname, addr_info, callback_arg);
         if (callback_arg)
         {
             free_binary_t_struct(callback_arg);
@@ -1301,6 +1284,19 @@ int8_t rpc_dns_gethostbyname_addrtype(const char *hostname, binary_t *addr, uint
         {
             erpc_free(callback_arg);
         }
+    }
+
+    if (hostname)
+    {
+        erpc_free(hostname);
+    }
+    if (addr)
+    {
+        free_binary_t_struct(addr);
+    }
+    if (addr)
+    {
+        erpc_free(addr);
     }
 
     log_d("exit");
