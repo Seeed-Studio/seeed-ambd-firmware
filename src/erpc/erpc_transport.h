@@ -76,7 +76,7 @@ namespace erpc
      *
      * @retval True when a message is available to process, else false.
      */
-       bool hasMessage(void){ return EUart_hasMessage(); }
+        virtual bool hasMessage(void) = 0;
 
         /*!
      * @brief This functions sets the CRC-16 implementation.
