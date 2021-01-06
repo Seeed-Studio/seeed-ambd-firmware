@@ -919,7 +919,7 @@ int32_t rpc_lwip_accept(int32_t s, const binary_t *addr, uint32_t *addrlen)
 {
     log_d("called");
     struct sockaddr *_addr = (struct sockaddr *)addr->data;
-    return lwip_accept(s, _addr, addrlen);
+    return lwip_accept(s, _addr, &addr->dataLength);
 }
 
 int32_t rpc_lwip_bind(int32_t s, const binary_t *name, uint32_t namelen)
@@ -940,7 +940,7 @@ int32_t rpc_lwip_getpeername(int32_t s, binary_t *name, uint32_t *namelen)
     log_d("called");
     struct sockaddr *_name = (struct sockaddr *)erpc_malloc(sizeof(struct sockaddr));
     memset(_name, 0, sizeof(struct sockaddr));
-    int32_t ret = lwip_getpeername(s, _name, namelen);
+    int32_t ret = lwip_getpeername(s, _name, &name->dataLength);
     name->data = (uint8_t *)_name;
     name->dataLength = sizeof(struct sockaddr);
     log_d("exit");
@@ -952,7 +952,7 @@ int32_t rpc_lwip_getsockname(int32_t s, binary_t *name, uint32_t *namelen)
     log_d("called");
     struct sockaddr *_name = (struct sockaddr *)erpc_malloc(sizeof(struct sockaddr));
     memset(_name, 0, sizeof(struct sockaddr));
-    int32_t ret = lwip_getsockname(s, _name, namelen);
+    int32_t ret = lwip_getsockname(s, _name, &name->dataLength);
     name->data = (uint8_t *)_name;
     name->dataLength = sizeof(struct sockaddr);
     log_d("exit");
@@ -963,7 +963,7 @@ int32_t rpc_lwip_getsockopt(int32_t s, int32_t level, int32_t optname, const bin
 {
     log_d("called");
     uint8_t *optval = (uint8_t *)erpc_malloc(in_optval->dataLength * sizeof(uint8_t));
-    int32_t ret = lwip_getsockopt(s, level, optname, optval, optlen);
+    int32_t ret = lwip_getsockopt(s, level, optname, optval, &in_optval->dataLength);
     out_optval->data = optval;
     out_optval->dataLength = in_optval->dataLength;
     log_d("exit");
