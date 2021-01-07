@@ -40,7 +40,8 @@ static int _handle_error(int err, const char *file, int line)
 wifi_sslclient_context *wifi_ssl_client_create()
 {
     wifi_sslclient_context *sslclient = malloc(sizeof(wifi_sslclient_context));
-    if(sslclient != NULL){
+    if (sslclient != NULL)
+    {
         char *rootCA = NULL;
         char *cli_cert = NULL;
         char *cli_key = NULL;
@@ -52,27 +53,27 @@ wifi_sslclient_context *wifi_ssl_client_create()
 
 void wifi_ssl_client_destroy(wifi_sslclient_context *ssl_client)
 {
-    if(ssl_client->rootCA != NULL)
+    if (ssl_client->rootCA != NULL)
     {
         erpc_free(ssl_client->rootCA);
         ssl_client->rootCA = NULL;
     }
-    if(ssl_client->cli_cert != NULL)
+    if (ssl_client->cli_cert != NULL)
     {
         erpc_free(ssl_client->cli_cert);
         ssl_client->cli_cert = NULL;
     }
-      if(ssl_client->cli_key != NULL)
+    if (ssl_client->cli_key != NULL)
     {
         erpc_free(ssl_client->cli_key);
         ssl_client->cli_key = NULL;
     }
-      if(ssl_client->pskIdent != NULL)
+    if (ssl_client->pskIdent != NULL)
     {
         erpc_free(ssl_client->pskIdent);
         ssl_client->pskIdent = NULL;
     }
-    if(ssl_client->psKey != NULL)
+    if (ssl_client->psKey != NULL)
     {
         erpc_free(ssl_client->psKey);
         ssl_client->psKey = NULL;
@@ -107,7 +108,7 @@ unsigned long wifi_ssl_get_timeout(wifi_sslclient_context *ssl_client)
 
 uint32_t wifi_ssl_set_rootCA(wifi_sslclient_context *ssl_client, char *rootCABuff)
 {
-    if(ssl_client->rootCA != NULL)
+    if (ssl_client->rootCA != NULL)
     {
         erpc_free(ssl_client->rootCA);
         ssl_client->rootCA = NULL;
@@ -123,7 +124,7 @@ uint32_t wifi_ssl_get_rootCA(wifi_sslclient_context *ssl_client)
 
 uint32_t wifi_ssl_set_cliCert(wifi_sslclient_context *ssl_client, char *cli_cert)
 {
-    if(ssl_client->cli_cert != NULL)
+    if (ssl_client->cli_cert != NULL)
     {
         erpc_free(ssl_client->cli_cert);
         ssl_client->cli_cert = NULL;
@@ -139,7 +140,7 @@ uint32_t wifi_ssl_get_cliCert(wifi_sslclient_context *ssl_client)
 
 uint32_t wifi_ssl_set_cliKey(wifi_sslclient_context *ssl_client, char *cli_key)
 {
-    if(ssl_client->cli_key != NULL)
+    if (ssl_client->cli_key != NULL)
     {
         erpc_free(ssl_client->cli_key);
         ssl_client->cli_key = NULL;
@@ -155,7 +156,7 @@ uint32_t wifi_ssl_get_cliKey(wifi_sslclient_context *ssl_client)
 
 uint32_t wifi_ssl_set_pskIdent(wifi_sslclient_context *ssl_client, char *pskIdent)
 {
-    if(ssl_client->pskIdent != NULL)
+    if (ssl_client->pskIdent != NULL)
     {
         erpc_free(ssl_client->pskIdent);
         ssl_client->pskIdent = NULL;
@@ -171,7 +172,7 @@ uint32_t wifi_ssl_get_pskIdent(wifi_sslclient_context *ssl_client)
 
 uint32_t wifi_ssl_set_psKey(wifi_sslclient_context *ssl_client, char *psKey)
 {
-    if(ssl_client->psKey != NULL)
+    if (ssl_client->psKey != NULL)
     {
         erpc_free(ssl_client->psKey);
         ssl_client->psKey = NULL;
@@ -182,7 +183,7 @@ uint32_t wifi_ssl_set_psKey(wifi_sslclient_context *ssl_client, char *psKey)
 
 uint32_t wifi_ssl_get_psKey(wifi_sslclient_context *ssl_client)
 {
-    return ssl_client-> psKey;
+    return ssl_client->psKey;
 }
 
 static void *my_calloc(size_t nelements, size_t elementSize)
@@ -426,7 +427,6 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
 
     //log_v("Setting hostname :%s for TLS session...", host);
 
-
     if ((ret = mbedtls_ssl_setup(&ssl_client->ssl_ctx, &ssl_client->ssl_conf)) != 0)
     {
         return handle_error(ret);
@@ -435,23 +435,21 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
     mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, &ssl_client->socket, mbedtls_net_send, mbedtls_net_recv, NULL);
 
     // Hostname set here should match CN in server certificate
-    if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
+    if (ssl_client->ssl_conf.authmode != MBEDTLS_SSL_VERIFY_NONE)
     {
-        printf("wifi_start_ssl_client mbedtls_ssl_set_hostname failed \r\n");
-        return handle_error(ret);
+        if ((ret = mbedtls_ssl_set_hostname(&ssl_client->ssl_ctx, host)) != 0)
+        {
+            printf("wifi_start_ssl_client mbedtls_ssl_set_hostname failed \r\n");
+            return handle_error(ret);
+        }
     }
 
     log_v("Performing the SSL/TLS handshake...");
     unsigned long handshake_start_time = millis();
     while ((ret = mbedtls_ssl_handshake(&ssl_client->ssl_ctx)) != 0)
     {
-        // if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
-        // {
-        //     return handle_error(ret);
-        // }
-        // log_v("ssl_client->handshake_timeout:%d", ssl_client->handshake_timeout);
         if ((millis() - handshake_start_time) > ssl_client->handshake_timeout)
-            return -1;
+            return handle_error(ret);
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 
@@ -499,7 +497,6 @@ int wifi_start_ssl_client(wifi_sslclient_context *ssl_client, const char *host, 
     }
 
     return ssl_client->socket;
-
 }
 
 void wifi_stop_ssl_socket(wifi_sslclient_context *ssl_client, const char *rootCABuff, const char *cli_cert, const char *cli_key)
