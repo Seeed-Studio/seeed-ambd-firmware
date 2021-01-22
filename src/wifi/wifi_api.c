@@ -2191,5 +2191,24 @@ int32_t rpc_tcp_write(const binary_t * pcb_in, binary_t * pcb_out, const binary_
 
     return ret;
 }
+char * rpc_ip4addr_ntoa(const binary_t * p)
+{
+    char * ret;
+    struct ip4_addr_t * p_tmp = (struct ip4_addr_t *)p->data;
+    log_d("ip4_addr:%x",p_tmp);
+    if(p_tmp != NULL){
+        ret = ip4addr_ntoa(p_tmp);
+    }
 
+    return ret; 
+}
+u16_t rpc_inet_chksum(const binary_t * dataptr_in)
+{
+    u16_t ret = 0;
+	log_d("inet_chksum len:%d",dataptr_in->dataLength);
+    if(dataptr_in != NULL){
+        ret = inet_chksum(dataptr_in->data,dataptr_in->dataLength);
+    }
+    return ret; 
+}
 //@}

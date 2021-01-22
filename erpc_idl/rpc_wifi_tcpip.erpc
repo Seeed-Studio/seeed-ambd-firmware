@@ -36,4 +36,6 @@ interface rpc_wifi_tcpip{
 	rpc_tcp_poll(in binary pcb_in, out binary pcb_out,in binary func_poll,uint8 interval) -> int32
 	rpc_tcp_listen_with_backlog(in binary pcb_in, out binary pcb_out,uint8 backlog) -> int32
 	rpc_pbuf_free(in binary p) -> int32
+	rpc_ip4addr_ntoa(in binary ip4_addr_in)-> string
+	rpc_inet_chksum(in binary dataptr_in) -> uint16
 }
