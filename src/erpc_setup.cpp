@@ -78,7 +78,7 @@ public:
 
 char * rpc_system_version(void)
 {
-    return "2.1.1";
+    return "2.1.2";
 }
 
 uint8_t rpc_system_ack(uint8_t c)
