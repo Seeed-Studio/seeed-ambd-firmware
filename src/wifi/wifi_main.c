@@ -151,6 +151,9 @@ bool wifi_init()
 
   wifi_event_reg_init();
 
+  // wifi_change_channel_plan(RTW_COUNTRY_JP); //2.4Ghz 
+	// wifi_set_country(0x27); // MKK
+
   // mbedtls_threading_set_alt( my_mbedtls_mutex_init,
   //                                  my_mbedtls_mutex_free,
   //                                  my_mbedtls_mutex_lock,
