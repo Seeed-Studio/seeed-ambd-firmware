@@ -218,3 +218,9 @@ int32_t wifi_scan_start()
   }
   return ret;
 }
+
+void wifi_set_country_code(void)
+{
+	//wifi_set_country(RTW_COUNTRY_US); // 2.4G only
+	wifi_change_channel_plan(0x58); // 2G_MKK2(Ch1-13) + 5G_MKK4(W52)
+}
