@@ -33,7 +33,7 @@ FLAGS+=""
 if [ "$COMMAND" = "--build" ];
 then
 	echo "Building $PROJECT"
-	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.extra_flags="$INCLUDE $FLAGS" $PROJECT &
+	arduino-cli compile --fqbn  $BOARD --verbose --build-property build.extra_flags="$INCLUDE $FLAGS" $PROJECT &
 	pid=$! # Process Id of the previous running command
 	while kill -0 $pid 2>/dev/null
 	do
@@ -52,7 +52,7 @@ then
 	arduino-cli upload  --fqbn $BOARD -p $PORT
 elif [ "$COMMAND" = "--all" ];
 then
-	arduino-cli compile --fqbn  $BOARD --verbose --build-properties build.extra_flags="$INCLUDE $FLAGS" $PROJECT
+	arduino-cli compile --fqbn  $BOARD --verbose --build-property build.extra_flags="$INCLUDE $FLAGS" $PROJECT
 	status=$?
 	[ $status -eq 0 ] && arduino-cli upload  --fqbn $BOARD --port $PORT
 else
