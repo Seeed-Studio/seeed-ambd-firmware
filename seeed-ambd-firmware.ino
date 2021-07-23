@@ -1,7 +1,6 @@
 #include "elog.h"
 #include "wifi_main.h"
 
-
 /*init the easylogger moudle*/
 void app_elog_init(void)
 {
@@ -80,7 +79,7 @@ void setup()
 
 	// srcv_handle = ble_service_start(srcv_app_id);
 	ble_start();
-    ble_client_init(1);
+	ble_client_init(1);
 
 	delay(2000);
 	//le_adv_start();
@@ -91,44 +90,43 @@ void setup()
 
 	T_CLIENT_ID client_id = ble_add_client(0, BLE_LE_MAX_LINKS);
 
+	printf("connecting...\n\r");
+	uint8_t bd_addr[6] = {0xd7, 0x1d, 0x12, 0xdc, 0x64, 0xf0};
 
+	T_GAP_LE_CONN_REQ_PARAM _connReqParam;
+	_connReqParam.scan_interval = 0x40;
+	_connReqParam.scan_window = 0x30;
+	_connReqParam.conn_interval_min = 80;
+	_connReqParam.conn_interval_max = 80;
+	_connReqParam.conn_latency = 0;
+	_connReqParam.supv_tout = 1000;
+	_connReqParam.ce_len_min = 2 * (_connReqParam.conn_interval_min - 1);
+	_connReqParam.ce_len_max = 2 * (_connReqParam.conn_interval_max - 1);
 
- printf("connecting...\n\r");
-    uint8_t bd_addr[6] = {0xd7, 0x1d, 0x12, 0xdc, 0x64, 0xf0};
+	le_set_conn_param(GAP_CONN_PARAM_1M, &_connReqParam);
 
-   T_GAP_LE_CONN_REQ_PARAM _connReqParam;
-   _connReqParam.scan_interval = 0x40;
-    _connReqParam.scan_window = 0x30;
-    _connReqParam.conn_interval_min = 80;
-    _connReqParam.conn_interval_max = 80;
-    _connReqParam.conn_latency = 0;
-    _connReqParam.supv_tout = 1000;
-    _connReqParam.ce_len_min = 2 * (_connReqParam.conn_interval_min - 1);
-    _connReqParam.ce_len_max = 2 * (_connReqParam.conn_interval_max - 1);
+	while (1)
+	{
+		log_i("cmd_con, DestAddr: 0x%2X:0x%2X:0x%2X:0x%2X:0x%2X:0x%2X\r\n",
+			  bd_addr[5], bd_addr[4], bd_addr[3], bd_addr[2], bd_addr[1], bd_addr[0]);
+		T_GAP_CAUSE result = le_connect(0, bd_addr, GAP_REMOTE_ADDR_LE_RANDOM, GAP_LOCAL_ADDR_LE_PUBLIC, 2000);
 
-   le_set_conn_param(GAP_CONN_PARAM_1M, &_connReqParam);
-
-	while(1){
-   log_i("cmd_con, DestAddr: 0x%2X:0x%2X:0x%2X:0x%2X:0x%2X:0x%2X\r\n",
-   	   bd_addr[5], bd_addr[4], bd_addr[3], bd_addr[2], bd_addr[1], bd_addr[0]);
-   T_GAP_CAUSE result = le_connect(0, bd_addr, GAP_REMOTE_ADDR_LE_RANDOM, GAP_LOCAL_ADDR_LE_PUBLIC, 2000);
-   
-  le_get_conn_id(bd_addr, GAP_REMOTE_ADDR_LE_RANDOM, &conn_id);
-  log_i("conn_id: %d\r\n", conn_id);
-  delay(3000);
-  T_GAP_CONN_INFO pConnInfo;
-  le_get_conn_info(conn_id, &pConnInfo);
-  if (pConnInfo.conn_state == GAP_CONN_STATE_CONNECTED)
-  {
-	  log_i("Connect successful\r\n");
-	 client_all_primary_srv_discovery(conn_id, client_id);
-	  break;
-  }
-   else
-   {
-   	log_i("Connect failed:%d\r\n", conn_id);
-	   delay(8000);
-   }
+		le_get_conn_id(bd_addr, GAP_REMOTE_ADDR_LE_RANDOM, &conn_id);
+		log_i("conn_id: %d\r\n", conn_id);
+		delay(3000);
+		T_GAP_CONN_INFO pConnInfo;
+		le_get_conn_info(conn_id, &pConnInfo);
+		if (pConnInfo.conn_state == GAP_CONN_STATE_CONNECTED)
+		{
+			log_i("Connect successful\r\n");
+			client_all_primary_srv_discovery(conn_id, client_id);
+			break;
+		}
+		else
+		{
+			log_i("Connect failed:%d\r\n", conn_id);
+			delay(8000);
+		}
 	}
 
 #else
