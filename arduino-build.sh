@@ -49,7 +49,7 @@ then
 	fi
 elif [ "$COMMAND" = "--flash" ];
 then
-	arduino-cli upload  --fqbn $BOARD -p $PORT
+	arduino-cli upload  --fqbn $BOARD -p $PORT $PROJECT
 elif [ "$COMMAND" = "--all" ];
 then
 	arduino-cli compile --fqbn  $BOARD --verbose --build-property build.extra_flags="$INCLUDE $FLAGS" $PROJECT

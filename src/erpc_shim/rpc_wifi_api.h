@@ -82,6 +82,7 @@ enum _rpc_wifi_drv_ids
     krpc_wifi_drv_rpc_wifi_is_scaning_id = 65,
     krpc_wifi_drv_rpc_wifi_scan_get_ap_records_id = 66,
     krpc_wifi_drv_rpc_wifi_scan_get_ap_num_id = 67,
+    krpc_wifi_drv_rpc_wifi_send_mqtt_msg_id = 68,
 };
 
 /*! @brief rpc_wifi_tcpip identifiers */
@@ -229,6 +230,8 @@ int32_t rpc_wifi_is_up(uint32_t itf);
 int32_t rpc_wifi_is_ready_to_transceive(uint32_t itf);
 
 int32_t rpc_wifi_set_mac_address(const binary_t * mac);
+
+int32_t rpc_wifi_send_mqtt_msg(uint32_t *buffer, uint16_t buffer_length);
 
 int32_t rpc_wifi_get_mac_address(uint8_t mac[18]);
 

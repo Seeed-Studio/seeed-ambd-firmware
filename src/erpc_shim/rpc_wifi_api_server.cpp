@@ -105,6 +105,9 @@ erpc_status_t rpc_wifi_drv_service::handleInvocation(uint32_t methodId, uint32_t
         case krpc_wifi_drv_rpc_wifi_set_mac_address_id:
             return rpc_wifi_set_mac_address_shim(codec, messageFactory, sequence);
 
+	case krpc_wifi_drv_rpc_wifi_send_mqtt_msg_id:
+            return rpc_wifi_send_mqtt_msg_shim(codec, messageFactory, sequence);
+
         case krpc_wifi_drv_rpc_wifi_get_mac_address_id:
             return rpc_wifi_get_mac_address_shim(codec, messageFactory, sequence);
 
@@ -728,6 +731,57 @@ erpc_status_t rpc_wifi_drv_service::rpc_wifi_set_mac_address_shim(Codec * codec,
     if (mac)
     {
         erpc_free(mac);
+    }
+
+    return err;
+}
+
+// Server shim for rpc_wifi_set_mac_address of rpc_wifi_drv interface.
+erpc_status_t rpc_wifi_drv_service::rpc_wifi_send_mqtt_msg_shim(Codec * codec, MessageBufferFactory *messageFactory, uint32_t sequence)
+{
+    erpc_status_t err = kErpcStatus_Success;
+
+    binary_t *msg = NULL;
+    msg = (binary_t *) erpc_malloc(sizeof(binary_t));
+    if (msg == NULL)
+    {
+        codec->updateStatus(kErpcStatus_MemoryError);
+    }
+    int32_t result = 99;
+
+    // startReadMessage() was already called before this shim was invoked.
+
+    read_binary_t_struct(codec, msg);
+
+    err = codec->getStatus();
+    if (!err)
+    {
+        // Invoke the actual served function.
+/* to be added */
+        // preparing MessageBuffer for serializing data
+        err = messageFactory->prepareServerBufferForSend(codec->getBuffer());
+    }
+
+    if (!err)
+    {
+        // preparing codec for serializing data
+        codec->reset();
+
+        // Build response message.
+        codec->startWriteMessage(kReplyMessage, krpc_wifi_drv_service_id, krpc_wifi_drv_rpc_wifi_send_mqtt_msg_id, sequence);
+
+        codec->write(result);
+
+        err = codec->getStatus();
+    }
+
+    if (msg)
+    {
+        free_binary_t_struct(msg);
+    }
+    if (msg)
+    {
+        erpc_free(msg);
     }
 
     return err;
@@ -3481,6 +3535,7 @@ erpc_status_t rpc_wifi_drv_service::rpc_wifi_scan_start_shim(Codec * codec, Mess
         // Build response message.
         codec->startWriteMessage(kReplyMessage, krpc_wifi_drv_service_id, krpc_wifi_drv_rpc_wifi_scan_start_id, sequence);
 
+	result = 30;
         codec->write(result);
 
         err = codec->getStatus();

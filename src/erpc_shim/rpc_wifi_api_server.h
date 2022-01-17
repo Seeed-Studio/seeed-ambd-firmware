@@ -56,6 +56,9 @@ private:
     /*! @brief Server shim for rpc_wifi_set_mac_address of rpc_wifi_drv interface. */
     erpc_status_t rpc_wifi_set_mac_address_shim(erpc::Codec * codec, erpc::MessageBufferFactory *messageFactory, uint32_t sequence);
 
+    /*! @brief Server shim for rpc_wifi_send_mqtt_msg of rpc_wifi_drv interface. */
+    erpc_status_t rpc_wifi_send_mqtt_msg_shim(erpc::Codec * codec, erpc::MessageBufferFactory *messageFactory, uint32_t sequence);
+
     /*! @brief Server shim for rpc_wifi_get_mac_address of rpc_wifi_drv interface. */
     erpc_status_t rpc_wifi_get_mac_address_shim(erpc::Codec * codec, erpc::MessageBufferFactory *messageFactory, uint32_t sequence);
 

@@ -26,9 +26,15 @@ void app_elog_init(void)
 extern void erpc_system_init();
 void setup()
 {
+#if 0
+	Serial.begin(115200);
+	Serial.println("wifi_int\r\n");
+	printf("wifi init\r\n");
 	wifi_init();
 	app_elog_init();
+#endif
 #if DEBUG_LOCAL
+	Serial.println("ble_int");
 	ble_init();
 	//ble_server_init(BLE_SERVER_MAX_APPS);
 
@@ -132,11 +138,14 @@ void setup()
 	}
 
 #else
+//	Serial.println("erpc_int");
 	erpc_system_init();
 #endif
 }
 
 void loop()
 {
+//	Serial.println("erpc_int\r\n");
+//	printf("hi\r\n");
 	delay(10000);
 }

@@ -8,7 +8,6 @@
  */
 
 #include "erpc_simple_server.h"
-
 using namespace erpc;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,6 +200,7 @@ erpc_status_t SimpleServer::poll(void)
 {
     if (m_isServerOn)
     {
+#if 1
         if (m_transport->hasMessage())
         {
             return runInternal();
@@ -209,7 +209,9 @@ erpc_status_t SimpleServer::poll(void)
         {
             return kErpcStatus_Success;
         }
+#endif
     }
+
     return kErpcStatus_ServerIsDown;
 }
 

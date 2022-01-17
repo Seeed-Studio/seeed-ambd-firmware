@@ -39,7 +39,8 @@ using namespace erpc;
  *                              Constants
  *============================================================================*/
 
-UartTransport g_transport(&Serial2, 614400);
+//UartTransport g_transport(&Serial2, 614400);
+UartTransport g_transport(&Serial, 115200);
 BasicCodecFactory g_basicCodecFactory;
 ArbitratedClientManager *g_client;
 TransportArbitrator g_arbitrator;
@@ -121,10 +122,17 @@ __attribute__((noreturn)) void run_erpc_server(void *arg)
 {
     (void)arg;
     log_i("start erpc server\n\r");
+	    Serial.begin(115200);
+	    erpc_status_t st;
     /* run server */
     for (;;)
     {
-        g_server.poll();
+	st = g_server.poll();
+	if(st > 0)
+	{
+	//Serial.print(st);
+	//Serial.println("");
+	}
         vTaskDelay(1);
     }
 }
