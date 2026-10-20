@@ -1449,7 +1449,12 @@ int32_t rpc_wifi_start_ssl_client(uint32_t ssl_client, const char *host, uint32_
 {
     log_d("rpc_wifi_start_ssl_client");
     wifi_sslclient_context *_ssl_client = (wifi_sslclient_context *)ssl_client;
-    int32_t ret = wifi_start_ssl_client(ssl_client, host, port, timeout, _ssl_client->rootCA, _ssl_client->cli_cert, _ssl_client->cli_key, _ssl_client->pskIdent, _ssl_client->psKey);
+    int32_t ret = wifi_start_ssl_client(_ssl_client, host, port, timeout,
+                                      (const char *)wifi_ssl_get_rootCA(_ssl_client),
+                                      (const char *)wifi_ssl_get_cliCert(_ssl_client),
+                                      (const char *)wifi_ssl_get_cliKey(_ssl_client),
+                                      (const char *)wifi_ssl_get_pskIdent(_ssl_client),
+                                      (const char *)wifi_ssl_get_psKey(_ssl_client));
     log_d("exit");
     return ret;
 }

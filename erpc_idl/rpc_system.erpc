@@ -9,6 +9,8 @@ program rpc
 interface rpc_system {
     rpc_system_version() -> string
     rpc_system_ack(uint8 c) -> uint8
+    // Appended method ID 3. Existing method IDs and wire encodings stay unchanged.
+    rpc_system_tls_provision(in uint8[64] entropy, uint32 epoch) -> int32
 }
 
 import "rpc_ble_common.erpc"

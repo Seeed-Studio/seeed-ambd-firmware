@@ -1,33 +1,10 @@
 #ifndef WIFI_SSL_H
 #define WIFI_SSL_H
-#include "mbedtls/platform.h"
-#include "mbedtls/net.h"
-#include "mbedtls/debug.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
+#include <stddef.h>
+#include <stdint.h>
 
-typedef struct wifi_sslclient_context {
-    int socket;
-    mbedtls_ssl_context ssl_ctx;
-    mbedtls_ssl_config ssl_conf;
-
-    mbedtls_ctr_drbg_context drbg_ctx;
-    mbedtls_entropy_context entropy_ctx;
-
-    mbedtls_x509_crt ca_cert;
-    mbedtls_x509_crt client_cert;
-    mbedtls_pk_context client_key;
-
-    unsigned long handshake_timeout;
-
-    char *rootCA;
-    char *cli_cert;
-    char *cli_key;
-    char *pskIdent;
-    char *psKey;
-} wifi_sslclient_context;
+/* Keep the new TLS ABI out of SDK translation units using legacy mbedTLS. */
+typedef struct wifi_sslclient_context wifi_sslclient_context;
 
 
 wifi_sslclient_context* wifi_ssl_client_create();
