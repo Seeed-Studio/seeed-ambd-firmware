@@ -2,6 +2,15 @@
 
 ## Introduction
 
+The RPC HTTPS client supports modern TLS 1.2 for Wio Terminal. See
+[build, host initialization and flashing instructions](docs/modern-tls.md).
+Firmware images and build manifests are generated locally and are not checked
+into this source tree.
+The custom firmware requires SAMD51 hardware entropy and UTC provisioning
+before HTTPS; existing Wi-Fi RPC method IDs are retained.
+See the [validation record](docs/validation.md) for native test results and the
+completed Wio Terminal certificate-verification matrix.
+
 This RTL87XX [RPC](https://github.com/EmbeddedRPC/eRPC) firmware export a RPC server interface through hardware SPI/UART port to MCU.  
 
 ## How to compile 

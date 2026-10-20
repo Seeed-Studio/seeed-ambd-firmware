@@ -1,2 +1,15 @@
 .vscode
 debug.log
+.build/
+dist/
+
+# Generated firmware and compiler output
+*.bin
+*.elf
+*.hex
+*.map
+*.o
+*.obj
+*.a
+*.d
+*.log

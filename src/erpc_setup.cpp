@@ -78,7 +78,13 @@ public:
 
 char * rpc_system_version(void)
 {
-    return "2.1.3";
+    static const char version[] = "2.1.3-coloz-tls12.1";
+    char *result = static_cast<char *>(erpc_malloc(sizeof(version)));
+    if (result != NULL)
+    {
+        memcpy(result, version, sizeof(version));
+    }
+    return result;
 }
 
 uint8_t rpc_system_ack(uint8_t c)
